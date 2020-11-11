@@ -14,10 +14,10 @@ class CatalogueDescriptor{
 		
 		this.#name = in_catalogueDescriptorJSON.guiShortName;
 		this.#tapTable = in_catalogueDescriptorJSON.tapTable;
-		this.#raTapColumn = in_catalogueDescriptorJSON.polygonRaTapColumn;
-		this.#decTapColumn = in_catalogueDescriptorJSON.polygonDecTapColumn;
-		this.#nameTapColumn = in_catalogueDescriptorJSON.polygonNameTapColumn;
-		this.#shapeColor = in_catalogueDescriptorJSON.histoColor;
+		this.#raTapColumn = in_catalogueDescriptorJSON.tapRaColumn;
+		this.#decTapColumn = in_catalogueDescriptorJSON.tapDecColumn;
+		this.#nameTapColumn = in_catalogueDescriptorJSON.uniqueIdentifierField;
+		this.#shapeColor = in_catalogueDescriptorJSON.primaryColor;
         
 	}
 	
