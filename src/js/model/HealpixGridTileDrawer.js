@@ -1,6 +1,9 @@
 "use strict";
 
 import global from '../Global';
+import { tileBufferSingleton } from './TileBuffer';
+
+const SHOW_ONLY_FULLY_LOADED_TILES = true;
 
 class HealpixGridTileDrawer {
 
@@ -92,13 +95,12 @@ class HealpixGridTileDrawer {
 	}
 
 	add(tile){
-		let tileKey = tile.order + "/" + tile.ipix;
-		this.tiles[tileKey] = tile; 
+		this.tiles[tile.key] = tile; 
 	}
 
 	remove(tile){
-		let tileKey = tile.order + "/" + tile.ipix;
-		delete this.tiles[tileKey];
+		delete this.tiles[tile.key];
+		tile.destruct();
 	}
 
 	clear(){
@@ -108,11 +110,16 @@ class HealpixGridTileDrawer {
 	draw(pMatrix, vMatrix, modelMatrix){
 		this.enableGridShader(pMatrix, vMatrix, modelMatrix);
 		Object.keys(this.tiles).forEach(tileKey => {
-			this.drawTile(this.tiles[tileKey]);
+			// this.drawTile(this.tiles[tileKey]);
 		});
 	}
 
 	drawTile(tile){
+		if(SHOW_ONLY_FULLY_LOADED_TILES){
+			let correspondingTile = tileBufferSingleton.getTile(tile.order, tile.ipix);
+			if(!correspondingTile.textureLoaded){return;}
+		}
+
 		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, tile.vertexPositionBuffer);
 		this.gl.bufferData(this.gl.ARRAY_BUFFER, tile.vertexPosition, this.gl.STATIC_DRAW);
 		this.gl.vertexAttribPointer(tile.vertexPositionAttribute, 3, this.gl.FLOAT, false, 0, 0);

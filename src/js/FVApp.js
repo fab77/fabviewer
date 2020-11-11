@@ -30,8 +30,6 @@ class FVApp{
 			
 			this.gl = canvas.getContext("webgl");
 			
-			console.log("before");
-			
 			let params = new URLSearchParams(location.search);
 			if (params.get('debug') != null){
 				console.warn("WebGL DEBUG MODE ON");

@@ -14,5 +14,10 @@ class HealpixGridTileBuffer {
 		}
 		return this.tiles[tileKey];
 	}
+
+	removeTile(order, ipix){
+		let tileKey = order + "/" + ipix;
+		delete this.tiles[tileKey];
+	}
 }
 export const healpixGridTileBufferSingleton = new HealpixGridTileBuffer();

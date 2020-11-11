@@ -62,31 +62,34 @@ class SystemPresenter{
         var now = (new Date()).getTime() * 0.001;
         this.lastDrawTime = now;
         this.model = new SystemEntity();
-        
+        this.updateFpsInteger = 0;
         
     }
     
     setModel(){
+        this.updateFpsInteger++;
+        if(this.updateFpsInteger % 50 == 0){
     	
-    	var now = (new Date()).getTime() * 0.001;
-    	
-		this.elapsedTime = now - this.lastDrawTime;
-		this.lastDrawTime = now;
-		
-		this.fps = 1 / this.elapsedTime;
+            var now = (new Date()).getTime() * 0.001;
+            
+            this.elapsedTime = now - this.lastDrawTime;
+            this.lastDrawTime = now;
+            
+            this.fps = 50 / this.elapsedTime;
 
-		// add the current fps and remove the oldest fps
-		this.totalFPS += this.fps - (this.frameTimes[this.frameCursor] || 0);
-		// record the newest fps
-		this.frameTimes[this.frameCursor++] = this.fps;
-		// needed so the first N frames, before we have maxFrames, is correct.
-		this.numFrames = Math.max(this.numFrames, this.frameCursor);
-		// wrap the cursor
-		this.frameCursor %= this.maxFrames;
-		let averageFPS = this.totalFPS / this.numFrames;
+            // add the current fps and remove the oldest fps
+            this.totalFPS += this.fps - (this.frameTimes[this.frameCursor] || 0);
+            // record the newest fps
+            this.frameTimes[this.frameCursor++] = this.fps;
+            // needed so the first N frames, before we have maxFrames, is correct.
+            this.numFrames = Math.max(this.numFrames, this.frameCursor);
+            // wrap the cursor
+            this.frameCursor %= this.maxFrames;
+            let averageFPS = this.totalFPS / this.numFrames;
 
-		this.model.setFps(this.fps);
-		this.model.setAvgFps(averageFPS);
+            this.model.setFps(this.fps);
+            this.model.setAvgFps(averageFPS);
+        }
 		
 
     }

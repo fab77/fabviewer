@@ -10,7 +10,7 @@ class Camera2{
 	
 	init(in_position){
 		this.cam_pos = vec3.clone(in_position); // initial camera position
-		this.cam_speed = 3.0;
+		this.cam_speed = 1.0;
 		
 		this.vMatrix = mat4.create(); // view matrix
 		this.T = mat4.create(); // translation matrix
@@ -88,56 +88,29 @@ class Camera2{
 //		console.log("[Camera2::init] END -----------");
 	};
 
-	zoomIn(factor){
-		
-//		console.log("[Camera2::zoomIn] factor "+factor);
-//		factor = 0.01;
-//		console.log("FACTOR "+factor);
+	zoom(inertia){
 		this.move = vec3.clone([0, 0, 0]);
-		this.move[2] -= (this.cam_speed * factor);
-		if(this.cam_pos[2] < 1.01){
-			return;
+		this.move[2] += this.cam_speed * inertia;
+
+		if(this.cam_pos[2] < 1.005){
+			this.move[2] *= this.cam_pos[2] / 100;
 		} else if(this.cam_pos[2] < 1.05){
-			this.cam_pos[2] -= 0.005;
-		} else if(this.cam_pos[2] < 1.2){
-			this.cam_pos[2] -= 0.01;
-		} else if(this.cam_pos[2] < 2){
-			this.cam_pos[2] -= 0.03;
-		} else {
-			this.cam_pos[2] += this.move[2];
+			this.move[2] *= this.cam_pos[2] / 30;
+		} else if(this.cam_pos[2] < 1.3){
+			this.move[2] *= this.cam_pos[2] / 5;
 		}
 		
-		
-		var identity = mat4.create();
-		mat4.translate(this.T, identity, this.cam_pos);
-		
-		this.refreshViewMatrix();
-		
-	};
-
-	zoomOut(factor){
-		
-//		factor = 0.01;
-
-		this.move = vec3.clone([0, 0, 0]);
-		this.move[2] += this.cam_speed * factor;
-		
-		if(this.cam_pos[2] > 2){
-			this.cam_pos[2] += this.move[2];
-		} else if(this.cam_pos[2] > 1.2){
-			this.cam_pos[2] += 0.03;
-		} else if(this.cam_pos[2] > 1.05){
-			this.cam_pos[2] += 0.01;
+		if(this.cam_pos[2] + this.move[2] <= 1.001 && inertia < 0){
+			this.cam_pos[2] = 1.001;
 		} else {
-			this.cam_pos[2] += 0.005;
+			this.cam_pos[2] += this.move[2];
 		}
 		
 		var identity = mat4.create();
 		mat4.translate(this.T, identity, this.cam_pos);
 				
 		this.refreshViewMatrix();
-		
-	};
+	}
 	
 	rotateZ(sign){
 		let factorRad = sign * 0.01;

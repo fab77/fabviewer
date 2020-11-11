@@ -62,8 +62,9 @@ class FVPresenter{
 		this.mouseDown = false;
 		this.lastMouseX = null;
 		this.lastMouseY = null;
-		this.inertiaX = 0.0
-		this.inertiaY = 0.0
+		this.inertiaX = 0.0;
+		this.inertiaY = 0.0;
+		this.zoomInertia = 0.0;
 
 		
 		this.addEventListeners();
@@ -253,12 +254,7 @@ class FVPresenter{
 					}	
 					
 				}
-				
-				
 			}
-			
-			
-			
 
 			this.lastMouseX = newX;
 			this.lastMouseY = newY;
@@ -293,10 +289,10 @@ class FVPresenter{
 			var pan = false;
 			switch (code) {
 				case 38:// arrowUp
-					this.zoomIn = true;
+					this.zoomInertia -= 0.001;
 					break;
 				case 40:// arrowDown
-					this.zoomOut = true;
+					this.zoomInertia += 0.001;
 					break;
 				case 87:// W
 					this.Xrot = -1;
@@ -330,11 +326,11 @@ class FVPresenter{
 		var handleMouseWheel = (event) => {
 			if (event.deltaY < 0) {
 				// Zoom in
-				this.mouseWheelZoomIn = true;
-			  }
-			  else {
+				this.zoomInertia -= 0.001;
+			}
+			else {
 				// Zoom out
-				this.mouseWheelZoomOut = true;
+				this.zoomInertia += 0.001;
 			  }
 		}
 		
@@ -378,29 +374,30 @@ class FVPresenter{
 	
 
 	refreshViewAndModel(pan) {
-
 		this.neareastModel = RayPickingUtils.getNearestObjectOnRay(this.view.canvas.width / 2, this.view.canvas.height / 2, this.modelRepo);
-		var fovObj = this.refreshFov(this.neareastModel.idx);
-		this.view.updateFoV(fovObj);
-		this.refreshModel(this.neareastModel.idx, fovObj.minFoV, pan);
-	};
-	
-	
-	
-	
-	
-	draw(now){
+		this.fovObj = this.refreshFov(this.neareastModel.idx);
 
+		if(this.updateFovTimer == null){
+			this.updateFovTimer = setTimeout(()=>this.updateFov(), 100);
+		}
+		this.refreshModel(this.neareastModel.idx, this.fovObj.minFoV, pan);
+	};
+
+	updateFov(){
+		this.view.updateFoV(this.fovObj);
+		this.updateFovTimer = null;
+	}
+
+	draw(){
 		this.systemPresenter.refreshModel();
-		var elapsedTime = this.systemPresenter.getElapsedTime();
 		this.aspectRatio = this.view.canvas.width / this.view.canvas.height;
 		
 		var THETA, PHI;
-		if (this.mouseDown) {
-			THETA = 0.3 * this.inertiaY;
-			PHI = 0.3 * this.inertiaX;
+		if (this.mouseDown || Math.abs(this.inertiaX) > 0.02 || Math.abs(this.inertiaY) > 0.02) {
+			THETA = 0.9 * this.inertiaY;
+			PHI = 0.9 * this.inertiaX;
 			this.inertiaX *= 0.95;
-			this.inertiaY *= 0.95;	
+			this.inertiaY *= 0.95;
 			this.camera.rotate(PHI, THETA);
 			this.refreshViewAndModel(true);
 		}else{
@@ -408,25 +405,13 @@ class FVPresenter{
 			this.inertiaX = 0;
 		}
 		
-		if(this.mouseWheelZoomIn){
-			this.mouseWheelZoomIn = false;
-			this.camera.zoomIn(elapsedTime * 0.7);
-			this.refreshViewAndModel(false);
-		} else if(this.mouseWheelZoomOut){
-			this.mouseWheelZoomOut = false;
-			this.camera.zoomOut(elapsedTime * 0.7);
+		if(Math.abs(this.zoomInertia) > 0.0001){
+			this.camera.zoom(this.zoomInertia);
+			this.zoomInertia *= 0.95;
 			this.refreshViewAndModel(false);
 		}
 
 		if(this.keyPressed){
-			if(this.zoomIn){
-				this.camera.zoomIn(elapsedTime * 0.1);
-				this.refreshViewAndModel(false);
-			}else if(this.zoomOut){
-				this.camera.zoomOut(elapsedTime * 0.1);
-				this.refreshViewAndModel(false);
-			}
-			
 			if (this.Yrot != 0){
 				this.camera.rotateY(this.Yrot);
 				this.refreshViewAndModel(true);
@@ -438,20 +423,16 @@ class FVPresenter{
 				this.refreshViewAndModel(true);
 			}
 		}
-//		global.camera = this.camera;
 		
 		this.in_gl.viewport(0, 0, this.in_gl.viewportWidth, this.in_gl.viewportHeight);
 		this.in_gl.clear(this.in_gl.COLOR_BUFFER_BIT | this.in_gl.DEPTH_BUFFER_BIT);
-//		global.gl = this.in_gl;
 		
 		// TODO move this part outside the draw loop. Not needed to reset the perspective matrix every loop cycle
 		mat4.perspective(this.pMatrix, this.fovDeg, this.aspectRatio, this.nearPlane, this.farPlane);
 
 		if (global.pMatrix == null){
-			console.log("Initializing view and model");
 			global.pMatrix = this.pMatrix;
 			this.refreshViewAndModel();
-
 		}
 		
 		for (var i = 0; i < this.modelRepo.objModels.length; i++){
@@ -459,7 +440,6 @@ class FVPresenter{
 			this.modelRepo.objModels[i].draw(this.pMatrix, this.camera.getCameraMatrix());
 			
 		}
-		
 		
 		var mMatrix = this.modelRepo.objModels[0].getModelMatrix();
 		
@@ -470,12 +450,8 @@ class FVPresenter{
 			catalogue.draw(mMatrix, this.mouseCoords);
 		}
 		
-		
-		
 //		this.xyzRefSystemObj.draw(this.pMatrix, this.camera.getCameraMatrix());
 	};
-	
-	
 }
 
 export default FVPresenter;

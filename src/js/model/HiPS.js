@@ -10,7 +10,6 @@ import AbstractSkyEntity from './AbstractSkyEntity';
 import SphericalGrid from './SphericalGrid';
 import XYZSystem from './XYZSystem';
 import global from '../Global';
-import AllSky from './AllSky';
 import RayPickingUtils from '../utils/RayPickingUtils';
 import {Vec3, Pointing} from 'healpix';
 import {tileBufferSingleton} from './TileBuffer';
@@ -29,18 +28,11 @@ class HiPS extends AbstractSkyEntity{
     this.fitsEnabled = false;
 		this.fitsReader = null;
 
-		this.updateOnFoV = true;
-
 		this.order = 3;
-		this.prevOrder = 0;
-
-		// below this value we switch from AllSky to HEALPix geometry/texture
-		this.allskyFovLimit = 32.0;
 
     this.URL = "http://skies.esac.esa.int//Herschel/normalized/hips250_pnorm_allsky/";
     this.imgFormat = "png";
 		//this.URL = "https://skies.esac.esa.int/DSSColor/";
-		// this.orders[this.order] = new AllSky(this.gl, this.shaderProgram, this.order, this.URL, this.radius);
 		this.maxOrder = 7;
 		this.visibleTiles = {};
 
@@ -55,7 +47,7 @@ class HiPS extends AbstractSkyEntity{
 		this.initShaders();
 		healpixGridTileDrawerSingleton.init();
 		tileDrawerSingleton.init();
-		this.tiles = [];
+		setInterval(()=> {this.updateVisibleTiles();}, 100);
 	}
 
 	initShaders () {
@@ -130,130 +122,134 @@ class HiPS extends AbstractSkyEntity{
 	}
 
 	refreshModel (in_fov, in_pan){
-		if (in_pan && in_fov < this.allskyFovLimit){
-			// this.orders[this.order].updateVisiblePixels(this);
-			// this.orders[this.order].initBuffer();
-			// this.orders[this.order].initTexture();
+		if ( in_fov >= 175){
+			this.order = 0;
+		}else if ( in_fov >= 150){
+			this.order = 1;
+		}else if ( in_fov >= 25){
+			this.order = 2;
+		}else if ( in_fov >= 15){
+			this.order = 3;
+		}else if (in_fov >= 8){
+			this.order = 4;
+		}else if (in_fov >= 4){
+			this.order = 5;
+		}else if (in_fov >= 1.7){
+			this.order = 6;
+		}else if (in_fov >= 0.9){
+			this.order = 7;
+		}else if (in_fov >= 0.5){
+			this.order = 8;
+		}else if (in_fov >= 0.3){
+			this.order = 9;
+		}else if (in_fov >= 0.15){
+			this.order = 10;
+		}else if (in_fov >= 0.10){
+			this.order = 11;
 		}else{
-			if ( in_fov >= this.allskyFovLimit){
-				this.order = 3;
-			}else if ( in_fov >= 32){
-				this.order = 3;
-			}else if (in_fov >= 16){
-				this.order = 4;
-			}else if (in_fov >= 8){
-				this.order = 5;
-			}else if (in_fov >= 4){
-				this.order = 6;
-			}else if (in_fov >= 2){
-				this.order = 7;
-			}else if (in_fov >= 1){
-				this.order = 8;
-			}else if (in_fov >= 0.5){
-				this.order = 9;
-			}else if (in_fov >= 0.25){
-				this.order = 10;
-			}else if (in_fov >= 0.125){
-				this.order = 11;
-			}else{
-				this.order = 12;
-			}
-			this.order = Math.min(this.order, this.maxOrder);
-			global.order = this.order;
-			var needsRefresh = (this.order != this.prevOrder) ||
-					(in_fov < this.allskyFovLimit && this.prevFoV >= this.allskyFovLimit) ||
-					(in_fov > this.allskyFovLimit && this.prevFoV <= this.allskyFovLimit);
-
-			if ( needsRefresh ){
-				console.log("[HiPS::refreshModel] needsRefresh "+needsRefresh);
-
-				this.prevOrder = this.order;
-
-				// TODO refresh geometry
-				console.log("order = "+ this.order);
-			}
+			this.order = 12;
 		}
-		this.prevFoV = in_fov;
-		this.updateVisiblePixels();
+		this.order = Math.min(this.order, this.maxOrder);
+		
+		if ( global.order != this.order && DEBUG){
+			console.log("Changed order = "+ this.order);
+		}
+		global.order = this.order;
+
+		this.changedModel = true;
 	}
 
-	updateVisiblePixels (){
-		this.previouslyVisibleTiles = this.visibleTiles;
-		let previouslyVisibleKeys = Object.keys(this.previouslyVisibleTiles);
+	updateVisibleTiles (){
+		if(!this.changedModel){return;}
+		this.changedModel = false;
+		let previouslyVisibleKeys = Object.keys(this.visibleTiles);
 		let tilesRemoved = this.visibleTiles;
 		let tilesAdded = {};
 
 		this.visibleTiles = {};
-		this.tiles = [];
+		let tilesToAddInOrder = this.pollCenter(previouslyVisibleKeys, tilesRemoved, tilesAdded);
 
-		var maxX = this.gl.canvas.width;
-		var maxY = this.gl.canvas.height;
-
-		var xy = [];
-		var neighbours = [];
-		var intersectionWithModel = {
-				"intersectionPoint": null,
-				"pickedObject": null
-			};
-		var intersectionPoint = null;
-		var currP, currPixNo;
-
-		// TODO probably it would be better to use query_disc_inclusive from HEALPix
-		// against a polygon. Check my FHIPSWebGL2 project (BufferManager.js -> updateVisiblePixels)
-		var i = 0;
-		for (i =0; i <= maxX; i+=maxX/20){
-			var j = 0;
-			for (j =0; j <= maxY; j+=maxY/20){
-				intersectionWithModel = {
-						"intersectionPoint": null,
-						"pickedObject": null
-					};
-
-				xy = [i,j];
-				
-				intersectionWithModel = RayPickingUtils.getIntersectionPointWithSingleModel(xy[0], xy[1], this);
-				intersectionPoint = intersectionWithModel.intersectionPoint;
-
-				if (intersectionPoint.length > 0){
-					currP = new Pointing(new Vec3(intersectionPoint[0], intersectionPoint[1], intersectionPoint[2]));
-
-					currPixNo = global.getHealpix(this.order).ang2pix(currP);
-					if (currPixNo >= 0){
-						let tile = tileBufferSingleton.getTile(this.order, currPixNo);
-						this.tiles.push(tile);
-						this.visibleTiles[this.order + "/" + currPixNo] = tile;
-						if(previouslyVisibleKeys.includes(this.order + "/" + currPixNo)){
-							delete tilesRemoved[this.order + "/" + currPixNo];
-						} else {
-							tilesAdded[this.order + "/" + currPixNo] = tile;
-						}
-						neighbours = global.getHealpix(this.order).neighbours(currPixNo);
-						for (let k = 0; k < neighbours.length; k++){
-							if(neighbours[k] >= 0 && this.visibleTiles[neighbours[k]] == undefined){
-								let tile = tileBufferSingleton.getTile(this.order, neighbours[k]);
-								this.tiles.push(tile);
-								this.visibleTiles[this.order + "/" + neighbours[k]] = tile; 
-
-								if(previouslyVisibleKeys.includes(this.order + "/" + neighbours[k])){
-									delete tilesRemoved[this.order + "/" + neighbours[k]];
-								} else {
-									tilesAdded[this.order + "/" + neighbours[k]] = tile;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+		this.pollViewAndAddTiles(7, previouslyVisibleKeys, tilesRemoved, tilesAdded, tilesToAddInOrder);
+		
+		Object.keys(this.visibleTiles).forEach(key =>{
+			this.addNeighbours(this.visibleTiles[key].ipix, previouslyVisibleKeys, tilesRemoved, tilesAdded, tilesToAddInOrder);
+		});
 
 		Object.keys(tilesRemoved).forEach(key => {
 			tilesRemoved[key].removeFromView();
 		});
-		Object.keys(tilesAdded).forEach(key => {
-			tilesAdded[key].addToView();
+		tilesToAddInOrder.forEach(tile => {
+			tile.addToView();
 		});
 	}
 
+	pollViewAndAddTiles(xyPollingPoints, previouslyVisibleKeys, tilesRemoved, tilesAdded, tilesToAddInOrder) {
+		let maxX = this.gl.canvas.width;
+		let maxY = this.gl.canvas.height;
+
+		for (let i = 0; i <= maxX; i += maxX / xyPollingPoints) {
+			for (let j = 0; j <= maxY; j += maxY / xyPollingPoints) {
+				this.pollPoint(i, j, previouslyVisibleKeys, tilesRemoved, tilesAdded, tilesToAddInOrder);
+			}
+		}
+	}
+
+	pollCenter(previouslyVisibleKeys, tilesRemoved, tilesAdded) {
+		let tilesToAddInOrder = [];
+		let maxX = this.gl.canvas.width;
+		let maxY = this.gl.canvas.height;
+		let xyPollingPoints = 3;
+		this.pollPoint(maxX / 2, maxY / 2, previouslyVisibleKeys, tilesRemoved, tilesAdded, tilesToAddInOrder);
+		for (let i = maxX / xyPollingPoints; i <= maxX * 2 / xyPollingPoints; i += maxX / xyPollingPoints) {
+			for (let j = maxY / xyPollingPoints; j <= maxY * 2 / xyPollingPoints; j += maxY / xyPollingPoints) {
+				this.pollPoint(i, j, previouslyVisibleKeys, tilesRemoved, tilesAdded, tilesToAddInOrder);
+			}
+		}
+		return tilesToAddInOrder;
+	}
+
+	pollPoint(x, y, previouslyVisibleKeys, tilesRemoved, tilesAdded, tilesToAddInOrder) {
+		let intersectionWithModel = RayPickingUtils.getIntersectionPointWithSingleModel(x, y, this);
+		let intersectionPoint = intersectionWithModel.intersectionPoint;
+		// TODO probably it would be better to use query_disc_inclusive from HEALPix
+		// against a polygon. Check my FHIPSWebGL2 project (BufferManager.js -> updateVisiblePixels)
+		if (intersectionPoint.length > 0) {
+			let currP = new Pointing(new Vec3(intersectionPoint[0], intersectionPoint[1], intersectionPoint[2]));
+			let currPixNo = global.getHealpix(this.order).ang2pix(currP);
+			if (currPixNo >= 0) {
+				let tile = tileBufferSingleton.getTile(this.order, currPixNo);
+				this.visibleTiles[this.order + "/" + currPixNo] = tile;
+				if (previouslyVisibleKeys.includes(this.order + "/" + currPixNo)) {
+					delete tilesRemoved[this.order + "/" + currPixNo];
+				} else {
+					if (tilesAdded[this.order + "/" + currPixNo] !== tile) {
+						tilesToAddInOrder.push(tile);
+					}
+					tilesAdded[this.order + "/" + currPixNo] = tile;
+				}
+			}
+		}
+	}
+
+	addNeighbours(currPixNo, previouslyVisibleKeys, tilesRemoved, tilesAdded, tilesToAddInOrder) {
+		let neighbours = global.getHealpix(this.order).neighbours(currPixNo);
+		for (let k = 0; k < neighbours.length; k++) {
+			if (neighbours[k] >= 0 && this.visibleTiles[neighbours[k]] == undefined) {
+				let tile = tileBufferSingleton.getTile(this.order, neighbours[k]);
+				this.visibleTiles[this.order + "/" + neighbours[k]] = tile;
+
+				if (previouslyVisibleKeys.includes(this.order + "/" + neighbours[k])) {
+					delete tilesRemoved[this.order + "/" + neighbours[k]];
+				} else {
+					if(tilesAdded[this.order + "/" + neighbours[k]] !== tile){
+						tilesToAddInOrder.push(tile);
+					}
+					tilesAdded[this.order + "/" + neighbours[k]] = tile;
+				}
+			}
+		}
+		return neighbours;
+	}
 
 	enableShader(pMatrix, vMatrix){
 		this.gl.useProgram(this.shaderProgram);
