@@ -5,21 +5,34 @@
 
 import Camera2 from './model/Camera2';
 import RayPickingUtils from './utils/RayPickingUtils';
+
+
 import SystemView from './view/SystemView';
 import SystemPresenter from './presenter/SystemPresenter';
+
 import CatalogueListView from './view/CatalogueListView';
 import CatalogueListPresenter from './presenter/CatalogueListPresenter';
+
+import HiPSListView from './view/HiPSListView';
+import HiPSListPresenter from './presenter/HiPSListPresenter';
+
 import FITSView from './view/FITSView';
 import FITSPresenter from './presenter/FITSPresenter';
+
 import SourceSelectionView from './view/SourceSelectionView';
 import SourceSelectionPresenter from './presenter/SourceSelectionPresenter';
+
 import CatalogueRepo from './repos/CatalogueRepo';
 import ModelRepo from './repos/ModelRepo';
+import HiPSRepo from './repos/HiPSRepo';
+
 import {mat4, vec3} from 'gl-matrix';
 import {cartesianToSpherical, sphericalToAstroDeg, raDegToHMS, decDegToDMS} from './utils/Utils';
 import FoVUtils from './utils/FoVUtils';
 import global from './Global';
 import {Vec3, Pointing} from 'healpix';
+
+
 
 class FVPresenter{
 	constructor(in_view, in_gl){
@@ -50,6 +63,8 @@ class FVPresenter{
 		this.catalogueRepo = new CatalogueRepo("https://sky.esa.int/esasky-tap/catalogs", this.catalogueListPresenter.addCatalogues);
 		
 		this.modelRepo = new ModelRepo(this.in_gl, this.view.canvas, this.catalogueListPresenter.addCatalogues); 
+		
+		this.hipsRepo = new HiPSRepo("https://sky.esa.int/esasky-tap/hips-sources", this.hipsListPresenter.addHiPS);
 		
 		this.aspectRatio;
 		this.fovDeg = 45;
@@ -106,6 +121,11 @@ class FVPresenter{
 	};
 	
 	initPresenter(){
+		
+		var hipsListView = new HiPSListView();
+		this.hipsListPresenter = new HiPSListPresenter(hipsListView);
+		this.view.appendChild(hipsListView.getHtml());
+		
 		var systemView = new SystemView();
 		this.systemPresenter = new SystemPresenter(systemView);
 		this.view.appendChild(systemView.getHtml());
