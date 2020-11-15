@@ -33,7 +33,6 @@ import global from './Global';
 import {Vec3, Pointing} from 'healpix';
 
 
-
 class FVPresenter{
 	constructor(in_view, in_gl){
 		this.in_gl = in_gl;

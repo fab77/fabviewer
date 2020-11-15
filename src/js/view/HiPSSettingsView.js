@@ -20,6 +20,9 @@ class HiPSSettingsView{
     
             getHtml: ()=>{
                 return this.html;
+            },
+            getHiPSFormat: ()=> {
+            	return $("#format");
             }
 
         }
@@ -47,13 +50,15 @@ class HiPSSettingsView{
     }
     
     initFormats(){
-    	let html = "<select name='format' onmousedown='event.stopPropagation()'>";
+    	let html = "<select name='format' id='format' onmousedown='event.stopPropagation()'>";
     	for (var i = 0; i < this._formats.length; i++){
     		html += "<option value='"+this._formats[i]+"'>"+this._formats[i]+"</option>";
     	}
     	html += "</select>";
     	return html;
     }
+    
+    
     
     appendFITSSettings(){
     	// TODO here we should put the min and max value, scale function and all features exposed by FITSOnTheWeb

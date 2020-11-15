@@ -3,6 +3,9 @@
  * @author Fabrizio Giordano (Fab77)
  */
 import HiPSSettingsView from '../view/HiPSSettingsView';
+import eventBus from '../events/EventBus';
+import HiPSFormatSelectedEvent from '../events/HiPSFormatSelectedEvent';
+
 
 
 class HiPSPresenter{
@@ -34,11 +37,24 @@ class HiPSPresenter{
 			console.log("clicked on HiPS settings button");
 			let hipsSettingsView = new HiPSSettingsView(_self._model, _self._formats);
 			_self._view.appendSettingsPopup(hipsSettingsView.getHtml());
-			
+			_self.fireEvents(hipsSettingsView);	
 		});
+
 		
-//		this._model = null;
-		
+	}
+	
+	fireEvents(in_view){
+		console.log(in_view.getHiPSFormat());
+		in_view.getHiPSFormat().change(function () {
+		    var format = "";
+		    $( "select option:selected" ).each(function() {
+		    	format += $( this ).text() + " ";
+		    });
+		    let hipsFormatChangeEvent = new HiPSFormatSelectedEvent(format);
+		    console.log(format);
+		    eventBus.fireEvent(hipsFormatChangeEvent);
+		}).change();
+
 	}
 	
 	get view(){

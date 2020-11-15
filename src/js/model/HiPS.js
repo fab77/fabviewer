@@ -15,9 +15,16 @@ import {Vec3, Pointing} from 'healpix';
 import {tileBufferSingleton} from './TileBuffer';
 import {healpixGridTileDrawerSingleton} from './HealpixGridTileDrawer';
 import {tileDrawerSingleton} from './TileDrawer';
+import HiPSFormatSelectedEvent from '../events/HiPSFormatSelectedEvent';
+import eventBus from '../events/EventBus';
+
+
+
 
 class HiPS extends AbstractSkyEntity{
 
+	static className = "HiPSEntity";
+	
 	constructor(in_radius, in_gl, in_canvas, in_position, in_xRad, in_yRad, in_name, in_fovUtils){
 
 		super(in_radius, in_gl, in_canvas, in_position, in_xRad, in_yRad, in_name, in_fovUtils);
@@ -25,13 +32,13 @@ class HiPS extends AbstractSkyEntity{
 		this.radius = in_radius;
 		this.gl = in_gl;
 		this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA  );
-    this.fitsEnabled = false;
+		this.fitsEnabled = false;
 		this.fitsReader = null;
 
 		this.order = 3;
 
-    this.URL = "http://skies.esac.esa.int//Herschel/normalized/hips250_pnorm_allsky/";
-    this.imgFormat = "png";
+	    this.URL = "http://skies.esac.esa.int//Herschel/normalized/hips250_pnorm_allsky/";
+	    this.imgFormat = "png";
 		//this.URL = "https://skies.esac.esa.int/DSSColor/";
 		this.maxOrder = 7;
 		this.visibleTiles = {};
@@ -48,6 +55,19 @@ class HiPS extends AbstractSkyEntity{
 		healpixGridTileDrawerSingleton.init();
 		tileDrawerSingleton.init();
 		setInterval(()=> {this.updateVisibleTiles();}, 100);
+		
+		this.registerForEvents();
+	}
+	
+	registerForEvents(){
+		eventBus.registerForEvent(this, HiPSFormatSelectedEvent.name);
+		eventBus.printEventBusStatus();
+	}
+	
+	notify(in_event){
+		if (in_event instanceof HiPSFormatSelectedEvent){
+			console.log(JSON.stringify(in_event));
+		}
 	}
 
 	initShaders () {
