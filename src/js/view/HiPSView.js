@@ -12,7 +12,7 @@ class HiPSView{
             getHtml: ()=>{
                 return this.html;
             },
-            setModel: (model, formats)=>{
+            setModel: (model)=>{
             	
 //            	console.log(model);
 //            	console.log(formats);

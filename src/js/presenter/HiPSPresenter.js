@@ -14,7 +14,7 @@ class HiPSPresenter{
 	 */
 	constructor(in_view, in_model){
 		this._view = in_view;
-		this.formats = [];
+		this._formats = [];
 		var _self = this;
 		this._model = in_model;
 		this.retrieveHiPSProperties();
@@ -32,7 +32,7 @@ class HiPSPresenter{
 		
 		this._view.addHiPSSettingsHandler(function(){
 			console.log("clicked on HiPS settings button");
-			let hipsSettingsView = new HiPSSettingsView(_self._model);
+			let hipsSettingsView = new HiPSSettingsView(_self._model, _self._formats);
 			_self._view.appendSettingsPopup(hipsSettingsView.getHtml());
 			
 		});
@@ -70,7 +70,8 @@ class HiPSPresenter{
 					if (lines[i].includes("hips_tile_format")){
 //						console.log(lines[i]);
 						let formats = lines[i].split("=")[1].trim().split(" ");
-						_self._view.setModel(_self._model, formats);
+						_self._formats = formats;
+						_self._view.setModel(_self._model);
 					}
 				}
 
