@@ -45,15 +45,6 @@ class HiPSPresenter{
         return this._view;
     }
 	
-	
-//	/**
-//	 * @param in_model: HiPSDescriptor
-//	 */
-//    set model(in_model){	// of type 
-//        this._model = in_model;
-//        this.retrieveHiPSProperties();
-////        this._view.setModel(this._model, this.formats);
-//    }
 
     retrieveHiPSProperties(){
 

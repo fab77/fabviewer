@@ -47,10 +47,9 @@ class HiPSSettingsView{
     }
     
     initFormats(){
-    	let html = "<select name='format'>";
+    	let html = "<select name='format' onmousedown='event.stopPropagation()'>";
     	for (var i = 0; i < this._formats.length; i++){
     		html += "<option value='"+this._formats[i]+"'>"+this._formats[i]+"</option>";
-    		html += "<option value='"+this._formats[i]+"-b'>"+this._formats[i]+"-b</option>";
     	}
     	html += "</select>";
     	return html;
