@@ -19,6 +19,7 @@ class Tile {
 		this.textureLoaded = false;
 		this._isInView = false;
 		this.numberOfVisibleChildrenReadyToDraw = 0;
+		this.vertexPositionIndex = 0;
 
 		this.initBuffer();
 		this.initImage();
@@ -31,55 +32,17 @@ class Tile {
 	}
 
 	initBuffer () {
-		this.vertexPosition = new Float32Array(12);
-		let facesVec3Array = global.getHealpix(this.order).getBoundaries(this.ipix);
-		if (this.radius != 1){
-			// HiPS radius different from Healpix default radius 1.
-			// Mapping HEALPix coordinates to the new sphere and radius
-			let theta0, theta1, theta2, theta3;
-			let phi0, phi1, phi2, phi3;
-			theta0 = Math.acos(facesVec3Array[0].z);
-			theta1 = Math.acos(facesVec3Array[1].z);
-			theta2 = Math.acos(facesVec3Array[2].z);
-			theta3 = Math.acos(facesVec3Array[3].z);
+		this.vertexPosition = new Float32Array(25 * 3);
+		
+		global.getHealpix(this.order).get25Points(this.ipix).forEach(position => {
+			this.addVertexPosition(position);
+		});
+	}
 
-			phi0 = Math.atan2(facesVec3Array[0].y, facesVec3Array[0].x);
-			phi1 = Math.atan2(facesVec3Array[1].y, facesVec3Array[1].x);
-			phi2 = Math.atan2(facesVec3Array[2].y, facesVec3Array[2].x);
-			phi3 = Math.atan2(facesVec3Array[3].y, facesVec3Array[3].x);
-
-			this.vertexPosition[0] = -this.radius * Math.sin(theta0) * Math.cos(phi0);
-			this.vertexPosition[1] = this.radius * Math.sin(theta0) * Math.sin(phi0);
-			this.vertexPosition[2] = this.radius * Math.cos(theta0);
-
-			this.vertexPosition[3] = -this.radius * Math.sin(theta1) * Math.cos(phi1);
-			this.vertexPosition[4] = this.radius * Math.sin(theta1) * Math.sin(phi1);
-			this.vertexPosition[5] = this.radius * Math.cos(theta1);
-
-			this.vertexPosition[6] = -this.radius * Math.sin(theta2) * Math.cos(phi2);
-			this.vertexPosition[7] = this.radius * Math.sin(theta2) * Math.sin(phi2);
-			this.vertexPosition[8] = this.radius * Math.cos(theta2);
-
-			this.vertexPosition[9] = -this.radius * Math.sin(theta3) * Math.cos(phi3);
-			this.vertexPosition[10] = this.radius * Math.sin(theta3) * Math.sin(phi3);
-			this.vertexPosition[11] = this.radius * Math.cos(theta3);
-		} else{
-			this.vertexPosition[0] = facesVec3Array[0].x ;
-			this.vertexPosition[1] = facesVec3Array[0].y ;
-			this.vertexPosition[2] = facesVec3Array[0].z;
-
-			this.vertexPosition[3] = facesVec3Array[1].x;
-			this.vertexPosition[4] = facesVec3Array[1].y;
-			this.vertexPosition[5] = facesVec3Array[1].z;
-
-			this.vertexPosition[6] = facesVec3Array[2].x;
-			this.vertexPosition[7] = facesVec3Array[2].y;
-			this.vertexPosition[8] = facesVec3Array[2].z;
-
-			this.vertexPosition[9] = facesVec3Array[3].x;
-			this.vertexPosition[10] = facesVec3Array[3].y;
-			this.vertexPosition[11] = facesVec3Array[3].z;
-		}
+	addVertexPosition(position) {
+		this.vertexPosition[this.vertexPositionIndex++] = position.x;
+		this.vertexPosition[this.vertexPositionIndex++] = position.y;
+		this.vertexPosition[this.vertexPositionIndex++] = position.z;
 	}
 
 	initImage () {
