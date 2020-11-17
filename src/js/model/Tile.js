@@ -118,6 +118,9 @@ class Tile {
 	}
 
 	removeFromDrawAsChildrenAreReady(){
+		if(this.order == 0){
+			return;
+		}
 		tileDrawerSingleton.remove(this);
 		let parent = this.getParent();
 		if(parent){
@@ -171,7 +174,7 @@ class Tile {
 			}
 		});
 
-		if((numberOfVisibleChildren == 0)){
+		if((numberOfVisibleChildren == 0 && this.order != 0)){
 			this.removeFromView();
 		} else if(numberOfChildrenInViewWithLoadedTextures == numberOfVisibleChildren
 				&& global.order > this.order) {
