@@ -35,7 +35,7 @@ class HiPS extends AbstractSkyEntity{
 		this.fitsEnabled = false;
 		this.fitsReader = null;
 
-		this.order = 3;
+		this.order = 0;
 
 	    this.URL = "http://skies.esac.esa.int//Herschel/normalized/hips250_pnorm_allsky/";
 	    this.imgFormat = "png";
@@ -57,6 +57,10 @@ class HiPS extends AbstractSkyEntity{
 		setInterval(()=> {this.updateVisibleTiles();}, 100);
 		
 		this.registerForEvents();
+
+		for(let i = 0; i < 12; i++){
+			tileBufferSingleton.getTile(0, i).addToView();
+		}
 	}
 	
 	registerForEvents(){
@@ -180,7 +184,7 @@ class HiPS extends AbstractSkyEntity{
 	}
 
 	updateVisibleTiles (){
-		if(!this.changedModel){return;}
+		if(!this.changedModel || this.order == 0){return;}
 		this.changedModel = false;
 		let previouslyVisibleKeys = Object.keys(this.visibleTiles);
 		let tilesRemoved = this.visibleTiles;
