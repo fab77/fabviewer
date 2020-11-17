@@ -110,7 +110,7 @@ class HealpixGridTileDrawer {
 	draw(pMatrix, vMatrix, modelMatrix){
 		this.enableGridShader(pMatrix, vMatrix, modelMatrix);
 		Object.keys(this.tiles).forEach(tileKey => {
-			// this.drawTile(this.tiles[tileKey]);
+			this.drawTile(this.tiles[tileKey]);
 		});
 	}
 
@@ -121,11 +121,10 @@ class HealpixGridTileDrawer {
 		}
 
 		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, tile.vertexPositionBuffer);
-		this.gl.bufferData(this.gl.ARRAY_BUFFER, tile.vertexPosition, this.gl.STATIC_DRAW);
 		this.gl.vertexAttribPointer(tile.vertexPositionAttribute, 3, this.gl.FLOAT, false, 0, 0);
 		this.gl.enableVertexAttribArray(tile.vertexPositionAttribute);
 		
-		this.gl.drawArrays(this.gl.LINE_LOOP, 0, 4);
+		this.gl.drawArrays(this.gl.LINE_LOOP, 0, tile.vertexPosition.length / 3);
 	}
 }
 export const healpixGridTileDrawerSingleton = new HealpixGridTileDrawer();
