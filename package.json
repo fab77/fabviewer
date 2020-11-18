@@ -40,6 +40,7 @@
   },
   "dependencies": {
     "gl-matrix": "^3.3.0",
-    "healpix": "file:../../healpixjs"
+    "healpix": "file:../../healpixjs",
+    "fitsontheweb": "file:../../FITSOnTheWeb"
   }
 }

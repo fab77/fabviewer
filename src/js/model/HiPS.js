@@ -32,13 +32,16 @@ class HiPS extends AbstractSkyEntity{
 		this.radius = in_radius;
 		this.gl = in_gl;
 		this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA  );
-		this.fitsEnabled = false;
-		this.fitsReader = null;
-
+//		this.fitsEnabled = false;
+//		this.fitsReader = null;
+		
+		this.format = "fits";
+		this.previousFormat = this.format; 
+		
 		this.order = 3;
-
-	    this.URL = "http://skies.esac.esa.int//Herschel/normalized/hips250_pnorm_allsky/";
-	    this.imgFormat = "png";
+//		http://skies.esac.esa.int/pla/HFI_SkyMap_857_2048_R3_00_full_HiPS/
+//	    this.URL = "http://skies.esac.esa.int//Herschel/normalized/hips250_pnorm_allsky/";
+//	    this.imgFormat = "png";
 		//this.URL = "https://skies.esac.esa.int/DSSColor/";
 		this.maxOrder = 7;
 		this.visibleTiles = {};
@@ -67,6 +70,12 @@ class HiPS extends AbstractSkyEntity{
 	notify(in_event){
 		if (in_event instanceof HiPSFormatSelectedEvent){
 			console.log(JSON.stringify(in_event));
+			console.log("new format: "+in_event.format);
+			console.log("prev format: "+this.previousFormat);
+			// TODO to be improved. Instead using this.fitsEnabled, it would be better using 
+			// something like this.currentFormat
+			this.format = in_event.format.trim();
+			
 		}
 	}
 
@@ -237,7 +246,7 @@ class HiPS extends AbstractSkyEntity{
 			let currP = new Pointing(new Vec3(intersectionPoint[0], intersectionPoint[1], intersectionPoint[2]));
 			let currPixNo = global.getHealpix(this.order).ang2pix(currP);
 			if (currPixNo >= 0) {
-				let tile = tileBufferSingleton.getTile(this.order, currPixNo);
+				let tile = tileBufferSingleton.getTile(this.order, currPixNo, this.format);
 				this.visibleTiles[this.order + "/" + currPixNo] = tile;
 				if (previouslyVisibleKeys.includes(this.order + "/" + currPixNo)) {
 					delete tilesRemoved[this.order + "/" + currPixNo];
@@ -255,7 +264,7 @@ class HiPS extends AbstractSkyEntity{
 		let neighbours = global.getHealpix(this.order).neighbours(currPixNo);
 		for (let k = 0; k < neighbours.length; k++) {
 			if (neighbours[k] >= 0 && this.visibleTiles[neighbours[k]] == undefined) {
-				let tile = tileBufferSingleton.getTile(this.order, neighbours[k]);
+				let tile = tileBufferSingleton.getTile(this.order, neighbours[k], this.format);
 				this.visibleTiles[this.order + "/" + neighbours[k]] = tile;
 
 				if (previouslyVisibleKeys.includes(this.order + "/" + neighbours[k])) {
@@ -296,6 +305,17 @@ class HiPS extends AbstractSkyEntity{
 
 
 	draw(pMatrix, vMatrix){
+		
+		if (this.previousFormat !== this.format){
+			
+			Object.keys(this.visibleTiles).forEach(tileKey => {
+				let tile = tileBufferSingleton.getTileByKey(tileKey, this.format);
+				tile.removeFromView();
+			});
+			this.previousFormat = this.format;
+			
+		}
+		
 		this.gl.enable(this.gl.BLEND);
 		tileDrawerSingleton.draw(pMatrix, vMatrix, this.modelMatrix);
 		this.gl.disable(this.gl.BLEND);

@@ -5,21 +5,25 @@ import {tileBufferSingleton} from './TileBuffer';
 import {healpixGridTileBufferSingleton} from './HealpixGridTileBuffer';
 import {healpixGridTileDrawerSingleton} from './HealpixGridTileDrawer';
 import {tileDrawerSingleton} from './TileDrawer';
+import FITSOnTheWeb from 'fitsontheweb';
 
 class Tile {
 
-	constructor(order, ipix, radius) {
+	constructor(order, ipix, format) {
 		this.gl = global.gl;
 		this.order = order;
 		this.ipix = ipix;
-		this.key = order + "/" + ipix;
-		this.radius = radius != undefined ? radius : 1;
-
+		this.key = order + "/" + ipix + "/" + format;
+//		this.radius = radius != undefined ? radius : 1;
+		this.radius = 1;
+		
 		this.imageLoaded = false;
 		this.textureLoaded = false;
 		this._isInView = false;
 		this.numberOfVisibleChildrenReadyToDraw = 0;
 
+		this.format = format != undefined ? format : "png";
+		
 		this.initBuffer();
 		this.initImage();
 
@@ -28,6 +32,8 @@ class Tile {
 				this.numberOfVisibleChildrenReadyToDraw++;
 			}
 		});
+		
+
 	}
 
 	initBuffer () {
@@ -88,10 +94,15 @@ class Tile {
 
 		this.addOnLoad();
 		
-		let fileFormat = this.fitsEnabled ? ".fits" : ".jpg"
+//		let fileFormat = this.fitsEnabled ? ".fits" : ".jpg"
 		//TODO remove cross origin attribute for maps on the same domain as it slightly degrades loading time
 		this.image.setAttribute('crossorigin', 'anonymous');
-		this.imageUrl = "https://skies.esac.esa.int/DSSColor/Norder"+this.order+"/Dir"+dirNumber+"/Npix"+this.ipix+fileFormat;
+		
+		
+		
+		
+//		this.imageUrl = "https://skies.esac.esa.int/DSSColor/Norder"+this.order+"/Dir"+dirNumber+"/Npix"+this.ipix+"."+this.format;
+		this.imageUrl = "http://skies.esac.esa.int//Herschel/normalized/hips250_pnorm_allsky/Norder"+this.order+"/Dir"+dirNumber+"/Npix"+this.ipix+"."+this.format;
 	}
 	
 	addOnLoad(){
@@ -106,11 +117,14 @@ class Tile {
 	}
 
 	startLoadingImage(){
-		if(this.fitsEnabled){
-			new FabFitsReader(this.imageUrl, "grayscale", "linear", 0.0966, 2.461, function (img){
-				this.image = img;
-				this.imageLoaded = true;
-				this.handleLoadedTexture(0);
+		
+		var _self = this;
+		
+		if(this.format == 'fits'){
+			new FITSOnTheWeb(this.imageUrl, "grayscale", "linear", 0.0966, 2.461, function (currimg){
+				_self.image = currimg;
+				_self.imageLoaded = true;
+//				_self.handleLoadedTexture(0);
 			});
 		} else {
 			this.image.src = this.imageUrl;

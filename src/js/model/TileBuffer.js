@@ -7,21 +7,31 @@ class TileBuffer {
 	constructor() {
 		this.tiles = {};
 	}
-	getTile(order, ipix){
-		let tileKey = order + "/" + ipix;
+	getTile(order, ipix, format){
+		let tileKey = order + "/" + ipix + "/" + format;
 		if(this.tiles[tileKey] == undefined){
-			this.tiles[tileKey] = new Tile(order, ipix);
+			this.tiles[tileKey] = new Tile(order, ipix, format);
 		}
 		return this.tiles[tileKey];
 	}
 
-	getIfAlreadyExist(order, ipix){
-		let tileKey = order + "/" + ipix;
+	getTileByKey(key, format){
+		
+		let orderIpix = key.split("/");
+		
+		if(this.tiles[key] == undefined){
+			this.tiles[key] = new Tile(orderIpix[0], orderIpix[1], format);
+		}
+		return this.tiles[key];
+	}
+	
+	getIfAlreadyExist(order, ipix, format){
+		let tileKey = order + "/" + ipix + "/" + format;
 		return this.tiles[tileKey];
 	}
 
-	removeTile(order, ipix){
-		let tileKey = order + "/" + ipix;
+	removeTile(order, ipix, format){
+		let tileKey = order + "/" + ipix + "/" + format;
 		delete this.tiles[tileKey];
 	}
 }
