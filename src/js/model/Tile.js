@@ -55,7 +55,11 @@ class Tile {
 		this.image = new Image();
 		var dirNumber = Math.floor(this.ipix / 10000) * 10000;
 
-		this.addOnLoad();
+		if(this.format !== 'fits'){
+			this.image.onload = ()=> {
+				this.onLoad();
+			}
+		}
 		
 //		let fileFormat = this.fitsEnabled ? ".fits" : ".jpg"
 		//TODO remove cross origin attribute for maps on the same domain as it slightly degrades loading time
@@ -68,26 +72,22 @@ class Tile {
 		this.imageUrl = "http://skies.esac.esa.int//Herschel/normalized/hips250_pnorm_allsky/Norder"+this.order+"/Dir"+dirNumber+"/Npix"+this.ipix+"."+this.format;
 	}
 	
-	addOnLoad(){
-		this.image.onload = ()=> {
-			this.imageLoaded = true;
-			tileDrawerSingleton.tileLoaded(this);	
-			let parent = this.getParent();
-			if(parent){
-				parent.childReady();
-			}
-		};
+	onLoad(){
+		this.imageLoaded = true;
+		tileDrawerSingleton.tileLoaded(this);	
+		let parent = this.getParent();
+		if(parent){
+			parent.childReady();
+		}
 	}
 
 	startLoadingImage(){
-		
-		var _self = this;
-		
 		if(this.format == 'fits'){
-			new FITSOnTheWeb(this.imageUrl, "grayscale", "linear", 0.0966, 2.461, function (currimg){
-				_self.image = currimg;
-				_self.imageLoaded = true;
-//				_self.handleLoadedTexture(0);
+			new FITSOnTheWeb(this.imageUrl, "grayscale", "linear", 0.0966, 2.461, currimg => {
+				this.image = currimg;
+				this.image.onload = () => {
+					this.onLoad();
+				}
 			});
 		} else {
 			this.image.src = this.imageUrl;

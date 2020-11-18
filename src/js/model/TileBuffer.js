@@ -7,6 +7,7 @@ class TileBuffer {
 	constructor() {
 		this.tiles = {};
 	}
+
 	getTile(order, ipix, format){
 		let tileKey = order + "/" + ipix + "/" + format;
 		if(this.tiles[tileKey] == undefined){
@@ -15,12 +16,10 @@ class TileBuffer {
 		return this.tiles[tileKey];
 	}
 
-	getTileByKey(key, format){
-		
-		let orderIpix = key.split("/");
-		
+	getTileByKey(key){
+		let orderIpixFormat = key.split("/");
 		if(this.tiles[key] == undefined){
-			this.tiles[key] = new Tile(orderIpix[0], orderIpix[1], format);
+			this.tiles[key] = new Tile(orderIpixFormat[0], orderIpixFormat[1], orderIpixFormat[2]);
 		}
 		return this.tiles[key];
 	}
