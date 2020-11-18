@@ -32,6 +32,7 @@ class HiPS extends AbstractSkyEntity{
 		this.radius = in_radius;
 		this.gl = in_gl;
 		this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA  );
+<<<<<<< HEAD
 //		this.fitsEnabled = false;
 //		this.fitsReader = null;
 		
@@ -42,6 +43,15 @@ class HiPS extends AbstractSkyEntity{
 //		http://skies.esac.esa.int/pla/HFI_SkyMap_857_2048_R3_00_full_HiPS/
 //	    this.URL = "http://skies.esac.esa.int//Herschel/normalized/hips250_pnorm_allsky/";
 //	    this.imgFormat = "png";
+=======
+		this.fitsEnabled = false;
+		this.fitsReader = null;
+
+		this.order = 0;
+
+	    this.URL = "http://skies.esac.esa.int//Herschel/normalized/hips250_pnorm_allsky/";
+	    this.imgFormat = "png";
+>>>>>>> 58bdfa8bcee13aa1c6b21103c1f4731174c30d50
 		//this.URL = "https://skies.esac.esa.int/DSSColor/";
 		this.maxOrder = 7;
 		this.visibleTiles = {};
@@ -60,6 +70,10 @@ class HiPS extends AbstractSkyEntity{
 		setInterval(()=> {this.updateVisibleTiles();}, 100);
 		
 		this.registerForEvents();
+
+		for(let i = 0; i < 12; i++){
+			tileBufferSingleton.getTile(0, i).addToView();
+		}
 	}
 	
 	registerForEvents(){
@@ -151,29 +165,29 @@ class HiPS extends AbstractSkyEntity{
 	}
 
 	refreshModel (in_fov, in_pan){
-		if ( in_fov >= 175){
+		if ( in_fov >= 179){
 			this.order = 0;
-		}else if ( in_fov >= 150){
+		}else if ( in_fov >= 62){
 			this.order = 1;
 		}else if ( in_fov >= 25){
 			this.order = 2;
-		}else if ( in_fov >= 15){
+		}else if ( in_fov >= 12.5){
 			this.order = 3;
-		}else if (in_fov >= 8){
+		}else if (in_fov >= 6){
 			this.order = 4;
-		}else if (in_fov >= 4){
+		}else if (in_fov >= 3.2){
 			this.order = 5;
-		}else if (in_fov >= 1.7){
+		}else if (in_fov >= 1.6){
 			this.order = 6;
-		}else if (in_fov >= 0.9){
+		}else if (in_fov >= 0.85){
 			this.order = 7;
-		}else if (in_fov >= 0.5){
+		}else if (in_fov >= 0.42){
 			this.order = 8;
-		}else if (in_fov >= 0.3){
+		}else if (in_fov >= 0.21){
 			this.order = 9;
-		}else if (in_fov >= 0.15){
+		}else if (in_fov >= 0.12){
 			this.order = 10;
-		}else if (in_fov >= 0.10){
+		}else if (in_fov >= 0.08){
 			this.order = 11;
 		}else{
 			this.order = 12;
@@ -189,7 +203,7 @@ class HiPS extends AbstractSkyEntity{
 	}
 
 	updateVisibleTiles (){
-		if(!this.changedModel){return;}
+		if(!this.changedModel || this.order == 0){return;}
 		this.changedModel = false;
 		let previouslyVisibleKeys = Object.keys(this.visibleTiles);
 		let tilesRemoved = this.visibleTiles;

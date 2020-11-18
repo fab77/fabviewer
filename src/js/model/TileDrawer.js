@@ -11,7 +11,7 @@ const N_TILES_PER_ROW = 1;
 const N_TILES_PER_TEXTURE = N_TILES_PER_ROW * N_TILES_PER_ROW;
 const N_MAX_POSSIBLE_TEXTURES = Math.ceil(200 / N_TILES_PER_TEXTURE);
 const N_MAX_POSSIBLE_TILES_IN_MEMORY = N_MAX_POSSIBLE_TEXTURES * N_TILES_PER_TEXTURE;
-const USE_MIPMAP = true;
+const USE_MIPMAP = false;
 
 class TileDrawer {
 
@@ -19,9 +19,9 @@ class TileDrawer {
 		this.tiles = {};
 		this.tileArray = [];
 		this.tilesWaitingToBeRemoved = {};
-		this.textureCoordinates = new Float32Array(8 * N_TILES_PER_TEXTURE * N_MAX_POSSIBLE_TEXTURES);
-		this.vertexIndices = new Uint16Array(6 * N_TILES_PER_TEXTURE * N_MAX_POSSIBLE_TEXTURES);
-		this.vertexPosition = new Float32Array(12 * N_TILES_PER_TEXTURE * N_MAX_POSSIBLE_TEXTURES);
+		this.textureCoordinates = new Float32Array(2 * 25 * N_TILES_PER_TEXTURE * N_MAX_POSSIBLE_TEXTURES);
+		this.vertexIndices = new Uint16Array(3 * 2 * 16 * N_TILES_PER_TEXTURE * N_MAX_POSSIBLE_TEXTURES);
+		this.vertexPosition = new Float32Array(25 * 3 * N_TILES_PER_TEXTURE * N_MAX_POSSIBLE_TEXTURES);
 		this.nextIndex = 0;
 		this.batchOfTiles = [];
 		this.indiciesToReuse = [];

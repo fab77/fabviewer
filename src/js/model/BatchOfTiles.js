@@ -45,7 +45,7 @@ class BatchOfTiles {
             this.anyMipmapCreated = false;
         } else {
             this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
-            // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+            // this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
         }
     }
 
@@ -55,24 +55,77 @@ class BatchOfTiles {
         let iy = Math.floor(i / this.tilesPerRow);
         let size = 1.0 / this.tilesPerRow;
 
-        let tileTextureCoordinates = new Float32Array(8);
-        tileTextureCoordinates[0] = (ix + 1.0) * size - this.halfPixelCorrection;
-        tileTextureCoordinates[1] = iy*size + this.halfPixelCorrection;
-        tileTextureCoordinates[2] = (ix + 1.0) * size - this.halfPixelCorrection;
-        tileTextureCoordinates[3] = (iy + 1.0) * size - this.halfPixelCorrection;
-        tileTextureCoordinates[4] = ix*size + this.halfPixelCorrection;
-        tileTextureCoordinates[5] = (iy + 1.0) * size - this.halfPixelCorrection;
-        tileTextureCoordinates[6] = ix*size + this.halfPixelCorrection;
-        tileTextureCoordinates[7] = iy*size + this.halfPixelCorrection;
+        let texturePosStartX = ix * size;
+        let texturePosStartY = iy * size;
 
-        let tileVertexIndices = new Uint16Array(6);
-        let baseFaceIndex = 4 * i + this.batchIndex * this.tilesPerTexture * 4;
-        tileVertexIndices[0] = baseFaceIndex;
-        tileVertexIndices[1] = baseFaceIndex + 1;
-        tileVertexIndices[2] = baseFaceIndex + 2;
-        tileVertexIndices[3] = baseFaceIndex;
-        tileVertexIndices[4] = baseFaceIndex + 2;
-        tileVertexIndices[5] = baseFaceIndex + 3;
+        let tileTextureCoordinates = new Float32Array(25*2);
+        let index = 0;
+
+        tileTextureCoordinates[index++] = 1.00 * size + texturePosStartX;
+        tileTextureCoordinates[index++] = 0.00 * size + texturePosStartY;
+        tileTextureCoordinates[index++] = 1.00 * size + texturePosStartX;
+        tileTextureCoordinates[index++] = 0.25 * size + texturePosStartY;
+        tileTextureCoordinates[index++] = 1.00 * size + texturePosStartX;
+        tileTextureCoordinates[index++] = 0.50 * size + texturePosStartY;
+        tileTextureCoordinates[index++] = 1.00 * size + texturePosStartX;
+        tileTextureCoordinates[index++] = 0.75 * size + texturePosStartY;
+        tileTextureCoordinates[index++] = 1.00 * size + texturePosStartX;
+        tileTextureCoordinates[index++] = 1.00 * size + texturePosStartY;
+
+        //5
+        tileTextureCoordinates[index++] = 0.75 * size + texturePosStartX;
+        tileTextureCoordinates[index++] = 1.00 * size + texturePosStartY;
+        tileTextureCoordinates[index++] = 0.50 * size + texturePosStartX;
+        tileTextureCoordinates[index++] = 1.00 * size + texturePosStartY;
+        tileTextureCoordinates[index++] = 0.25 * size + texturePosStartX;
+        tileTextureCoordinates[index++] = 1.00 * size + texturePosStartY;
+
+        //8
+        tileTextureCoordinates[index++] = 0.00 * size + texturePosStartX;
+        tileTextureCoordinates[index++] = 1.00 * size + texturePosStartY;
+        tileTextureCoordinates[index++] = 0.00 * size + texturePosStartX;
+        tileTextureCoordinates[index++] = 0.75 * size + texturePosStartY;
+        tileTextureCoordinates[index++] = 0.00 * size + texturePosStartX;
+        tileTextureCoordinates[index++] = 0.50 * size + texturePosStartY;
+
+        //11
+        tileTextureCoordinates[index++] = 0.00 * size + texturePosStartX;
+        tileTextureCoordinates[index++] = 0.25 * size + texturePosStartY;
+        tileTextureCoordinates[index++] = 0.00 * size + texturePosStartX;
+        tileTextureCoordinates[index++] = 0.00 * size + texturePosStartY;
+        tileTextureCoordinates[index++] = 0.25 * size + texturePosStartX;
+        tileTextureCoordinates[index++] = 0.00 * size + texturePosStartY;
+        tileTextureCoordinates[index++] = 0.50 * size + texturePosStartX;
+        tileTextureCoordinates[index++] = 0.00 * size + texturePosStartY;
+        //15
+        tileTextureCoordinates[index++] = 0.75 * size + texturePosStartX;
+        tileTextureCoordinates[index++] = 0.00 * size + texturePosStartY;
+        tileTextureCoordinates[index++] = 0.75 * size + texturePosStartX;
+        tileTextureCoordinates[index++] = 0.25 * size + texturePosStartY;
+        tileTextureCoordinates[index++] = 0.75 * size + texturePosStartX;
+        tileTextureCoordinates[index++] = 0.50 * size + texturePosStartY;
+        tileTextureCoordinates[index++] = 0.75 * size + texturePosStartX;
+        tileTextureCoordinates[index++] = 0.75 * size + texturePosStartY;
+        
+        //19
+        tileTextureCoordinates[index++] = 0.50 * size + texturePosStartX;
+        tileTextureCoordinates[index++] = 0.75 * size + texturePosStartY;
+        tileTextureCoordinates[index++] = 0.25 * size + texturePosStartX;
+        tileTextureCoordinates[index++] = 0.75 * size + texturePosStartY;
+        tileTextureCoordinates[index++] = 0.25 * size + texturePosStartX;
+        tileTextureCoordinates[index++] = 0.50 * size + texturePosStartY;
+        //22
+        tileTextureCoordinates[index++] = 0.25 * size + texturePosStartX;
+        tileTextureCoordinates[index++] = 0.25 * size + texturePosStartY;
+        tileTextureCoordinates[index++] = 0.50 * size + texturePosStartX;
+        tileTextureCoordinates[index++] = 0.25 * size + texturePosStartY;
+        tileTextureCoordinates[index++] = 0.50 * size + texturePosStartX;
+        tileTextureCoordinates[index++] = 0.50 * size + texturePosStartY;
+
+
+        let tileVertexIndices = new Uint16Array(6*16);
+        let baseFaceIndex = 25 * i + this.batchIndex * this.tilesPerTexture * 25;
+        this.setVertexIndiciesFor25Points(tileVertexIndices, baseFaceIndex);
 
         this.gl.activeTexture(this.gl.TEXTURE0 + this.texturePositionToBindTo);
         if(this.texturePositionToBindTo == MAX_TEXTURE_POSITION){
@@ -95,22 +148,71 @@ class BatchOfTiles {
         }
     }
 
+    setVertexIndiciesFor25Points(tileVertexIndices, baseFaceIndex){
+        this.nextTileVertexIndexPosition = 0;
+
+        this.setVertexIndexFor4Points(tileVertexIndices,
+            baseFaceIndex + 0, baseFaceIndex + 1, baseFaceIndex + 16, baseFaceIndex + 15);
+        this.setVertexIndexFor4Points(tileVertexIndices,
+            baseFaceIndex + 1, baseFaceIndex + 2, baseFaceIndex + 17, baseFaceIndex + 16);
+        this.setVertexIndexFor4Points(tileVertexIndices,
+            baseFaceIndex + 2, baseFaceIndex + 3, baseFaceIndex + 18, baseFaceIndex + 17);
+        this.setVertexIndexFor4Points(tileVertexIndices,
+            baseFaceIndex + 3, baseFaceIndex + 4, baseFaceIndex + 5, baseFaceIndex + 18);
+
+        this.setVertexIndexFor4Points(tileVertexIndices,
+            baseFaceIndex + 15, baseFaceIndex + 16, baseFaceIndex + 23, baseFaceIndex + 14);
+        this.setVertexIndexFor4Points(tileVertexIndices,
+            baseFaceIndex + 16, baseFaceIndex + 17, baseFaceIndex + 24, baseFaceIndex + 23);
+        this.setVertexIndexFor4Points(tileVertexIndices,
+            baseFaceIndex + 17, baseFaceIndex + 18, baseFaceIndex + 19, baseFaceIndex + 24);
+        this.setVertexIndexFor4Points(tileVertexIndices,
+            baseFaceIndex + 18, baseFaceIndex + 5, baseFaceIndex + 6, baseFaceIndex + 19);
+        
+        this.setVertexIndexFor4Points(tileVertexIndices,
+            baseFaceIndex + 14, baseFaceIndex + 23, baseFaceIndex + 22, baseFaceIndex + 13);
+        this.setVertexIndexFor4Points(tileVertexIndices,
+            baseFaceIndex + 23, baseFaceIndex + 24, baseFaceIndex + 21, baseFaceIndex + 22);
+        this.setVertexIndexFor4Points(tileVertexIndices,
+            baseFaceIndex + 24, baseFaceIndex + 19, baseFaceIndex + 20, baseFaceIndex + 21);
+        this.setVertexIndexFor4Points(tileVertexIndices,
+            baseFaceIndex + 19, baseFaceIndex + 6, baseFaceIndex + 7, baseFaceIndex + 20);
+        
+        this.setVertexIndexFor4Points(tileVertexIndices,
+            baseFaceIndex + 13, baseFaceIndex + 22, baseFaceIndex + 11, baseFaceIndex + 12);
+        this.setVertexIndexFor4Points(tileVertexIndices,
+            baseFaceIndex + 22, baseFaceIndex + 21, baseFaceIndex + 10, baseFaceIndex + 11);
+        this.setVertexIndexFor4Points(tileVertexIndices,
+            baseFaceIndex + 21, baseFaceIndex + 20, baseFaceIndex + 9, baseFaceIndex + 10);
+        this.setVertexIndexFor4Points(tileVertexIndices,
+            baseFaceIndex + 20, baseFaceIndex + 7, baseFaceIndex + 8, baseFaceIndex + 9);
+        }
+
+    setVertexIndexFor4Points(tileVertexIndices, point0, point1, point2, point3){
+        tileVertexIndices[this.nextTileVertexIndexPosition++] = point0;
+        tileVertexIndices[this.nextTileVertexIndexPosition++] = point1;
+        tileVertexIndices[this.nextTileVertexIndexPosition++] = point2;
+        tileVertexIndices[this.nextTileVertexIndexPosition++] = point0;
+        tileVertexIndices[this.nextTileVertexIndexPosition++] = point2;
+        tileVertexIndices[this.nextTileVertexIndexPosition++] = point3;
+    }
+
     writeToBuffer(i, tile, tileTextureCoordinates, tileVertexIndices) {
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexPositionBuffer);
-        index = 12 * i + this.batchIndex * this.tilesPerTexture * 12;
-        this.gl.bufferSubData(this.gl.ARRAY_BUFFER, index * Float32Array.BYTES_PER_ELEMENT, tile.vertexPosition);
+        let offset = 3 * 25 * i + this.batchIndex * this.tilesPerTexture * 3 * 25;
+        this.gl.bufferSubData(this.gl.ARRAY_BUFFER, offset * Float32Array.BYTES_PER_ELEMENT, tile.vertexPosition);
         this.vertexPositionBuffer.itemSize = 3;
         this.vertexPositionBuffer.numItems = tile.vertexPosition.length;
 
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexTextureCoordBuffer);
-        let index = 8 * i + this.batchIndex * this.tilesPerTexture * 8;
-        this.gl.bufferSubData(this.gl.ARRAY_BUFFER, index * Float32Array.BYTES_PER_ELEMENT, tileTextureCoordinates);
+        offset = 2 * 25 * i + this.batchIndex * this.tilesPerTexture * 2 * 25;
+        this.gl.bufferSubData(this.gl.ARRAY_BUFFER, offset * Float32Array.BYTES_PER_ELEMENT, tileTextureCoordinates);
         this.vertexTextureCoordBuffer.itemSize = 2;
         this.vertexTextureCoordBuffer.numItems = tileTextureCoordinates.length;
 
-        index = 6 * i + this.batchIndex * this.tilesPerTexture * 6;
+        offset = 16 * 6 * i + this.batchIndex * this.tilesPerTexture * 16 * 6;
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.vertexIndexBuffer);
-        this.gl.bufferSubData(this.gl.ELEMENT_ARRAY_BUFFER, index * Uint16Array.BYTES_PER_ELEMENT, tileVertexIndices);
+        this.gl.bufferSubData(this.gl.ELEMENT_ARRAY_BUFFER, offset * Uint16Array.BYTES_PER_ELEMENT, tileVertexIndices);
         this.vertexIndexBuffer.itemSize = 1;
         this.vertexIndexBuffer.numItems = tileVertexIndices.length;
 
@@ -141,16 +243,16 @@ class BatchOfTiles {
 
     draw(sampler){
         if(!this.anythingToRender){return;}
-        let drawsPerTexture = 6 * this.tilesToDraw;
+        let drawsPerTexture = 16 * 6 * this.tilesToDraw;
         if(this.useMipmap){
-            drawsPerTexture = 6 * this.tilesToDrawAtLastMipmapCreation;
+            drawsPerTexture = 16 * 6 * this.tilesToDrawAtLastMipmapCreation;
         }
         this.gl.activeTexture(this.gl.TEXTURE0 + this.texturePositionToBindTo);
         if(this.texturePositionToBindTo == MAX_TEXTURE_POSITION){
             this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
         }
         this.gl.uniform1i(sampler, this.texturePositionToBindTo);
-        this.gl.drawElements(this.gl.TRIANGLES, drawsPerTexture, this.gl.UNSIGNED_SHORT, this.tilesPerTexture * 12 * this.batchIndex);
+        this.gl.drawElements(this.gl.TRIANGLES, drawsPerTexture, this.gl.UNSIGNED_SHORT, Uint16Array.BYTES_PER_ELEMENT * 6 * 16 * this.tilesPerTexture * this.batchIndex);
     }
 }
 export default BatchOfTiles;
