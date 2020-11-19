@@ -29,6 +29,9 @@ class TileDrawer {
 		this.numberOfTilesRequired = 0;
 		this.numberOfTilesRequiredMax = 0;
 		this.orderWithMaxRequiredTiles = 0;
+
+		this.tilesToAdd = {};
+		this.tilesToRemove = {};
 	}
 
 	initShaders () {
@@ -166,6 +169,7 @@ class TileDrawer {
 				if(DEBUG){
 					console.log("Tile not fully removed yet - Using same index - Removing " + tile.key);
 				}
+				this.batchOfTiles[tile.index].anythingToRender = true;
 				delete this.tilesWaitingToBeRemoved[tile.key];
 				this.indiciesToReuse = this.indiciesToReuse.filter(item => item !== tile.key);
 			}
@@ -183,6 +187,9 @@ class TileDrawer {
 				this.indiciesToReuse.push(tile.key);
 				tile.inListToBeRemoved = true;
 				this.tilesWaitingToBeRemoved[tile.key] = tile;
+
+				//TODO the below check only works for 1 tile batches. 
+				this.batchOfTiles[tile.index].anythingToRender = false;
 				if(DEBUG){
 					console.log("Removing tile - Adding index " + tile.index + " to indiciesToReuse");
 				}
@@ -201,6 +208,7 @@ class TileDrawer {
 				this.numberOfVisibleTiles--;
 
 				delete this.tilesWaitingToBeRemoved[tileKeyToOverwrite];
+				this.batchOfTiles[tile.index].anythingToRender = true;
 				if(DEBUG){
 					console.log("Reusing old index " + tile.index);
 				}
