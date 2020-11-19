@@ -3,8 +3,6 @@
 import global from '../Global';
 import { tileBufferSingleton } from './TileBuffer';
 
-const SHOW_ONLY_FULLY_LOADED_TILES = true;
-
 class HealpixGridTileDrawer {
 
 	constructor() {
@@ -115,10 +113,6 @@ class HealpixGridTileDrawer {
 	}
 
 	drawTile(tile){
-		if(SHOW_ONLY_FULLY_LOADED_TILES){
-			let correspondingTile = tileBufferSingleton.getTile(tile.order, tile.ipix);
-			if(!correspondingTile.textureLoaded){return;}
-		}
 
 		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, tile.vertexPositionBuffer);
 		this.gl.vertexAttribPointer(tile.vertexPositionAttribute, 3, this.gl.FLOAT, false, 0, 0);
