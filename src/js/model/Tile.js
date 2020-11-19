@@ -79,12 +79,15 @@ class Tile {
 
 	startLoadingImage(){
 		if(this.format == 'fits'){
-			new FITSOnTheWeb(this.imageUrl, "grayscale", "linear", 0.0966, 2.461, currimg => {
-				this.image = currimg;
-				this.image.onload = () => {
-					this.onLoad();
-				}
-			});
+			if(this.fitsReader == null){
+				this.fitsReader = new FITSOnTheWeb(this.imageUrl, "grayscale", "linear", 0.0966, 2.461, currimg => {
+					this.image = currimg;
+					this.image.onload = () => {
+						this.onLoad();
+					}
+				});
+			}
+			this.fitsReader.start();
 		} else {
 			this.image.src = this.imageUrl;
 		}
@@ -92,6 +95,9 @@ class Tile {
 
 	stopLoadingImage(){
 		this.image.src = "";
+		if(this.format == 'fits'){
+			this.fitsReader.stop();
+		}
 	}
 
 	isInView(){
@@ -236,6 +242,7 @@ class Tile {
 		this.imageLoaded = false;
 		this.textureLoaded = false;
 
+		this.fitsReader = null;
 		this.parent = null;
 		this.vertexPosition = null;
 
