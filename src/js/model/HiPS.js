@@ -34,7 +34,6 @@ class HiPS extends AbstractSkyEntity{
 		this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA  );
 		
 		this.format = "fits";
-		this.previousFormat = this.format; 
 		
 		this.order = 3;
 
@@ -62,9 +61,7 @@ class HiPS extends AbstractSkyEntity{
 		
 		this.registerForEvents();
 
-		for(let i = 0; i < 12; i++){
-			tileBufferSingleton.getTile(0, i, this.format).addToView();
-		}
+		this.addOrder0Tiles();
 	}
 	
 	registerForEvents(){
@@ -74,14 +71,32 @@ class HiPS extends AbstractSkyEntity{
 	
 	notify(in_event){
 		if (in_event instanceof HiPSFormatSelectedEvent){
-			this.format = in_event.format.trim();
-			if (this.previousFormat !== this.format){
-				Object.keys(this.visibleTiles).forEach(tileKey => {
-					let tile = tileBufferSingleton.getTileByKey(tileKey);
-					tile.removeFromView();
-				});
-				this.previousFormat = this.format;
+			if (in_event.format.trim() !== this.format){
+				this.clearAllTiles();
+				this.format = in_event.format.trim();
+				this.addOrder0Tiles();
+				this.updateVisibleTiles();
 			}
+		}
+	}
+
+	clearAllTiles(){
+		Object.keys(this.visibleTiles).forEach(tileKey => {
+			let tile = tileBufferSingleton.getTileByKey(tileKey);
+			tile.removeFromView();
+		});
+		this.removeOrder0Tiles();
+	}
+
+	addOrder0Tiles(){
+		for(let i = 0; i < 12; i++){
+			tileBufferSingleton.getTile(0, i, this.format).addToView();
+		}
+	}
+
+	removeOrder0Tiles(){
+		for(let i = 0; i < 12; i++){
+			tileBufferSingleton.getTile(0, i, this.format).removeFromView();
 		}
 	}
 
@@ -195,12 +210,15 @@ class HiPS extends AbstractSkyEntity{
 	}
 
 	updateVisibleTiles (){
-		if(!this.changedModel || this.order == 0){return;}
+		if(!this.changedModel){return;}
 		this.changedModel = false;
 		let previouslyVisibleKeys = Object.keys(this.visibleTiles);
+		if(this.order == 0){
+			this.removeTiles(this.visibleTiles);
+			return;
+		}
 		let tilesRemoved = this.visibleTiles;
 		let tilesAdded = {};
-
 		this.visibleTiles = {};
 		let tilesToAddInOrder = this.pollCenter(previouslyVisibleKeys, tilesRemoved, tilesAdded);
 
@@ -210,11 +228,15 @@ class HiPS extends AbstractSkyEntity{
 			this.addNeighbours(this.visibleTiles[key].ipix, previouslyVisibleKeys, tilesRemoved, tilesAdded, tilesToAddInOrder);
 		});
 
-		Object.keys(tilesRemoved).forEach(key => {
-			tilesRemoved[key].removeFromView();
-		});
+		this.removeTiles(tilesRemoved);
 		tilesToAddInOrder.forEach(tile => {
 			tile.addToView();
+		});
+	}
+
+	removeTiles(tilesRemoved){
+		Object.keys(tilesRemoved).forEach(key => {
+			tilesRemoved[key].removeFromView();
 		});
 	}
 
