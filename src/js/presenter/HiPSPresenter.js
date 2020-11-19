@@ -45,15 +45,11 @@ class HiPSPresenter{
 	
 	fireEvents(in_view){
 		console.log(in_view.getHiPSFormat());
-		in_view.getHiPSFormat().change(function () {
-		    var format = "";
-		    $( "select option:selected" ).each(function() {
-		    	format += $( this ).text() + " ";
-		    });
-		    let hipsFormatChangeEvent = new HiPSFormatSelectedEvent(format);
+		in_view.getHiPSFormat().on('change', (event) => {
+			let format = event.target.value;
 		    console.log(format);
-		    eventBus.fireEvent(hipsFormatChangeEvent);
-		}).change();
+		    eventBus.fireEvent(new HiPSFormatSelectedEvent(format));
+		});
 
 	}
 	
