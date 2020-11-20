@@ -23,8 +23,7 @@ class HiPSSettingsView{
             },
             getHiPSFormat: ()=> {
             	return $("#format");
-            }
-
+			}
         }
         return _public;
     }
@@ -33,7 +32,7 @@ class HiPSSettingsView{
 
     	this.html = $("<div id='hipsSettings'>"+this._model.surveyName+"<br>" +
     			"<div id='hips-formats'></div><label for='hips-formats'>Formats:</label>" + this.initFormats() +
-    			"<div id='hips-col-pal'></div><label for='hips-col-pal'>Color palette:</label>" +
+    			"<div id='hips-col-pal'></div><label for='hips-col-pal'>Color palette:</label> <button id='close-hips-settings'> Close </button>" +
     			"</div>");
     	this.html.css("position","absolute");
     	this.html.css("height","200px");
@@ -43,9 +42,11 @@ class HiPSSettingsView{
     	this.html.css("border","1px solid black");
     	this.html.css("background-color","rgba(255, 255, 255, .15)");
     	this.html.css("backdrop-filter","blur(5px)");
-    	this.html.css("color","#85d6d1");
+    	this.html.css("color","#A5F6F1");
     	this.html.css("cursor","move");
-    	
+    	this.html.find("#close-hips-settings").on('click', ()=>{
+			this.detach();
+		});
     	
     }
     
@@ -63,8 +64,11 @@ class HiPSSettingsView{
     appendFITSSettings(){
     	// TODO here we should put the min and max value, scale function and all features exposed by FITSOnTheWeb
     	this.html.append("<div id='fitsontheweb'>// TODO FITSOnTheWeb features here.</div>");
-    	
-    }
+	}
+	
+	detach(){
+    	this.html.detach();
+	}
 }
 
 export default HiPSSettingsView;

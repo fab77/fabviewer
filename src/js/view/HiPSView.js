@@ -22,7 +22,10 @@ class HiPSView{
     
             },
             addCheckedHandler: (handler)=>{
-                this.html.find("input").click(handler);
+                this.html.find("input").on('change', handler);
+            },
+            setChecked: (checked)=>{
+                this.html.find("input").prop('checked', true);
             },
             addHiPSSettingsHandler: (handler)=>{
             	this.html.find("button").click(handler);
@@ -37,7 +40,7 @@ class HiPSView{
  
     init(){
 //    	this.html = $("<li><input type='checkbox'/><label></label><button>O</button><br></li>");
-    	this.html = $("<tr><td><input type='checkbox'/><label></label></td><td><button>O</button></td></tr>");
+    	this.html = $("<tr><td><input type='radio' name='hips'/><label></label></td><td><button>O</button></td></tr>");
 //    	this.html.css("height","150px");
     }
 }

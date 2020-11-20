@@ -186,7 +186,7 @@ class BatchOfTiles {
             baseFaceIndex + 21, baseFaceIndex + 20, baseFaceIndex + 9, baseFaceIndex + 10);
         this.setVertexIndexFor4Points(tileVertexIndices,
             baseFaceIndex + 20, baseFaceIndex + 7, baseFaceIndex + 8, baseFaceIndex + 9);
-        }
+    }
 
     setVertexIndexFor4Points(tileVertexIndices, point0, point1, point2, point3){
         tileVertexIndices[this.nextTileVertexIndexPosition++] = point0;

@@ -87,6 +87,10 @@ class HealpixGridTileDrawer {
 	}
 
 	init(){
+		if(this.isInitialized){
+			return;
+		}
+		this.isInitialized = true;
 		this.gl = global.gl;
 		this.initGridShaders();
 		this.isInitialized = true;

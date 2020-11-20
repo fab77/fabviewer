@@ -6,10 +6,13 @@
  */
 import FoV from './FoV';
 import {vec3, mat4} from 'gl-matrix';
+import global from '../Global';
+
+
 class AbstractSkyEntity{
 	
-	constructor(in_radius, in_gl, in_canvas, in_position, in_xRad, in_yRad, in_name, in_fovUtils){
-		
+	constructor(in_radius, in_position, in_xRad, in_yRad, in_name){
+		let in_gl = global.gl;
 		this.fovObj = new FoV(this);
 //		this.fovObj = new FoV(in_gl, in_canvas, this);
 		this.refreshMe = false;

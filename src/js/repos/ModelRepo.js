@@ -21,9 +21,9 @@ class ModelRepo{
 		};
 		
 
-		this.objModels[0] = new HiPS(1, in_gl, in_canvas, [0.0, 0.0, 0.0], 
-				Math.PI / 2, 
-				Math.PI / 2, "HiPS");
+		// this.objModels[0] = new HiPS(1, [0.0, 0.0, 0.0], 
+		// 		Math.PI / 2, 
+		// 		Math.PI / 2, "HiPS");
 				
 //		var raHMS = "16 28 24.504";
 //		var decDMS = "-26 39 06.06";

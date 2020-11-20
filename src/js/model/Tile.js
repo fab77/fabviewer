@@ -9,11 +9,12 @@ import FITSOnTheWeb from 'fitsontheweb';
 
 class Tile {
 
-	constructor(order, ipix, format) {
+	constructor(order, ipix, format, url) {
 		this.gl = global.gl;
 		this.order = order;
 		this.ipix = ipix;
-		this.key = order + "/" + ipix + "/" + format;
+		this.key = order + "/" + ipix + "/" + format + "/" + url;
+		this.url = url;
 		this.radius = 1;
 
 		this.imageLoaded = false;
@@ -60,12 +61,13 @@ class Tile {
 			}
 		}
 		
-//		let fileFormat = this.fitsEnabled ? ".fits" : ".jpg"
 		//TODO remove cross origin attribute for maps on the same domain as it slightly degrades loading time
 		this.image.setAttribute('crossorigin', 'anonymous');
 		
 		// this.imageUrl = "https://skies.esac.esa.int/DSSColor/Norder"+this.order+"/Dir"+dirNumber+"/Npix"+this.ipix+"."+this.format;
-		this.imageUrl = "http://skies.esac.esa.int//Herschel/normalized/hips250_pnorm_allsky/Norder"+this.order+"/Dir"+dirNumber+"/Npix"+this.ipix+"."+this.format;
+		// this.imageUrl = "http://skies.esac.esa.int//Herschel/normalized/hips250_pnorm_allsky/Norder"+this.order+"/Dir"+dirNumber+"/Npix"+this.ipix+"."+this.format;
+
+		this.imageUrl = this.url + "Norder" + this.order + "/Dir" + dirNumber + "/Npix" + this.ipix + "." + this.format;
 	}
 	
 	onLoad(){
@@ -203,7 +205,7 @@ class Tile {
 
 	getParent(){
 		if(this.parent == null && this.order > 0){
-			this.parent = tileBufferSingleton.getIfAlreadyExist(this.order - 1, Math.floor(this.ipix / 4), this.format);
+			this.parent = tileBufferSingleton.getIfAlreadyExist(this.order - 1, Math.floor(this.ipix / 4), this.format, this.url);
 		}
 		return this.parent;
 	}
@@ -211,7 +213,7 @@ class Tile {
 	getExistingChildren(){
 		let children = [];
 		for(let i = 0; i < 4; i++){
-			let child = tileBufferSingleton.getIfAlreadyExist(this.order + 1, this.ipix * 4 + i, this.format);
+			let child = tileBufferSingleton.getIfAlreadyExist(this.order + 1, this.ipix * 4 + i, this.format, this.url);
 			if(child){
 				children.push(child);
 			}
@@ -246,7 +248,7 @@ class Tile {
 		this.parent = null;
 		this.vertexPosition = null;
 
-		tileBufferSingleton.removeTile(this.order, this.ipix, this.format);
+		tileBufferSingleton.removeTile(this.key);
 	}
 }
 export default Tile;

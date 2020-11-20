@@ -174,17 +174,17 @@ class RayPickingUtils{
 
 	
 	
-	static getIntersectionPointWithModel(in_mouseX, in_mouseY, in_modelRepoObj){
+	static getIntersectionPointWithModel(in_mouseX, in_mouseY, models){
 
 		
-		var nearestObj = RayPickingUtils.getNearestObjectOnRay(in_mouseX, in_mouseY, in_modelRepoObj);
+		var nearestObj = RayPickingUtils.getNearestObjectOnRay(in_mouseX, in_mouseY, models);
 		
 		var intersectionModelPoint = [];
 		var pickedObject;
 
 		if (nearestObj.distance >= 0){
 			
-			var pickedObject = in_modelRepoObj.objModels[nearestObj.idx];
+			var pickedObject = models[nearestObj.idx];
 			
 			
 			intersectionModelPoint = RayPickingUtils.getIntersectionPointWithSingleModel(in_mouseX, in_mouseY, pickedObject);
@@ -199,7 +199,7 @@ class RayPickingUtils{
 	}
 	
 	
-	static getNearestObjectOnRay (in_mouseX, in_mouseY, in_modelRepoObj){
+	static getNearestObjectOnRay (in_mouseX, in_mouseY, models){
 		
 		var camera = global.camera;
 		
@@ -212,9 +212,9 @@ class RayPickingUtils{
 		
 		var rayWorld = RayPickingUtils.getRayFromMouse(in_mouseX, in_mouseY);
 
-		for (var i = 0; i < in_modelRepoObj.objModels.length; i++){
+		for (var i = 0; i < models.length; i++){
 
-			currModel = in_modelRepoObj.objModels[i];
+			currModel = models[i];
 				
 			intersectionDistance = RayPickingUtils.raySphere(camera.getCameraPosition(), rayWorld, currModel);
 

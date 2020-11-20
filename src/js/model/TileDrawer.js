@@ -32,6 +32,8 @@ class TileDrawer {
 
 		this.tilesToAdd = {};
 		this.tilesToRemove = {};
+
+		this.isInitialized = false;
 	}
 
 	initShaders () {
@@ -121,13 +123,16 @@ class TileDrawer {
 	}
 
 	init(){
+		if(this.isInitialized){
+			return;
+		}
+		this.isInitialized = true;
 		this.gl = global.gl;
 		this.initShaders();
 		this.vertexPositionBuffer = this.gl.createBuffer();
 		this.vertexTextureCoordBuffer = this.gl.createBuffer();
 		this.vertexIndexBuffer = this.gl.createBuffer();
 
-		this.batchOfTiles.push(new BatchOfTiles(N_TILES_PER_ROW, 0, this.vertexPositionBuffer, this.vertexTextureCoordBuffer, this.vertexIndexBuffer, USE_MIPMAP));
 		this.gl.activeTexture(this.gl.TEXTURE0);
 			
 		this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);

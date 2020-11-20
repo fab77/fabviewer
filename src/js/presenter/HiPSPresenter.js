@@ -5,7 +5,8 @@
 import HiPSSettingsView from '../view/HiPSSettingsView';
 import eventBus from '../events/EventBus';
 import HiPSFormatSelectedEvent from '../events/HiPSFormatSelectedEvent';
-
+import HiPS from '../model/HiPS';
+import global from '../Global';
 
 
 class HiPSPresenter{
@@ -21,15 +22,30 @@ class HiPSPresenter{
 		var _self = this;
 		this._model = in_model;
 		this.retrieveHiPSProperties();
-		
+		if(global.currentHips.name === this._model.surveyName){
+			this.hips = global.currentHips;
+			this._view.setChecked(true);
+			this.isChecked = true;
+		}
 		
 		this._view.addCheckedHandler(function(){
 
 			var checkbox = this;
-
+			_self.isChecked = checkbox.checked;
 			if (checkbox.checked){
-				//TODO CHANGE HiPS
-				console.log("clicked on "+_self._model.surveyName);
+				global.currentHips.clearAllTiles();
+
+				if(_self.hips == undefined){
+					_self.hips = new HiPS(1, [0.0, 0.0, 0.0], 
+						Math.PI / 2, 
+						Math.PI / 2, _self._model.surveyName, 
+						_self._model.url, _self._formats[0],
+						_self._maxOrder);
+				} else {
+					_self.hips.show();
+				}
+				global.currentHips = _self.hips;
+				_self.hips.refreshModel(_self.hips.refreshFoV().minFoV);
 			}
         });
 		
@@ -48,7 +64,7 @@ class HiPSPresenter{
 		in_view.getHiPSFormat().on('change', (event) => {
 			let format = event.target.value;
 		    console.log(format);
-		    eventBus.fireEvent(new HiPSFormatSelectedEvent(format));
+		    eventBus.fireEvent(new HiPSFormatSelectedEvent(format, this._model.surveyName));
 		});
 
 	}
@@ -60,21 +76,20 @@ class HiPSPresenter{
 
     retrieveHiPSProperties(){
 
-    	var _self = this;
 		var xhr = new XMLHttpRequest();
 		xhr.open('GET', this._model.url+"/properties", true);
-		xhr.responseType = 'text/plain';
+		xhr.responseType = 'text';
 		xhr.onload = () =>  {
 			var status = xhr.status;
 			if (status === 200) {
-				
 				var lines = xhr.response.split('\n');
 				for(var i = 0;i < lines.length;i++){
 					if (lines[i].includes("hips_tile_format")){
-//						console.log(lines[i]);
-						let formats = lines[i].split("=")[1].trim().split(" ");
-						_self._formats = formats;
-						_self._view.setModel(_self._model);
+						let formats = lines[i].split("=")[1].trim().replace(/jpeg/ig, "jpg").split(" ");
+						this._formats = formats;
+						this._view.setModel(this._model);
+					} else if (lines[i].includes("hips_order") && !lines[i].includes("hips_order_")){
+						this._maxOrder = parseInt(lines[i].split("=")[1].trim());
 					}
 				}
 
@@ -85,6 +100,12 @@ class HiPSPresenter{
 		xhr.send();
     	
     }
-    
+	
+	
+	draw(pMatrix, vMatrix){
+		if(this.hips && this.isChecked){
+			this.hips.draw(pMatrix, vMatrix);
+		}
+	}
 }
 export default HiPSPresenter;

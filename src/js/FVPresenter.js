@@ -31,7 +31,7 @@ import {cartesianToSpherical, sphericalToAstroDeg, raDegToHMS, decDegToDMS} from
 import FoVUtils from './utils/FoVUtils';
 import global from './Global';
 import {Vec3, Pointing} from 'healpix';
-
+import HiPS from './model/HiPS';
 
 class FVPresenter{
 	constructor(in_view, in_gl){
@@ -61,7 +61,7 @@ class FVPresenter{
 		
 		this.catalogueRepo = new CatalogueRepo("https://sky.esa.int/esasky-tap/catalogs", this.catalogueListPresenter.addCatalogues);
 		
-		this.modelRepo = new ModelRepo(this.in_gl, this.view.canvas, this.catalogueListPresenter.addCatalogues); 
+		// this.modelRepo = new ModelRepo(this.in_gl, this.view.canvas, this.catalogueListPresenter.addCatalogues); 
 		
 		this.hipsRepo = new HiPSRepo("https://sky.esa.int/esasky-tap/hips-sources", this.hipsListPresenter.addHiPS);
 		
@@ -105,18 +105,14 @@ class FVPresenter{
 //				this.camera,
 //				this.in_gl.canvas,
 //				this.modelRepo);
-		this.view.setPickedObjectName(this.modelRepo.objModels[this.nearestVisibleObjectIdx].name);
+		global.currentHips = new HiPS(1, [0.0, 0.0, 0.0], 
+			Math.PI / 2, 
+			Math.PI / 2, "Herschel SPIRE 250 micron", "//skies.esac.esa.int//Herschel/normalized/hips250_pnorm_allsky/", "fits");
+		this.view.setPickedObjectName(global.currentHips);
 		
 		this.lastDrawTime = (new Date()).getTime() * 0.001;
 
 
-	};
-	
-	enableFitsCallback (enableFits){
-		let engaged = this.modelRepo.objModels[0];
-		if (engaged.name == 'HiPS'){
-			engaged.fitsEnabled = enableFits;
-		}
 	};
 	
 	initPresenter(){
@@ -139,9 +135,9 @@ class FVPresenter{
 		this.sourceSelectionPresenter = new SourceSelectionPresenter(sourceSelView);
 		this.view.appendChild(sourceSelView.html);
 		
-		var fitsView = new FITSView();
-		this.view.appendChild(fitsView.html);
-		this.fitsPresenter = new FITSPresenter(fitsView, this.enableFitsCallback);		
+		// var fitsView = new FITSView();
+		// this.view.appendChild(fitsView.html);
+		// this.fitsPresenter = new FITSPresenter(fitsView, this.enableFitsCallback);		
 		
 	};
 	
@@ -153,7 +149,7 @@ class FVPresenter{
 				this.pMatrix,
 				this.camera,
 				this.in_gl.canvas,
-				(this.modelRepo.objModels[this.neareastModel.idx])
+				(global.currentHips)
 				);
 //		var raDecDeg = FoVUtils.getFoVPolygon(
 //				this.pMatrix,
@@ -195,7 +191,7 @@ class FVPresenter{
 			this.lastMouseY = event.clientY;
 			
 			
-			var intersectionWithModel = RayPickingUtils.getIntersectionPointWithModel(this.lastMouseX, this.lastMouseY, this.modelRepo);
+			var intersectionWithModel = RayPickingUtils.getIntersectionPointWithModel(this.lastMouseX, this.lastMouseY, [global.currentHips]);
 			if (intersectionWithModel.intersectionPoint.intersectionPoint === undefined){
 				return;
 			}
@@ -370,9 +366,7 @@ class FVPresenter{
 			console.log("[FVPresenter::refreshFov]");
 		}
 
-		var selectedModel = this.modelRepo.objModels[neareastModelIdx];
-
-		var fovXY =  selectedModel.refreshFoV();
+		var fovXY =  global.currentHips.refreshFoV();
 		return fovXY;
 		
 	};
@@ -383,7 +377,7 @@ class FVPresenter{
 		}
 
 
-		var selectedModel = this.modelRepo.objModels[neareastModelIdx];
+		var selectedModel = global.currentHips;
 		global.model = selectedModel;
 		// compute FoV against the nearest object
 		// TODO this should be an object variable
@@ -393,7 +387,7 @@ class FVPresenter{
 	
 
 	refreshViewAndModel(pan) {
-		this.neareastModel = RayPickingUtils.getNearestObjectOnRay(this.view.canvas.width / 2, this.view.canvas.height / 2, this.modelRepo);
+		this.neareastModel = RayPickingUtils.getNearestObjectOnRay(this.view.canvas.width / 2, this.view.canvas.height / 2, [global.currentHips]);
 		this.fovObj = this.refreshFov(this.neareastModel.idx);
 
 		if(this.updateFovTimer == null){
@@ -454,13 +448,15 @@ class FVPresenter{
 			this.refreshViewAndModel();
 		}
 		
-		for (var i = 0; i < this.modelRepo.objModels.length; i++){
+		// for (var i = 0; i < this.modelRepo.objModels.length; i++){
 			
-			this.modelRepo.objModels[i].draw(this.pMatrix, this.camera.getCameraMatrix());
+			// this.hips.draw(this.pMatrix, this.camera.getCameraMatrix());
 			
-		}
+		// }
 		
-		var mMatrix = this.modelRepo.objModels[0].getModelMatrix();
+		this.hipsListPresenter.draw(this.pMatrix, this.camera.getCameraMatrix());
+		var mMatrix = global.currentHips.getModelMatrix();
+		// var mMatrix = this.modelRepo.objModels[0].getModelMatrix();
 		
 		var k,
 		catalogue;
