@@ -335,6 +335,7 @@ class HiPS extends AbstractSkyEntity{
 
 
 	draw(pMatrix, vMatrix){
+		// TODO enable BLENDING to be checked since for some HiPS (like Herschel) alpha is set to 0 when no data   
 		this.gl.enable(this.gl.BLEND);
 		tileDrawerSingleton.draw(pMatrix, vMatrix, this.modelMatrix);
 		this.gl.disable(this.gl.BLEND);

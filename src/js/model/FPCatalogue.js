@@ -8,36 +8,44 @@ import CoordsType from '../utils/CoordsType';
 import Source from './Source';
 
 
-class Catalogue{
+class FPCatalogue{
 	
 	static ELEM_SIZE = 5;
 	static BYTES_X_ELEM = new Float32Array().BYTES_PER_ELEMENT;
 	
-	#name;
+	#datasetName;
 	#metadata;
 	#raIdx;
 	#decIdx;
 	#nameIdx;
+	#stcsIdx;
+	#uidIdx;
 	#shaderProgram;
 	#gl;
 	#vertexCataloguePositionBuffer;
 	#vertexSelectionCataloguePositionBuffer;
-	#sources = [];
+	#footprints = [];
 	#oldMouseCoords;
 	#vertexCataloguePosition;
 	#attribLocations = {};
 	#selectionIndexes;
 	#descriptor;
+	#totPoints;	// Used to compute item size in the GL buffer
+	#indexes;
 	
 	
-	constructor(in_name, in_metadata, in_raIdx, in_decIdx, in_nameIdx, in_descriptor){
+	constructor(in_datasetName, in_metadata, in_raIdx, in_decIdx, in_uidIdx, in_stcsIdx, in_descriptor){
 
-		this.#name = in_name;
+		this.#datasetName = in_datasetName;
 		this.#metadata = in_metadata;
 		this.#raIdx = in_raIdx;
 		this.#decIdx = in_decIdx;
-		this.#nameIdx = in_nameIdx;
+		this.#uidIdx = in_uidIdx;
+		this.#stcsIdx = in_stcsIdx;
+		
 		this.#descriptor = in_descriptor;
+		
+		this.#totPoints = 0;
 		
 		this.#gl = global.gl;
 		this.#shaderProgram = this.#gl.createProgram();
@@ -70,8 +78,8 @@ class Catalogue{
 		var gl = this.#gl;
 		var shaderProgram = this.#shaderProgram;
 		
-		var fragmentShader = this.loadShaderFromDOM("cat-shader-fs");
-		var vertexShader = this.loadShaderFromDOM("cat-shader-vs");
+		var fragmentShader = this.loadShaderFromDOM("fpcat-shader-fs");
+		var vertexShader = this.loadShaderFromDOM("fpcat-shader-vs");
 		
 		gl.attachShader(shaderProgram, vertexShader);
 		gl.attachShader(shaderProgram, fragmentShader);
@@ -143,25 +151,22 @@ class Catalogue{
 	}
 	
 	
-	get name(){
-		return this.#name;
+	get datasetName(){
+		return this.#datasetName;
 	}
 	
-	get sources(){
-		return this.#sources;
+	get footprints(){
+		return this.#footprints;
 	}
 	
-	addSource(in_source){
-		this.#sources.push(in_source);
+	addFootprint(in_footprint){
+		this.#footprints.push(in_footprint);
 	}
 	
-	/**
-	 * @param in_sources: it's the TAP response data object 
-	 */
-	addSources(in_data){
+	addFootprints(in_data){
 		var j,
 		point,
-		source;
+		footprint;
 		
 		for ( j = 0; j < in_data.length; j++){
 			
@@ -170,87 +175,84 @@ class Catalogue{
 				"decDeg": in_data[j][this.#decIdx]
 			}, CoordsType.ASTRO);
 			
-			source = new Source(point, in_data[j][this.#nameIdx], in_data[j]);
-			this.addSource(source);
+			footprint = new Footprint(point,in_data[j][this.#uidIdx], in_data[j][this.#stcsIdx], in_data[j]);
+			this.addFootprint(footprint);
+			totPoints += footprint.totPoints;
 		}
 		this.initBuffer();
+		
 	}
+	
+	
 	
 	
 	
 	
 	initBuffer () {
 
+		this.#indexes = new Uint16Array(this.#totPoints * 2 + nFootprints);
+		
+		let MAX_UNSIGNED_SHORT = 65535; // this is used to enable and disable GL_PRIMITIVE_RESTART_FIXED_INDEX
+		
 		var gl = this.#gl;
-
-		var sources = this.#sources;
 			
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.#vertexCataloguePositionBuffer);
-		var nSources = sources.length;
+		var nFootprints = this.#footprints.length;
 
-		this.#vertexCataloguePosition = new Float32Array( nSources * Catalogue.ELEM_SIZE );
+		// size: total number of points among all footprints + 1 selection for each footprint + 1 line size for each footprint
+		this.#vertexCataloguePosition = new Float32Array( this.#totPoints + 2 * (nFootprints) );
 		var positionIndex = 0;
 		
-		// max num of decimal places is 17
 		var R = 1.00000000000000001;
-		for(var j = 0; j < nSources; j++){
+		for(var j = 0; j < nFootprints; j++){
 			
-			// the commented part has been moved into Point.js
-//			let xyz = [sources[j].point.x, sources[j].point.y, sources[j].point.z];
-//			let phiTheta = cartesianToSpherical(xyz);
-//			let finalXYZ = sphericalToCartesian(phiTheta.phi, phiTheta.theta, R);
-//			this.#vertexCataloguePosition[positionIndex] = finalXYZ[0];
-//			this.#vertexCataloguePosition[positionIndex+1] = finalXYZ[1];
-//			this.#vertexCataloguePosition[positionIndex+2] = finalXYZ[2];
-			
-			// source position on index 0, 1, 2
-			this.#vertexCataloguePosition[positionIndex] = sources[j].point.x;
-			this.#vertexCataloguePosition[positionIndex+1] = sources[j].point.y;
-			this.#vertexCataloguePosition[positionIndex+2] = sources[j].point.z;
-			
-			// source selected on index 3
-			this.#vertexCataloguePosition[positionIndex+3] = 0.0;
-			
-			// source size (not used for the moment) on index 4
-			this.#vertexCataloguePosition[positionIndex+4] = 8.0;
-			
-			positionIndex += Catalogue.ELEM_SIZE;
-			
-		}
-		
-		/* 
-		 * check https://stackoverflow.com/questions/27714014/3d-point-on-circumference-of-a-circle-with-a-center-radius-and-normal-vector
-		 * for a strategy to create circle on the surface of the sphere instead of creating the circle-point in the fragment shader. This 
-		 * should solve the issue of having the circles always parallel to the screen
-		 */ 
-		
-		/*
-		 * https://webglfundamentals.org/webgl/lessons/webgl-instanced-drawing.html
-		 */
-
-	}
-	
-	
-	
-	
-	checkSelection (in_mouseCoords) {
-		var sources = this.#sources;
-		var nSources = sources.length;
-		var selectionIndexes = [];
-		
-		for(var j = 0; j < nSources; j++){
-			let sourcexyz = [sources[j].point.x , sources[j].point.y , sources[j].point.z];
-			
-			let dist = Math.sqrt( (sourcexyz[0] - in_mouseCoords[0] )*(sourcexyz[0] - in_mouseCoords[0] ) + (sourcexyz[1] - in_mouseCoords[1] )*(sourcexyz[1] - in_mouseCoords[1] ) + (sourcexyz[2] - in_mouseCoords[2] )*(sourcexyz[2] - in_mouseCoords[2] ) );
-			if (dist <= 0.004){
-				
-				selectionIndexes.push(j);
+			let footprint = this.#footprints[j];
+			for (let poly in footprint){
+				for (let point in poly){
+					this.#vertexCataloguePosition[positionIndex] = point.x;
+					this.#vertexCataloguePosition[positionIndex+1] = point.y;
+					this.#vertexCataloguePosition[positionIndex+2] = point.z;
 					
+					this.#indexes.push(positionIndex);
+					this.#indexes.push(positionIndex+1);
+					this.#indexes.push(positionIndex+2);
+					
+					positionIndex += 3;
+				}
+				
+				this.#indexes.push(MAX_UNSIGNED_SHORT); // TODO last one shouldn't be added
+				this.#vertexCataloguePosition[positionIndex+1] = 0.0;
+				this.#vertexCataloguePosition[positionIndex+2] = 8.0;
+				positionIndex += 2;
+				
 			}
 		}
-		return selectionIndexes;
+
+//		glEnable ( GL_PRIMITIVE_RESTART_FIXED_INDEX ); // 65535
 		
 	}
+	
+	
+	
+	
+//	checkSelection (in_mouseCoords) {
+//		var sources = this.#sources;
+//		var nSources = sources.length;
+//		var selectionIndexes = [];
+//		
+//		for(var j = 0; j < nSources; j++){
+//			let sourcexyz = [sources[j].point.x , sources[j].point.y , sources[j].point.z];
+//			
+//			let dist = Math.sqrt( (sourcexyz[0] - in_mouseCoords[0] )*(sourcexyz[0] - in_mouseCoords[0] ) + (sourcexyz[1] - in_mouseCoords[1] )*(sourcexyz[1] - in_mouseCoords[1] ) + (sourcexyz[2] - in_mouseCoords[2] )*(sourcexyz[2] - in_mouseCoords[2] ) );
+//			if (dist <= 0.004){
+//				
+//				selectionIndexes.push(j);
+//					
+//			}
+//		}
+//		return selectionIndexes;
+//		
+//	}
 	
 	
 
@@ -291,11 +293,11 @@ class Catalogue{
 		this.#gl.vertexAttribPointer(this.#attribLocations.position, 3, this.#gl.FLOAT, false, Catalogue.BYTES_X_ELEM * Catalogue.ELEM_SIZE, 0);
 		this.#gl.enableVertexAttribArray(this.#attribLocations.position);
 
-		// setting selected sources
-		this.#gl.vertexAttribPointer(this.#attribLocations.selected, 1, this.#gl.FLOAT, false, Catalogue.BYTES_X_ELEM * Catalogue.ELEM_SIZE, Catalogue.BYTES_X_ELEM * 3);
-		this.#gl.enableVertexAttribArray(this.#attribLocations.selected);
+//		// setting selected sources
+//		this.#gl.vertexAttribPointer(this.#attribLocations.selected, 1, this.#gl.FLOAT, false, Catalogue.BYTES_X_ELEM * Catalogue.ELEM_SIZE, Catalogue.BYTES_X_ELEM * 3);
+//		this.#gl.enableVertexAttribArray(this.#attribLocations.selected);
 
-		// TODO The size can be set with uniform or directly in the shader. setting point size (for variable catalogue)
+		// TODO not needed overloading. The size can be set with uniform. setting point size 
 		this.#gl.vertexAttribPointer(this.#attribLocations.pointSize, 1, this.#gl.FLOAT, false, Catalogue.BYTES_X_ELEM * Catalogue.ELEM_SIZE, Catalogue.BYTES_X_ELEM * 4);
 		this.#gl.enableVertexAttribArray(this.#attribLocations.pointSize);
 		
@@ -306,41 +308,58 @@ class Catalogue{
 		rgb[3] = alpha;
 		this.#gl.uniform4f(this.#attribLocations.color, rgb[0], rgb[1], rgb[2], rgb[3]);
 		
-		if (in_mouseCoords != null && in_mouseCoords != this.#oldMouseCoords){
-			
-			for (var k = 0; k < this.#selectionIndexes.length; k++){
-				this.#vertexCataloguePosition[ (this.#selectionIndexes[k] * Catalogue.ELEM_SIZE) + 3] = 0.0;
-				this.#vertexCataloguePosition[ (this.#selectionIndexes[k] * Catalogue.ELEM_SIZE) + 4] = 8.0;
-			}	
-			
-			
-
-			this.#selectionIndexes = this.checkSelection(in_mouseCoords);
-
-			let selectedSources = [];
-			for (var i = 0; i < this.#selectionIndexes.length; i++){
-				selectedSources.push(this.#sources[this.#selectionIndexes[i]]);
-			}
-			
-			if (this.#selectionIndexes.length > 0){
-				const event = new CustomEvent('sourceSelected', { detail: selectedSources });
-				window.dispatchEvent(event);	
-			}
-			
-			for (var i = 0; i < this.#selectionIndexes.length; i++) {
-				
-				this.#vertexCataloguePosition[ (this.#selectionIndexes[i] * Catalogue.ELEM_SIZE) + 3] = 1.0;
-				this.#vertexCataloguePosition[ (this.#selectionIndexes[i] * Catalogue.ELEM_SIZE) + 4] = 10.0;
-				
-			}
-
-		}
+//		if (in_mouseCoords != null && in_mouseCoords != this.#oldMouseCoords){
+//			
+//			for (var k = 0; k < this.#selectionIndexes.length; k++){
+//				this.#vertexCataloguePosition[ (this.#selectionIndexes[k] * Catalogue.ELEM_SIZE) + 3] = 0.0;
+//				this.#vertexCataloguePosition[ (this.#selectionIndexes[k] * Catalogue.ELEM_SIZE) + 4] = 8.0;
+//			}	
+//			
+//			
+//
+//			this.#selectionIndexes = this.checkSelection(in_mouseCoords);
+//
+//			let selectedSources = [];
+//			for (var i = 0; i < this.#selectionIndexes.length; i++){
+//				selectedSources.push(this.#sources[this.#selectionIndexes[i]]);
+//			}
+//			
+//			if (this.#selectionIndexes.length > 0){
+//				const event = new CustomEvent('sourceSelected', { detail: selectedSources });
+//				window.dispatchEvent(event);	
+//			}
+//			
+//			for (var i = 0; i < this.#selectionIndexes.length; i++) {
+//				
+//				this.#vertexCataloguePosition[ (this.#selectionIndexes[i] * Catalogue.ELEM_SIZE) + 3] = 1.0;
+//				this.#vertexCataloguePosition[ (this.#selectionIndexes[i] * Catalogue.ELEM_SIZE) + 4] = 10.0;
+//				
+//			}
+//
+//		}
 		this.#gl.bufferData(this.#gl.ARRAY_BUFFER, this.#vertexCataloguePosition, this.#gl.STATIC_DRAW);
 		
 
 		var numItems = this.#vertexCataloguePosition.length/Catalogue.ELEM_SIZE;
 
-		this.#gl.drawArrays(this.#gl.POINTS, 0, numItems);
+		 
+		
+		for (let footprint in this.#footprints){
+
+			/* 
+			 * this is not needed in WebGL since it's enale dby default 
+			this.#gl.glEnable ( GL_PRIMITIVE_RESTART_FIXED_INDEX ); // 65535
+			*/
+			this.#gl.drawElements (this.#gl.LINE_LOOP, this.#footprints.length ,this.#gl.UNSIGNED_SHORT, this.#indexes);
+			
+			// void gl.drawRangeElements(mode, start, end, count, type, offset);
+			this.#gl.drawRangeElements(this.#gl.LINE_LOOP, start, end, count, type, offset);
+
+
+		}
+		
+//		// TODO CHANGE ME for footprint it should be LINE_LOOP
+//		this.#gl.drawArrays(this.#gl.POINTS, 0, numItems);
 
 		this.#gl.bindBuffer(this.#gl.ARRAY_BUFFER, null);
 		this.#oldMouseCoords = in_mouseCoords;
@@ -351,4 +370,4 @@ class Catalogue{
 }
 
 
-export default Catalogue;
+export default FPCatalogue;

@@ -13,6 +13,9 @@ import SystemPresenter from './presenter/SystemPresenter';
 import CatalogueListView from './view/CatalogueListView';
 import CatalogueListPresenter from './presenter/CatalogueListPresenter';
 
+import FootprintListView from './view/FootprintListView';
+import FootprintsSetListPresenter from './presenter/FootprintsSetListPresenter';
+
 import HiPSListView from './view/HiPSListView';
 import HiPSListPresenter from './presenter/HiPSListPresenter';
 
@@ -23,6 +26,7 @@ import SourceSelectionView from './view/SourceSelectionView';
 import SourceSelectionPresenter from './presenter/SourceSelectionPresenter';
 
 import CatalogueRepo from './repos/CatalogueRepo';
+import FootprintsRepo from './repos/FootprintsRepo';
 import ModelRepo from './repos/ModelRepo';
 import HiPSRepo from './repos/HiPSRepo';
 
@@ -60,6 +64,8 @@ class FVPresenter{
 		this.initPresenter();
 		
 		this.catalogueRepo = new CatalogueRepo("https://sky.esa.int/esasky-tap/catalogs", this.catalogueListPresenter.addCatalogues);
+		
+		this.footprintsRepo = new FootprintsRepo("https://sky.esa.int/esasky-tap/observations", this.footprintsSetListPresenter.addFootprintsSet);
 		
 		// this.modelRepo = new ModelRepo(this.in_gl, this.view.canvas, this.catalogueListPresenter.addCatalogues); 
 		
@@ -129,6 +135,11 @@ class FVPresenter{
 		var catalogueListView = new CatalogueListView();
 		this.catalogueListPresenter = new CatalogueListPresenter(catalogueListView);
 		this.view.appendChild(catalogueListView.getHtml());
+		
+		
+		var footprintListView = new FootprintListView();
+		this.footprintsSetListPresenter = new FootprintsSetListPresenter(footprintListView);
+		this.view.appendChild(footprintListView.getHtml());
 		
 		
 		var sourceSelView = new SourceSelectionView();
