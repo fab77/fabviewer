@@ -5,7 +5,7 @@ import {mat4} from 'gl-matrix';
 import global from '../Global';
 import Point from '../utils/Point';
 import CoordsType from '../utils/CoordsType';
-import Source from './Source';
+import Footprint from './Footprint';
 
 
 class FPCatalogue{
@@ -164,7 +164,7 @@ class FPCatalogue{
 	}
 	
 	addFootprints(in_data){
-		var j,
+		let j,
 		point,
 		footprint;
 		
@@ -177,7 +177,7 @@ class FPCatalogue{
 			
 			footprint = new Footprint(point,in_data[j][this.#uidIdx], in_data[j][this.#stcsIdx], in_data[j]);
 			this.addFootprint(footprint);
-			totPoints += footprint.totPoints;
+			this.#totPoints += footprint.totPoints;
 		}
 		this.initBuffer();
 		

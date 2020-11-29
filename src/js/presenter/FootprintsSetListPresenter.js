@@ -20,13 +20,12 @@ class FootprintsSetListPresenter{
         return this.#view;
     }
 	
-	// this cause a syntax error in Eclipse 4.15.0 since it doesn't support ES6 
+ 
 	addFootprintsSet = (fpSetDescriptorJSON) => {
     	
     	for (let [key, fpSet] of Object.entries(fpSetDescriptorJSON.descriptors) ) {
     		let model = new FPCatalogueDescriptor(fpSet);
-            let fpSetPresenter = new FootprintsSetPresenter(new FootprintView());
-            fpSetPresenter.model = model;
+            let fpSetPresenter = new FootprintsSetPresenter(new FootprintView(), model);
             this.#view.addFPSet(fpSetPresenter.view);
     	}
     }

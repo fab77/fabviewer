@@ -1,5 +1,8 @@
 "use strict";
 
+import Point from '../utils/Point';
+import CoordsType from '../utils/CoordsType';
+
 class Footprint{
 	
 	#polygons; // array of polygons (-> array of points)

@@ -58,6 +58,13 @@ class FootprintsRepo{
 		this.#footprints.push(footprint);
 	}
 	
+	
+	/**
+	 * @param url: TAP server base URL (E.g. sky.esa.int)
+	 * @param descriptor: FPCatalogueDescriptor.js
+	 * @param callback: function
+	 * 
+	 */
 	static retrieveByFoV(url, descriptor, callback){
 		
 		var xhr = new XMLHttpRequest();
@@ -65,8 +72,8 @@ class FootprintsRepo{
 		var tapTable = descriptor.tapTable;
 		var tapRaDeg = descriptor.raTapColumn;
 	    var tapDecDeg = descriptor.decTapColumn;
-//	    var tapName = descriptor.nameTapColumn;
-	    var uid = descriptor.uniqueIdentifierField;
+	    var datasetName = descriptor.datasetName;
+	    var uid = descriptor.uidTapColumn;
 	    var stcs = descriptor.stcs;
 	    
 		
@@ -74,7 +81,7 @@ class FootprintsRepo{
 		var fovPolyAstro = FoVUtils.getAstroFoVPolygon(fovPolyCartesian);
 		var adqlQuery = "select top 1000 * " +
 				"from "+tapTable+" where " +
-				"1=INTERSECTS(POINT('ICRS',"+tapRaDeg+", "+tapDecDeg+"), " +
+				"1=INTERSECTS(fov, " +
 				"POLYGON('ICRS', "+fovPolyAstro+"))";
 		var queryString = "/esasky-tap/tap/sync?request=doQuery&lang=ADQL&format=json&query="+encodeURI(adqlQuery);
 		console.log(queryString);
@@ -107,7 +114,7 @@ class FootprintsRepo{
 					}else if(metadata[i].name == uid){
 						uidIdx = i;
 						k += 1;
-					}else if (metadata[i].stcs == stcs){
+					}else if (metadata[i].name == stcs){
 						stcsIdx = i;
 						k += 1;
 					}
@@ -117,7 +124,7 @@ class FootprintsRepo{
 				}
 				
 				// TODO change footprint to a more meaningfull name like footprintCatalogue
-				var fpCatalogue = new FPCatalogue(name, metadata, raIdx, decIdx, uidIdx, stcsIdx, descriptor);
+				var fpCatalogue = new FPCatalogue(datasetName, metadata, raIdx, decIdx, uidIdx, stcsIdx, descriptor);
 				
 				fpCatalogue.addFootprints(data);
 				FootprintRepo.addFootprint(fpCatalogue);

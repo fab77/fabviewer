@@ -1,4 +1,4 @@
-
+"use strict";
 import $ from 'jquery';
 
 class FootprintView{
@@ -11,9 +11,9 @@ class FootprintView{
                 return this.html;
             },
             setModel: (model)=>{
-                this.html.find("input").attr('id', model.name);
-                this.html.find("label").attr('for', model.name);
-                this.html.find("label").html(model.name);
+                this.html.find("input").attr('id', model.datasetName);
+                this.html.find("label").attr('for', model.datasetName);
+                this.html.find("label").html(model.datasetName);
     
             },
             addCheckedHandler: (handler)=>{
