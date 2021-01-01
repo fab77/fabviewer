@@ -127,7 +127,7 @@ class FootprintsRepo{
 				var fpCatalogue = new FPCatalogue(datasetName, metadata, raIdx, decIdx, uidIdx, stcsIdx, descriptor);
 				
 				fpCatalogue.addFootprints(data);
-				FootprintRepo.addFootprint(fpCatalogue);
+				FootprintsRepo.addFootprint(fpCatalogue);
 				
 				
 				

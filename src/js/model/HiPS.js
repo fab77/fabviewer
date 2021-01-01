@@ -11,7 +11,7 @@ import SphericalGrid from './SphericalGrid';
 import XYZSystem from './XYZSystem';
 import global from '../Global';
 import RayPickingUtils from '../utils/RayPickingUtils';
-import {Vec3, Pointing} from 'healpix';
+import {Vec3, Pointing} from 'healpixjs';
 import {tileBufferSingleton} from './TileBuffer';
 import {healpixGridTileDrawerSingleton} from './HealpixGridTileDrawer';
 import {tileDrawerSingleton} from './TileDrawer';

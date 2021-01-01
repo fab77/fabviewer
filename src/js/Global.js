@@ -1,6 +1,6 @@
 "use strict";
 
-import Healpix from "healpix";
+import Healpix from "healpixjs";
 
 class Global{
 	

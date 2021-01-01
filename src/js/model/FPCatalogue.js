@@ -179,6 +179,8 @@ class FPCatalogue{
 			this.addFootprint(footprint);
 			this.#totPoints += footprint.totPoints;
 		}
+		console.log("this.#totPoints="+this.#totPoints);
+		console.log("this.#footprints.length="+this.#footprints.length);
 		this.initBuffer();
 		
 	}
@@ -190,6 +192,8 @@ class FPCatalogue{
 	
 	initBuffer () {
 
+		
+		var nFootprints = this.#footprints.length;
 		this.#indexes = new Uint16Array(this.#totPoints * 2 + nFootprints);
 		
 		let MAX_UNSIGNED_SHORT = 65535; // this is used to enable and disable GL_PRIMITIVE_RESTART_FIXED_INDEX
@@ -197,7 +201,7 @@ class FPCatalogue{
 		var gl = this.#gl;
 			
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.#vertexCataloguePositionBuffer);
-		var nFootprints = this.#footprints.length;
+		
 
 		// size: total number of points among all footprints + 1 selection for each footprint + 1 line size for each footprint
 		this.#vertexCataloguePosition = new Float32Array( this.#totPoints + 2 * (nFootprints) );
@@ -227,6 +231,8 @@ class FPCatalogue{
 				
 			}
 		}
+		
+		console.log("Buffer initialized");
 
 //		glEnable ( GL_PRIMITIVE_RESTART_FIXED_INDEX ); // 65535
 		
@@ -290,7 +296,7 @@ class FPCatalogue{
 		this.#gl.bindBuffer(this.#gl.ARRAY_BUFFER, this.#vertexCataloguePositionBuffer);
 		
 		// setting source position
-		this.#gl.vertexAttribPointer(this.#attribLocations.position, 3, this.#gl.FLOAT, false, Catalogue.BYTES_X_ELEM * Catalogue.ELEM_SIZE, 0);
+		this.#gl.vertexAttribPointer(this.#attribLocations.position, 3, this.#gl.FLOAT, false, FPCatalogue.BYTES_X_ELEM * FPCatalogue.ELEM_SIZE, 0);
 		this.#gl.enableVertexAttribArray(this.#attribLocations.position);
 
 //		// setting selected sources
@@ -298,7 +304,7 @@ class FPCatalogue{
 //		this.#gl.enableVertexAttribArray(this.#attribLocations.selected);
 
 		// TODO not needed overloading. The size can be set with uniform. setting point size 
-		this.#gl.vertexAttribPointer(this.#attribLocations.pointSize, 1, this.#gl.FLOAT, false, Catalogue.BYTES_X_ELEM * Catalogue.ELEM_SIZE, Catalogue.BYTES_X_ELEM * 4);
+		this.#gl.vertexAttribPointer(this.#attribLocations.pointSize, 1, this.#gl.FLOAT, false, FPCatalogue.BYTES_X_ELEM * FPCatalogue.ELEM_SIZE, FPCatalogue.BYTES_X_ELEM * 4);
 		this.#gl.enableVertexAttribArray(this.#attribLocations.pointSize);
 		
 		
@@ -340,23 +346,28 @@ class FPCatalogue{
 		this.#gl.bufferData(this.#gl.ARRAY_BUFFER, this.#vertexCataloguePosition, this.#gl.STATIC_DRAW);
 		
 
-		var numItems = this.#vertexCataloguePosition.length/Catalogue.ELEM_SIZE;
+		var numItems = this.#vertexCataloguePosition.length/FPCatalogue.ELEM_SIZE;
 
 		 
+		/* 
+		 * this is not needed in WebGL since it's enale dby default 
+		this.#gl.glEnable ( GL_PRIMITIVE_RESTART_FIXED_INDEX ); // 65535
+		*/
+		this.#gl.drawElements (this.#gl.LINE_LOOP, this.#footprints.length ,this.#gl.UNSIGNED_SHORT, this.#indexes);
 		
-		for (let footprint in this.#footprints){
-
-			/* 
-			 * this is not needed in WebGL since it's enale dby default 
-			this.#gl.glEnable ( GL_PRIMITIVE_RESTART_FIXED_INDEX ); // 65535
-			*/
-			this.#gl.drawElements (this.#gl.LINE_LOOP, this.#footprints.length ,this.#gl.UNSIGNED_SHORT, this.#indexes);
-			
-			// void gl.drawRangeElements(mode, start, end, count, type, offset);
-			this.#gl.drawRangeElements(this.#gl.LINE_LOOP, start, end, count, type, offset);
-
-
-		}
+//		for (let footprint in this.#footprints){
+//
+//			/* 
+//			 * this is not needed in WebGL since it's enale dby default 
+//			this.#gl.glEnable ( GL_PRIMITIVE_RESTART_FIXED_INDEX ); // 65535
+//			*/
+//			this.#gl.drawElements (this.#gl.LINE_LOOP, this.#footprints.length ,this.#gl.UNSIGNED_SHORT, this.#indexes);
+//			
+//			// void gl.drawRangeElements(mode, start, end, count, type, offset);
+////			this.#gl.drawRangeElements(this.#gl.LINE_LOOP, start, end, count, type, offset);
+//
+//
+//		}
 		
 //		// TODO CHANGE ME for footprint it should be LINE_LOOP
 //		this.#gl.drawArrays(this.#gl.POINTS, 0, numItems);

@@ -4,6 +4,7 @@
  */
 
 import Camera2 from './model/Camera2';
+
 import RayPickingUtils from './utils/RayPickingUtils';
 
 
@@ -34,7 +35,7 @@ import {mat4, vec3} from 'gl-matrix';
 import {cartesianToSpherical, sphericalToAstroDeg, raDegToHMS, decDegToDMS} from './utils/Utils';
 import FoVUtils from './utils/FoVUtils';
 import global from './Global';
-import {Vec3, Pointing} from 'healpix';
+import {Vec3, Pointing} from 'healpixjs';
 import HiPS from './model/HiPS';
 
 class FVPresenter{
@@ -474,6 +475,13 @@ class FVPresenter{
 		for (k = 0; k < CatalogueRepo.catalogues.length; k++){
 			catalogue = CatalogueRepo.catalogues[k];
 			catalogue.draw(mMatrix, this.mouseCoords);
+		}
+		
+		var j,
+		footprintSet;
+		for (j = 0; j < FootprintsRepo.footprints.length; j++){
+			footprintSet = FootprintsRepo.footprints[j];
+			footprintSet.draw(mMatrix, this.mouseCoords);
 		}
 		
 //		this.xyzRefSystemObj.draw(this.pMatrix, this.camera.getCameraMatrix());
