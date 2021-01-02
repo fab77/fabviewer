@@ -1,7 +1,7 @@
 {
   "name": "fabviewer",
   "version": "1.0.0",
-  "description": "",
+  "description": "WebGL 3D astro maps visualizer in HiPS format supporting PNG, JPG and FITS format",
   "private": true,
   "scripts": {
     "build": "webpack --config webpack.prod.js",
@@ -12,7 +12,7 @@
     "url": "git+https://github.com/fab77/fabviewer.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Fabrizio Giordano (fab77)",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/fab77/fabviewer/issues"
@@ -30,7 +30,6 @@
     "html-loader": "^1.3.0",
     "html-webpack-plugin": "^4.4.1",
     "mini-css-extract-plugin": "^0.11.1",
-    "optimize-css-assets-webpack-plugin": "^5.0.4",
     "style-loader": "^1.2.1",
     "terser-webpack-plugin": "^4.2.0",
     "webpack": "^4.44.1",
@@ -39,8 +38,10 @@
     "webpack-merge": "^5.1.4"
   },
   "dependencies": {
+    "fitsontheweb": "file:../fitsontheweb",
     "gl-matrix": "^3.3.0",
-    "healpix": "file:../../healpixjs",
-    "fitsontheweb": "file:../../FITSOnTheWeb"
+    "healpixjs": "file:../healpixjs",
+    "optimize-css-assets-webpack-plugin": "^5.0.4",
+    "webpack-dev-middleware": "^4.0.2"
   }
 }

@@ -38,20 +38,23 @@ class Footprint{
 		
 		if (stcsParsed.includes("POLYGON")){
 			
-			let polys = stcsParsed.split("POLYGON");
+			let polys = stcsParsed.split("POLYGON ");
 			let currPoly = [];
 			for (let i = 0; i < polys.length; i++){
 				
-				let points = polys[i].split(" ");
-				for (let p = 0; p < points.length - 1; p = p+2){
-					let point = new Point({
-						"raDeg": points[p],
-						"decDeg": points[p+1]
-					}, CoordsType.ASTRO);
-					currPoly.push(point);
-					this.#totPoints+=1;
+				let points = polys[i].trim().split(" ");
+				if (points.length >= 2){
+					for (let p = 0; p < points.length - 1; p = p+2){
+						let point = new Point({
+							"raDeg": points[p],
+							"decDeg": points[p+1]
+						}, CoordsType.ASTRO);
+						currPoly.push(point);
+						this.#totPoints+=1;
+					}
+					this.#polygons.push(currPoly);	
 				}
-				this.#polygons.push(currPoly);
+				
 			}
 
 		} else if (stcsParsed.includes("CIRCLE")){

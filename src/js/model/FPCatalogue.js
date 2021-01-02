@@ -206,25 +206,28 @@ class FPCatalogue{
 		// size: total number of points among all footprints + 1 selection for each footprint + 1 line size for each footprint
 		this.#vertexCataloguePosition = new Float32Array( this.#totPoints + 2 * (nFootprints) );
 		var positionIndex = 0;
-		
+		var vIdx = 0;
+
 		var R = 1.00000000000000001;
 		for(var j = 0; j < nFootprints; j++){
 			
-			let footprint = this.#footprints[j];
-			for (let poly in footprint){
-				for (let point in poly){
-					this.#vertexCataloguePosition[positionIndex] = point.x;
-					this.#vertexCataloguePosition[positionIndex+1] = point.y;
-					this.#vertexCataloguePosition[positionIndex+2] = point.z;
+			let footprint = this.#footprints[j].polygons;
+			for (let polyIdx in footprint){
+				for (let pointIdx in footprint[polyIdx]){
+					this.#vertexCataloguePosition[positionIndex] = footprint[polyIdx][pointIdx].x;
+					this.#vertexCataloguePosition[positionIndex+1] = footprint[polyIdx][pointIdx].y;
+					this.#vertexCataloguePosition[positionIndex+2] = footprint[polyIdx][pointIdx].z;
 					
-					this.#indexes.push(positionIndex);
-					this.#indexes.push(positionIndex+1);
-					this.#indexes.push(positionIndex+2);
+					this.#indexes[vIdx] = positionIndex;
+					this.#indexes[vIdx+1] = positionIndex+1;
+					this.#indexes[vIdx+2] = positionIndex+2;
 					
+					vIdx += 3;
 					positionIndex += 3;
 				}
 				
-				this.#indexes.push(MAX_UNSIGNED_SHORT); // TODO last one shouldn't be added
+				this.#indexes[vIdx+1] = MAX_UNSIGNED_SHORT; // TODO last one shouldn't be added
+				vIdx += 1;
 				this.#vertexCataloguePosition[positionIndex+1] = 0.0;
 				this.#vertexCataloguePosition[positionIndex+2] = 8.0;
 				positionIndex += 2;

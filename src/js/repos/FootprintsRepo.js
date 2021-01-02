@@ -79,7 +79,7 @@ class FootprintsRepo{
 		
 		var fovPolyCartesian = FoVUtils.getFoVPolygon (global.pMatrix, global.camera, global.gl.canvas, global.model, global.rayPicker);
 		var fovPolyAstro = FoVUtils.getAstroFoVPolygon(fovPolyCartesian);
-		var adqlQuery = "select top 1000 * " +
+		var adqlQuery = "select top 100 * " +
 				"from "+tapTable+" where " +
 				"1=INTERSECTS(fov, " +
 				"POLYGON('ICRS', "+fovPolyAstro+"))";
