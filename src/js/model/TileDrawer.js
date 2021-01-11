@@ -244,7 +244,7 @@ class TileDrawer {
 		}
 		let batchIndex = Math.floor(tile.index / N_TILES_PER_TEXTURE);
 		if(this.batchOfTiles[batchIndex] == undefined){
-			this.batchOfTiles[batchIndex] = new BatchOfTiles(N_TILES_PER_ROW, batchIndex, this.vertexPositionBuffer, this.vertexTextureCoordBuffer, this.vertexIndexBuffer, USE_MIPMAP);
+			this.batchOfTiles[batchIndex] = new BatchOfTiles(batchIndex, this.vertexPositionBuffer, this.vertexTextureCoordBuffer, this.vertexIndexBuffer, USE_MIPMAP);
 		}
 		this.batchOfTiles[batchIndex].addTile(tile);
 	}
