@@ -10,55 +10,58 @@ import Footprint from './Footprint';
 
 class FPCatalogue{
 	
-	static ELEM_SIZE = 5;
+	//static ELEM_SIZE = 5;
+	static ELEM_SIZE = 3;
 	static BYTES_X_ELEM = new Float32Array().BYTES_PER_ELEMENT;
 	
-	#datasetName;
-	#metadata;
-	#raIdx;
-	#decIdx;
-	#nameIdx;
-	#stcsIdx;
-	#uidIdx;
-	#shaderProgram;
-	#gl;
-	#vertexCataloguePositionBuffer;
-	#vertexSelectionCataloguePositionBuffer;
-	#footprints = [];
-	#oldMouseCoords;
-	#vertexCataloguePosition;
-	#attribLocations = {};
-	#selectionIndexes;
-	#descriptor;
-	#totPoints;	// Used to compute item size in the GL buffer
-	#indexes;
+	_datasetName;
+	_metadata;
+	_raIdx;
+	_decIdx;
+	_nameIdx;
+	_stcsIdx;
+	_uidIdx;
+	_shaderProgram;
+	_gl;
+	_vertexCataloguePositionBuffer;
+	_indexBuffer;
+	_vertexSelectionCataloguePositionBuffer;
+	_footprints = [];
+	_oldMouseCoords;
+	_vertexCataloguePosition;
+	_attribLocations = {};
+	_selectionIndexes;
+	_descriptor;
+	_totPoints;	// Used to compute item size in the GL buffer
+	_indexes;
 	
 	
 	constructor(in_datasetName, in_metadata, in_raIdx, in_decIdx, in_uidIdx, in_stcsIdx, in_descriptor){
 
-		this.#datasetName = in_datasetName;
-		this.#metadata = in_metadata;
-		this.#raIdx = in_raIdx;
-		this.#decIdx = in_decIdx;
-		this.#uidIdx = in_uidIdx;
-		this.#stcsIdx = in_stcsIdx;
+		this._datasetName = in_datasetName;
+		this._metadata = in_metadata;
+		this._raIdx = in_raIdx;
+		this._decIdx = in_decIdx;
+		this._uidIdx = in_uidIdx;
+		this._stcsIdx = in_stcsIdx;
 		
-		this.#descriptor = in_descriptor;
+		this._descriptor = in_descriptor;
 		
-		this.#totPoints = 0;
+		this._totPoints = 0;
 		
-		this.#gl = global.gl;
-		this.#shaderProgram = this.#gl.createProgram();
-		this.#vertexCataloguePositionBuffer = this.#gl.createBuffer();
-		this.#vertexSelectionCataloguePositionBuffer = this.#gl.createBuffer();
+		this._gl = global.gl;
+		this._shaderProgram = this._gl.createProgram();
+		this._vertexCataloguePositionBuffer = this._gl.createBuffer();
+		this._indexBuffer = this._gl.createBuffer();
+		this._vertexSelectionCataloguePositionBuffer = this._gl.createBuffer();
 		
-		this.#vertexCataloguePosition = [];
+		this._vertexCataloguePosition = [];
 		
-		this.#selectionIndexes = [];
+		this._selectionIndexes = [];
 		
-		this.#oldMouseCoords = null;
+		this._oldMouseCoords = null;
 		
-		this.#attribLocations = {
+		this._attribLocations = {
 				position: 0,
 				selected: 1,
 				pointSize: 2,
@@ -75,21 +78,21 @@ class FPCatalogue{
 	initShaders(){
 		
 		var _self = this;
-		var gl = this.#gl;
-		var shaderProgram = this.#shaderProgram;
+		var gl = this._gl;
+//		var shaderProgram = this._shaderProgram;
 		
 		var fragmentShader = this.loadShaderFromDOM("fpcat-shader-fs");
 		var vertexShader = this.loadShaderFromDOM("fpcat-shader-vs");
 		
-		gl.attachShader(shaderProgram, vertexShader);
-		gl.attachShader(shaderProgram, fragmentShader);
-		gl.linkProgram(shaderProgram);
+		gl.attachShader(this._shaderProgram, vertexShader);
+		gl.attachShader(this._shaderProgram, fragmentShader);
+		gl.linkProgram(this._shaderProgram);
 
-		if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+		if (!gl.getProgramParameter(this._shaderProgram, gl.LINK_STATUS)) {
 			alert("Could not initialise shaders");
 		}
 
-		gl.useProgram(shaderProgram);
+		gl.useProgram(this._shaderProgram);
 
 		// TODO USELESS
 		this.setUniformLocation();
@@ -98,7 +101,7 @@ class FPCatalogue{
 	
 	
 	loadShaderFromDOM(shaderId) {
-		var gl = this.#gl;
+		var gl = this._gl;
 		
 	    var shaderScript = document.getElementById(shaderId);
 	    
@@ -142,25 +145,25 @@ class FPCatalogue{
 	// TODO USELESS
 	setUniformLocation(){
 		
-		var gl = this.#gl;
-		var shaderProgram = this.#shaderProgram;
+		var gl = this._gl;
+//		var shaderProgram = this._shaderProgram;
 
-		shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
-		shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+		this._shaderProgram.pMatrixUniform = gl.getUniformLocation(this._shaderProgram, "uPMatrix");
+		this._shaderProgram.mvMatrixUniform = gl.getUniformLocation(this._shaderProgram, "uMVMatrix");
 
 	}
 	
 	
 	get datasetName(){
-		return this.#datasetName;
+		return this._datasetName;
 	}
 	
 	get footprints(){
-		return this.#footprints;
+		return this._footprints;
 	}
 	
 	addFootprint(in_footprint){
-		this.#footprints.push(in_footprint);
+		this._footprints.push(in_footprint);
 	}
 	
 	addFootprints(in_data){
@@ -171,16 +174,16 @@ class FPCatalogue{
 		for ( j = 0; j < in_data.length; j++){
 			
 			point = new Point({
-				"raDeg": in_data[j][this.#raIdx],
-				"decDeg": in_data[j][this.#decIdx]
+				"raDeg": in_data[j][this._raIdx],
+				"decDeg": in_data[j][this._decIdx]
 			}, CoordsType.ASTRO);
 			
-			footprint = new Footprint(point,in_data[j][this.#uidIdx], in_data[j][this.#stcsIdx], in_data[j]);
+			footprint = new Footprint(point,in_data[j][this._uidIdx], in_data[j][this._stcsIdx], in_data[j]);
 			this.addFootprint(footprint);
-			this.#totPoints += footprint.totPoints;
+			this._totPoints += footprint.totPoints;
 		}
-		console.log("this.#totPoints="+this.#totPoints);
-		console.log("this.#footprints.length="+this.#footprints.length);
+		console.log("this._totPoints="+this._totPoints);
+		console.log("this._footprints.length="+this._footprints.length);
 		this.initBuffer();
 		
 	}
@@ -193,44 +196,49 @@ class FPCatalogue{
 	initBuffer () {
 
 		
-		var nFootprints = this.#footprints.length;
-		this.#indexes = new Uint16Array(this.#totPoints * 2 + nFootprints);
+		var nFootprints = this._footprints.length;
+		this._indexes = new Uint16Array(this._totPoints + nFootprints - 1);
 		
 		let MAX_UNSIGNED_SHORT = 65535; // this is used to enable and disable GL_PRIMITIVE_RESTART_FIXED_INDEX
 		
-		var gl = this.#gl;
+		var gl = this._gl;
 			
-		gl.bindBuffer(gl.ARRAY_BUFFER, this.#vertexCataloguePositionBuffer);
+		gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexCataloguePositionBuffer);
 		
 
 		// size: total number of points among all footprints + 1 selection for each footprint + 1 line size for each footprint
-		this.#vertexCataloguePosition = new Float32Array( this.#totPoints + 2 * (nFootprints) );
+//		this._vertexCataloguePosition = new Float32Array( 3 * this._totPoints + 2 * nFootprints );
+//		this._vertexCataloguePosition = new Float32Array( 3 * this._totPoints + nFootprints );
+		this._vertexCataloguePosition = new Float32Array( 3 * this._totPoints);
 		var positionIndex = 0;
 		var vIdx = 0;
 
-		var R = 1.00000000000000001;
+		var R = 1.000000000000001;
 		for(var j = 0; j < nFootprints; j++){
 			
-			let footprint = this.#footprints[j].polygons;
+			let footprint = this._footprints[j].polygons;
 			for (let polyIdx in footprint){
 				for (let pointIdx in footprint[polyIdx]){
-					this.#vertexCataloguePosition[positionIndex] = footprint[polyIdx][pointIdx].x;
-					this.#vertexCataloguePosition[positionIndex+1] = footprint[polyIdx][pointIdx].y;
-					this.#vertexCataloguePosition[positionIndex+2] = footprint[polyIdx][pointIdx].z;
+					this._vertexCataloguePosition[positionIndex] = footprint[polyIdx][pointIdx].x;
+					this._vertexCataloguePosition[positionIndex+1] = footprint[polyIdx][pointIdx].y;
+					this._vertexCataloguePosition[positionIndex+2] = footprint[polyIdx][pointIdx].z;
 					
-					this.#indexes[vIdx] = positionIndex;
-					this.#indexes[vIdx+1] = positionIndex+1;
-					this.#indexes[vIdx+2] = positionIndex+2;
+					this._indexes[vIdx] = positionIndex;
+//					this._indexes[vIdx+1] = positionIndex+1;
+//					this._indexes[vIdx+2] = positionIndex+2;
 					
-					vIdx += 3;
+					vIdx += 1;
 					positionIndex += 3;
 				}
+				if (polyIdx < nFootprints){
+					this._indexes[vIdx] = MAX_UNSIGNED_SHORT; // TODO last one shouldn't be added
+					vIdx += 1;
+				}
 				
-				this.#indexes[vIdx+1] = MAX_UNSIGNED_SHORT; // TODO last one shouldn't be added
-				vIdx += 1;
-				this.#vertexCataloguePosition[positionIndex+1] = 0.0;
-				this.#vertexCataloguePosition[positionIndex+2] = 8.0;
-				positionIndex += 2;
+//				this._vertexCataloguePosition[positionIndex] = 0.0;
+//				this._vertexCataloguePosition[positionIndex+1] = 8.0;
+//				positionIndex += 2;
+//				positionIndex += 1;
 				
 			}
 		}
@@ -245,7 +253,7 @@ class FPCatalogue{
 	
 	
 //	checkSelection (in_mouseCoords) {
-//		var sources = this.#sources;
+//		var sources = this._sources;
 //		var nSources = sources.length;
 //		var selectionIndexes = [];
 //		
@@ -268,21 +276,20 @@ class FPCatalogue{
 	
 	enableShader(in_mMatrix){
 
-		this.#shaderProgram.catUniformMVMatrixLoc = this.#gl.getUniformLocation(this.#shaderProgram, "uMVMatrix");
-		this.#shaderProgram.catUniformProjMatrixLoc = this.#gl.getUniformLocation(this.#shaderProgram, "uPMatrix");
+		this._shaderProgram.catUniformMVMatrixLoc = this._gl.getUniformLocation(this._shaderProgram, "uMVMatrix");
+		this._shaderProgram.catUniformProjMatrixLoc = this._gl.getUniformLocation(this._shaderProgram, "uPMatrix");
 		
-		this.#attribLocations.position  = this.#gl.getAttribLocation(this.#shaderProgram, 'aCatPosition');
+		this._attribLocations.position  = this._gl.getAttribLocation(this._shaderProgram, 'aCatPosition');
 		
-		this.#attribLocations.selected  = this.#gl.getAttribLocation(this.#shaderProgram, 'a_selected');
+		// Webgl only supports 1 px size for LINE. TODO check outlines instead https://mattdesl.svbtle.com/drawing-lines-is-hard
+//		this._attribLocations.pointSize = this._gl.getAttribLocation(this._shaderProgram, 'a_pointsize');
 
-		this.#attribLocations.pointSize = this.#gl.getAttribLocation(this.#shaderProgram, 'a_pointsize');
-
-		this.#attribLocations.color = this.#gl.getUniformLocation(this.#shaderProgram,'u_fragcolor');
+		this._attribLocations.color = this._gl.getUniformLocation(this._shaderProgram,'u_fragcolor');
 		
 		var mvMatrix = mat4.create();
 		mvMatrix = mat4.multiply(mvMatrix, global.camera.getCameraMatrix(), in_mMatrix);
-		this.#gl.uniformMatrix4fv(this.#shaderProgram.catUniformMVMatrixLoc, false, mvMatrix);
-		this.#gl.uniformMatrix4fv(this.#shaderProgram.catUniformProjMatrixLoc, false, global.pMatrix);
+		this._gl.uniformMatrix4fv(this._shaderProgram.catUniformMVMatrixLoc, false, mvMatrix);
+		this._gl.uniformMatrix4fv(this._shaderProgram.catUniformProjMatrixLoc, false, global.pMatrix);
 
 	}
 	
@@ -292,91 +299,58 @@ class FPCatalogue{
 	draw(in_mMatrix, in_mouseCoords){
 		
 
-		this.#gl.useProgram(this.#shaderProgram);
+		this._gl.useProgram(this._shaderProgram);
 		
 		this.enableShader(in_mMatrix);
 		
-		this.#gl.bindBuffer(this.#gl.ARRAY_BUFFER, this.#vertexCataloguePositionBuffer);
+		this._gl.bindBuffer(this._gl.ARRAY_BUFFER, this._vertexCataloguePositionBuffer);
+		this._gl.bufferData(this._gl.ARRAY_BUFFER, this._vertexCataloguePosition, this._gl.STATIC_DRAW);
+		
 		
 		// setting source position
-		this.#gl.vertexAttribPointer(this.#attribLocations.position, 3, this.#gl.FLOAT, false, FPCatalogue.BYTES_X_ELEM * FPCatalogue.ELEM_SIZE, 0);
-		this.#gl.enableVertexAttribArray(this.#attribLocations.position);
+		this._gl.vertexAttribPointer(this._attribLocations.position, 3, this._gl.FLOAT, false, FPCatalogue.BYTES_X_ELEM * FPCatalogue.ELEM_SIZE, 0);
+		this._gl.enableVertexAttribArray(this._attribLocations.position);
 
-//		// setting selected sources
-//		this.#gl.vertexAttribPointer(this.#attribLocations.selected, 1, this.#gl.FLOAT, false, Catalogue.BYTES_X_ELEM * Catalogue.ELEM_SIZE, Catalogue.BYTES_X_ELEM * 3);
-//		this.#gl.enableVertexAttribArray(this.#attribLocations.selected);
-
-		// TODO not needed overloading. The size can be set with uniform. setting point size 
-		this.#gl.vertexAttribPointer(this.#attribLocations.pointSize, 1, this.#gl.FLOAT, false, FPCatalogue.BYTES_X_ELEM * FPCatalogue.ELEM_SIZE, FPCatalogue.BYTES_X_ELEM * 4);
-		this.#gl.enableVertexAttribArray(this.#attribLocations.pointSize);
+//		// TODO not needed overloading. The size can be set with uniform. setting point size 
+//		this._gl.vertexAttribPointer(this._attribLocations.pointSize, 1, this._gl.FLOAT, false, FPCatalogue.BYTES_X_ELEM * FPCatalogue.ELEM_SIZE, FPCatalogue.BYTES_X_ELEM * 4);
+//		this._gl.enableVertexAttribArray(this._attribLocations.pointSize);
 		
 		
 		// setting source shape color 
-		var rgb = colorHex2RGB(this.#descriptor.shapeColor);
-		var alpha = 1.0;
-		rgb[3] = alpha;
-		this.#gl.uniform4f(this.#attribLocations.color, rgb[0], rgb[1], rgb[2], rgb[3]);
+//		var rgb = colorHex2RGB(this._descriptor.shapeColor);
+//		var alpha = 1.0;
+//		rgb[3] = alpha;
+//		this._gl.uniform4f(this._attribLocations.color, rgb[0], rgb[1], rgb[2], rgb[3]);
 		
-//		if (in_mouseCoords != null && in_mouseCoords != this.#oldMouseCoords){
-//			
-//			for (var k = 0; k < this.#selectionIndexes.length; k++){
-//				this.#vertexCataloguePosition[ (this.#selectionIndexes[k] * Catalogue.ELEM_SIZE) + 3] = 0.0;
-//				this.#vertexCataloguePosition[ (this.#selectionIndexes[k] * Catalogue.ELEM_SIZE) + 4] = 8.0;
-//			}	
-//			
-//			
-//
-//			this.#selectionIndexes = this.checkSelection(in_mouseCoords);
-//
-//			let selectedSources = [];
-//			for (var i = 0; i < this.#selectionIndexes.length; i++){
-//				selectedSources.push(this.#sources[this.#selectionIndexes[i]]);
-//			}
-//			
-//			if (this.#selectionIndexes.length > 0){
-//				const event = new CustomEvent('sourceSelected', { detail: selectedSources });
-//				window.dispatchEvent(event);	
-//			}
-//			
-//			for (var i = 0; i < this.#selectionIndexes.length; i++) {
-//				
-//				this.#vertexCataloguePosition[ (this.#selectionIndexes[i] * Catalogue.ELEM_SIZE) + 3] = 1.0;
-//				this.#vertexCataloguePosition[ (this.#selectionIndexes[i] * Catalogue.ELEM_SIZE) + 4] = 10.0;
-//				
-//			}
-//
-//		}
-		this.#gl.bufferData(this.#gl.ARRAY_BUFFER, this.#vertexCataloguePosition, this.#gl.STATIC_DRAW);
+		this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer);
+		this._gl.bufferData(this._gl.ELEMENT_ARRAY_BUFFER, this._indexes, this._gl.STATIC_DRAW);
 		
-
-		var numItems = this.#vertexCataloguePosition.length/FPCatalogue.ELEM_SIZE;
-
 		 
 		/* 
 		 * this is not needed in WebGL since it's enale dby default 
-		this.#gl.glEnable ( GL_PRIMITIVE_RESTART_FIXED_INDEX ); // 65535
+		this._gl.glEnable ( GL_PRIMITIVE_RESTART_FIXED_INDEX ); // 65535
 		*/
-		this.#gl.drawElements (this.#gl.LINE_LOOP, this.#footprints.length ,this.#gl.UNSIGNED_SHORT, this.#indexes);
+		this._gl.drawElements (this._gl.LINE_LOOP, this._indexes.length ,this._gl.UNSIGNED_SHORT, 0);
 		
-//		for (let footprint in this.#footprints){
+		//Opengl C: glDrawElements(GL_LINE_STRIP, indices.size(), GL_UNSIGNED_INT, (GLvoid*)0);
+
+		
+//		for (let footprint in this._footprints){
 //
 //			/* 
 //			 * this is not needed in WebGL since it's enale dby default 
-//			this.#gl.glEnable ( GL_PRIMITIVE_RESTART_FIXED_INDEX ); // 65535
+//			this._gl.glEnable ( GL_PRIMITIVE_RESTART_FIXED_INDEX ); // 65535
 //			*/
-//			this.#gl.drawElements (this.#gl.LINE_LOOP, this.#footprints.length ,this.#gl.UNSIGNED_SHORT, this.#indexes);
+//			this._gl.drawElements (this._gl.LINE_LOOP, this._footprints.length ,this._gl.UNSIGNED_SHORT, this._indexes);
 //			
 //			// void gl.drawRangeElements(mode, start, end, count, type, offset);
-////			this.#gl.drawRangeElements(this.#gl.LINE_LOOP, start, end, count, type, offset);
+////			this._gl.drawRangeElements(this._gl.LINE_LOOP, start, end, count, type, offset);
 //
 //
 //		}
-		
-//		// TODO CHANGE ME for footprint it should be LINE_LOOP
-//		this.#gl.drawArrays(this.#gl.POINTS, 0, numItems);
-
-		this.#gl.bindBuffer(this.#gl.ARRAY_BUFFER, null);
-		this.#oldMouseCoords = in_mouseCoords;
+		this._gl.bindBuffer(this._gl.ARRAY_BUFFER, null);
+		this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, null);
+		this._oldMouseCoords = in_mouseCoords;
 		
 	}
 
