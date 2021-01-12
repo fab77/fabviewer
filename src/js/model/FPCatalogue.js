@@ -196,12 +196,12 @@ class FPCatalogue{
 	initBuffer () {
 
 		
-		var nFootprints = this._footprints.length;
+		let nFootprints = this._footprints.length;
 		this._indexes = new Uint16Array(this._totPoints + nFootprints - 1);
 		
 		let MAX_UNSIGNED_SHORT = 65535; // this is used to enable and disable GL_PRIMITIVE_RESTART_FIXED_INDEX
 		
-		var gl = this._gl;
+		let gl = this._gl;
 			
 		gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexCataloguePositionBuffer);
 		
@@ -210,11 +210,11 @@ class FPCatalogue{
 //		this._vertexCataloguePosition = new Float32Array( 3 * this._totPoints + 2 * nFootprints );
 //		this._vertexCataloguePosition = new Float32Array( 3 * this._totPoints + nFootprints );
 		this._vertexCataloguePosition = new Float32Array( 3 * this._totPoints);
-		var positionIndex = 0;
-		var vIdx = 0;
+		let positionIndex = 0;
+		let vIdx = 0;
 
 		var R = 1.000000000000001;
-		for(var j = 0; j < nFootprints; j++){
+		for(let j = 0; j < nFootprints; j++){
 			
 			let footprint = this._footprints[j].polygons;
 			for (let polyIdx in footprint){
@@ -223,9 +223,8 @@ class FPCatalogue{
 					this._vertexCataloguePosition[positionIndex+1] = footprint[polyIdx][pointIdx].y;
 					this._vertexCataloguePosition[positionIndex+2] = footprint[polyIdx][pointIdx].z;
 					
-					this._indexes[vIdx] = positionIndex;
-//					this._indexes[vIdx+1] = positionIndex+1;
-//					this._indexes[vIdx+2] = positionIndex+2;
+//					this._indexes[vIdx] = positionIndex;
+					this._indexes[vIdx] = vIdx;
 					
 					vIdx += 1;
 					positionIndex += 3;
@@ -303,12 +302,14 @@ class FPCatalogue{
 		
 		this.enableShader(in_mMatrix);
 		
+		
+		// TODO move this out of the draw method
 		this._gl.bindBuffer(this._gl.ARRAY_BUFFER, this._vertexCataloguePositionBuffer);
 		this._gl.bufferData(this._gl.ARRAY_BUFFER, this._vertexCataloguePosition, this._gl.STATIC_DRAW);
 		
 		
 		// setting source position
-		this._gl.vertexAttribPointer(this._attribLocations.position, 3, this._gl.FLOAT, false, FPCatalogue.BYTES_X_ELEM * FPCatalogue.ELEM_SIZE, 0);
+		this._gl.vertexAttribPointer(this._attribLocations.position, FPCatalogue.ELEM_SIZE, this._gl.FLOAT, false, FPCatalogue.BYTES_X_ELEM * FPCatalogue.ELEM_SIZE, 0);
 		this._gl.enableVertexAttribArray(this._attribLocations.position);
 
 //		// TODO not needed overloading. The size can be set with uniform. setting point size 
@@ -325,29 +326,36 @@ class FPCatalogue{
 		this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer);
 		this._gl.bufferData(this._gl.ELEMENT_ARRAY_BUFFER, this._indexes, this._gl.STATIC_DRAW);
 		
+		
+		
+		/**
+		 * OPENGL code sample
+		**  polygons = [ 
+  		**		0,0,   10,0,  10,5, 5,10,      // polygon 1
+  		**		20,20, 30,20, 30,30            // polygon 2
+		**	]
+		**	glEnable(GL_PRIMITIVE_RESTART);
+		**	glPrimitiveRestartIndex(65535);
+		**	index = [0,1,2,3,65535,4,5,6,65535,...]
+
+		**	//bind and fill GL_ELEMENT_ARRAY_BUFFER
+		**	glDrawElements(GL_LINE_LOOP, index.size, GL_UNSIGNED_INT, 0);
+		**	//will draw lines `0,1 1,2 2,3 3,0 4,5 5,6 6,4`
+		**/
+		
+		
 		 
 		/* 
-		 * this is not needed in WebGL since it's enale dby default 
+		 * this is not needed in WebGL since it's enabled by default 
 		this._gl.glEnable ( GL_PRIMITIVE_RESTART_FIXED_INDEX ); // 65535
+		https://www.khronos.org/registry/webgl/specs/latest/2.0/#4.1.4
+		https://github.com/KhronosGroup/glTF/issues/1142
 		*/
 		this._gl.drawElements (this._gl.LINE_LOOP, this._indexes.length ,this._gl.UNSIGNED_SHORT, 0);
-		
-		//Opengl C: glDrawElements(GL_LINE_STRIP, indices.size(), GL_UNSIGNED_INT, (GLvoid*)0);
 
 		
-//		for (let footprint in this._footprints){
-//
-//			/* 
-//			 * this is not needed in WebGL since it's enale dby default 
-//			this._gl.glEnable ( GL_PRIMITIVE_RESTART_FIXED_INDEX ); // 65535
-//			*/
-//			this._gl.drawElements (this._gl.LINE_LOOP, this._footprints.length ,this._gl.UNSIGNED_SHORT, this._indexes);
-//			
-//			// void gl.drawRangeElements(mode, start, end, count, type, offset);
-////			this._gl.drawRangeElements(this._gl.LINE_LOOP, start, end, count, type, offset);
-//
-//
-//		}
+		//Opengl C: glDrawElements(GL_LINE_STRIP, indices.size(), GL_UNSIGNED_INT, (GLvoid*)0);
+		
 		this._gl.bindBuffer(this._gl.ARRAY_BUFFER, null);
 		this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, null);
 		this._oldMouseCoords = in_mouseCoords;

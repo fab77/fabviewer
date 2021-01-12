@@ -52,13 +52,25 @@ class HiPS extends AbstractSkyEntity{
 		this.xyzRefSystem = new XYZSystem(this.gl);
 
 		this.initShaders();
-		healpixGridTileDrawerSingleton.init();
-		tileDrawerSingleton.init();
+//		healpixGridTileDrawerSingleton.init();
+//		tileDrawerSingleton.init();
 		setInterval(()=> {this.updateVisibleTiles();}, 100);
 		
 		this.registerForEvents();
+		
+		this.minOrder = 3;
+		this.prevOrder = this.minOrder;
 
-		this.addOrder0Tiles();
+		let nside = Math.pow(2, this.norder);
+		this.healpix = new Healpix(nside);
+		this.maxNPix = this.healpix.getNPix();
+		
+		this.fixedOrderFovLimit = 12.5;
+		this.textures = [];
+		this.textures.images = [];
+		
+		
+//		this.addOrder0Tiles();
 	}
 	
 	registerForEvents(){
@@ -77,30 +89,30 @@ class HiPS extends AbstractSkyEntity{
 		}
 	}
 
-	clearAllTiles(){
-		Object.keys(this.visibleTiles).forEach(tileKey => {
-			let tile = tileBufferSingleton.getTileByKey(tileKey);
-			tile.removeFromView();
-		});
-		this.removeOrder0Tiles();
-	}
+//	clearAllTiles(){
+//		Object.keys(this.visibleTiles).forEach(tileKey => {
+//			let tile = tileBufferSingleton.getTileByKey(tileKey);
+//			tile.removeFromView();
+//		});
+//		this.removeOrder0Tiles();
+//	}
 
-	show(){
-		this.addOrder0Tiles();
-	}
+//	show(){
+//		this.addOrder0Tiles();
+//	}
 
 
-	addOrder0Tiles(){
-		for(let i = 0; i < 12; i++){
-			tileBufferSingleton.getTile(0, i, this.format, this.URL).addToView();
-		}
-	}
+//	addOrder0Tiles(){
+//		for(let i = 0; i < 12; i++){
+//			tileBufferSingleton.getTile(0, i, this.format, this.URL).addToView();
+//		}
+//	}
 
-	removeOrder0Tiles(){
-		for(let i = 0; i < 12; i++){
-			tileBufferSingleton.getTile(0, i, this.format, this.URL).removeFromView();
-		}
-	}
+//	removeOrder0Tiles(){
+//		for(let i = 0; i < 12; i++){
+//			tileBufferSingleton.getTile(0, i, this.format, this.URL).removeFromView();
+//		}
+//	}
 
 	initShaders () {
 		var _self = this;
@@ -172,6 +184,156 @@ class HiPS extends AbstractSkyEntity{
 		this.shaderProgram.uniformVertexTextureFactor = this.gl.getUniformLocation(this.shaderProgram, "uFactor0");
 		this.gl.uniform1f(this.shaderProgram.uniformVertexTextureFactor, 1.0);
 	}
+	
+	initBuffer() {
+		
+		
+		console.log("[HiPS::initBuffer]");
+		var nPixels = this.pixels.length;
+		var vertexPosition = new Float32Array(12*nPixels);
+
+		var facesVec3Array;
+		var p = [];
+		
+		var theta0, theta1, theta2, theta3;
+		var phi0, phi1, phi2, phi3;
+		
+		var epsilon = 0.0;
+		for (var i=0; i < nPixels; i++){			
+			
+			facesVec3Array = new Array();
+			facesVec3Array = this.healpix.getBoundaries(currentObj.pixels[i]);
+			
+			
+			if (this.radius != 1){
+				// HiPS radius different from Healpix default radius 1. 
+				// Mapping HEALPix coordinates to the new sphere and radius
+				theta0 = Math.acos(facesVec3Array[0].z);
+				theta1 = Math.acos(facesVec3Array[1].z);
+				theta2 = Math.acos(facesVec3Array[2].z);
+				theta3 = Math.acos(facesVec3Array[3].z);
+				
+				phi0 = Math.atan2(facesVec3Array[0].y, facesVec3Array[0].x);
+				phi1 = Math.atan2(facesVec3Array[1].y, facesVec3Array[1].x);
+				phi2 = Math.atan2(facesVec3Array[2].y, facesVec3Array[2].x);
+				phi3 = Math.atan2(facesVec3Array[3].y, facesVec3Array[3].x);
+				
+				vertexPosition[12*i] = -this.radius * Math.sin(theta0) * Math.cos(phi0);
+				vertexPosition[12*i+1] = this.radius * Math.sin(theta0) * Math.sin(phi0);
+				vertexPosition[12*i+2] = this.radius * Math.cos(theta0);
+				
+				vertexPosition[12*i+3] = -this.radius * Math.sin(theta1) * Math.cos(phi1);
+				vertexPosition[12*i+4] = this.radius * Math.sin(theta1) * Math.sin(phi1);
+				vertexPosition[12*i+5] = this.radius * Math.cos(theta1);
+				
+				vertexPosition[12*i+6] = -this.radius * Math.sin(theta2) * Math.cos(phi2);
+				vertexPosition[12*i+7] = this.radius * Math.sin(theta2) * Math.sin(phi2);
+				vertexPosition[12*i+8] = this.radius * Math.cos(theta2);
+				
+				vertexPosition[12*i+9] = -this.radius * Math.sin(theta3) * Math.cos(phi3);
+				vertexPosition[12*i+10] = this.radius * Math.sin(theta3) * Math.sin(phi3);
+				vertexPosition[12*i+11] = this.radius * Math.cos(theta3);
+				
+			}else{
+				// Default Healpix radius 1
+				vertexPosition[12*i] = facesVec3Array[0].x ;
+				vertexPosition[12*i+1] = facesVec3Array[0].y ;
+				vertexPosition[12*i+2] = facesVec3Array[0].z;
+				
+				vertexPosition[12*i+3] = facesVec3Array[1].x;
+				vertexPosition[12*i+4] = facesVec3Array[1].y;
+				vertexPosition[12*i+5] = facesVec3Array[1].z;
+				
+				vertexPosition[12*i+6] = facesVec3Array[2].x;
+				vertexPosition[12*i+7] = facesVec3Array[2].y;
+				vertexPosition[12*i+8] = facesVec3Array[2].z;
+				
+				vertexPosition[12*i+9] = facesVec3Array[3].x;
+				vertexPosition[12*i+10] = facesVec3Array[3].y;
+				vertexPosition[12*i+11] = facesVec3Array[3].z;
+				
+			}
+		}
+		
+		var textureCoordinates = new Float32Array(8*nPixels);
+	    if (this.fovObj.getMinFoV() >= this.allskyFovLimit){ // AllSky
+	    	//0.037037037
+	    	var s_step=1/27;
+	    	//0.034482759
+	    	var t_step=1/29;
+	    	
+	    	var sindex = 0;
+	    	var tindex = 0;
+	    	for (var i=0; i < nPixels; i++){
+	    		// AllSky map. One map texture
+	        	// [1, 0],[1, 1],[0, 1],[0, 0]
+	        	textureCoordinates[8*i] = (s_step + (s_step * sindex)).toFixed(9);
+	        	textureCoordinates[8*i+1] = (1 - (t_step + t_step * tindex)).toFixed(9);
+	        	textureCoordinates[8*i+2] = (s_step + (s_step * sindex)).toFixed(9);
+	        	textureCoordinates[8*i+3] = (1 - (t_step * tindex)).toFixed(9);
+	        	textureCoordinates[8*i+4] = (s_step * sindex).toFixed(9);
+	        	textureCoordinates[8*i+5] = (1 - (t_step * tindex)).toFixed(9);
+	        	textureCoordinates[8*i+6] = (s_step * sindex).toFixed(9);
+	        	textureCoordinates[8*i+7] = (1 - (t_step + t_step * tindex)).toFixed(9);
+	        	sindex++;
+	        	if(sindex == 27){
+	        		tindex++;
+	        		sindex=0;
+	        	}
+	        }
+	    }else{
+	    	for (var i=0; i < nPixels; i++){
+	        	// UV mapping: 1, 0],[1, 1],[0, 1],[0, 0]
+	    		textureCoordinates[8*i] = 1.0;
+	        	textureCoordinates[8*i+1] = 0.0;
+	        	textureCoordinates[8*i+2] = 1.0;
+	        	textureCoordinates[8*i+3] = 1.0;
+	        	textureCoordinates[8*i+4] = 0.0;
+	        	textureCoordinates[8*i+5] = 1.0;
+	        	textureCoordinates[8*i+6] = 0.0;
+	        	textureCoordinates[8*i+7] = 0.0;
+
+	        }
+	    }		
+		
+	    
+	    
+	    var vertexIndices = new Uint16Array(6*nPixels);
+	    var baseFaceIndex = 0; 
+	    for (var j=0; j< nPixels; j++){
+
+	    	vertexIndices[6*j] = baseFaceIndex;
+	    	vertexIndices[6*j+1] = baseFaceIndex + 1;
+	    	vertexIndices[6*j+2] = baseFaceIndex + 2;
+	    	
+	    	vertexIndices[6*j+3] = baseFaceIndex;
+	    	vertexIndices[6*j+4] = baseFaceIndex + 2;
+	    	vertexIndices[6*j+5] = baseFaceIndex + 3;
+	    		
+	    	baseFaceIndex = baseFaceIndex+4;
+	    	
+	    }
+	    
+	    this.vertexPositionBuffer = this.gl.createBuffer();
+	    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, currentObj.vertexPositionBuffer);
+	    this.gl.bufferData(this.gl.ARRAY_BUFFER, vertexPosition, this.gl.STATIC_DRAW);
+		this.vertexPositionBuffer.itemSize = 3;
+	    this.vertexPositionBuffer.numItems = vertexPosition.length;
+		
+		this.vertexTextureCoordBuffer = this.gl.createBuffer();
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexTextureCoordBuffer); 
+		this.gl.bufferData(this.gl.ARRAY_BUFFER, textureCoordinates, this.gl.STATIC_DRAW);
+		this.vertexTextureCoordBuffer.itemSize = 2;
+		this.vertexTextureCoordBuffer.numItems = textureCoordinates.length;
+	    
+		
+	    this.vertexIndexBuffer = this.gl.createBuffer();
+	    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.vertexIndexBuffer);
+	    this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, vertexIndices, this.gl.STATIC_DRAW);
+	    this.vertexIndexBuffer.itemSize = 1;
+	    this.vertexIndexBuffer.numItems = vertexIndices.length;
+	    
+	};
 
 	refreshModel (in_fov, in_pan){
 		if ( in_fov >= 179){
@@ -335,14 +497,55 @@ class HiPS extends AbstractSkyEntity{
 
 
 	draw(pMatrix, vMatrix){
-		// TODO enable BLENDING to be checked since for some HiPS (like Herschel) alpha is set to 0 when no data   
-		this.gl.enable(this.gl.BLEND);
-		tileDrawerSingleton.draw(pMatrix, vMatrix, this.modelMatrix);
-		this.gl.disable(this.gl.BLEND);
-		
-		healpixGridTileDrawerSingleton.draw(pMatrix, vMatrix, this.modelMatrix);
+//		// TODO enable BLENDING to be checked since for some HiPS (like Herschel) alpha is set to 0 when no data   
+//		this.gl.enable(this.gl.BLEND);
+//		tileDrawerSingleton.draw(pMatrix, vMatrix, this.modelMatrix);
+//		this.gl.disable(this.gl.BLEND);
+//		
+//		healpixGridTileDrawerSingleton.draw(pMatrix, vMatrix, this.modelMatrix);
 		
 		this.enableShader(pMatrix, vMatrix);
+		
+		
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexPositionBuffer);
+		this.gl.vertexAttribPointer(this.shaderProgram.vertexPositionAttribute, this.vertexPositionBuffer.itemSize, this.gl.FLOAT, false, 0, 0);
+		
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, currentObj.vertexTextureCoordBuffer);
+		this.gl.vertexAttribPointer(this.shaderProgram.textureCoordAttribute, this.vertexTextureCoordBuffer.itemSize, this.gl.FLOAT, false, 0, 0);
+		
+		this.gl.bindBuffer(in_gl.ELEMENT_ARRAY_BUFFER, this.vertexIndexBuffer);
+		
+		this.gl.enableVertexAttribArray(this.shaderProgram.vertexPositionAttribute);
+		this.gl.enableVertexAttribArray(this.shaderProgram.textureCoordAttribute);
+		
+		
+		if (this.getMinFoV() >= this.allskyFovLimit){ // AllSky
+			this.gl.activeTexture(this.gl.TEXTURE0);
+			this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures.images[0]);
+			this.gl.uniform1f(this.shaderProgram.uniformVertexTextureFactor, this.opacity);
+			
+			
+		    for (var i=0;i<this.pixels.length;i++){
+		    	this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, 12*i);
+	        }
+		    
+		}else{
+			
+			for (var i=0;i<currentObj.pixels.length;i++){
+					
+				this.gl.activeTexture(this.gl.TEXTURE0);
+				this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures.images[i]);
+				this.gl.uniform1f(this.uniformVertexTextureFactorLoc, this.opacity);
+					
+				this.gl.drawElements(in_gl.TRIANGLES, 6, 
+						this.gl.UNSIGNED_SHORT, 12*i);
+			}
+			
+			
+		}
+		
+		
+		
 		if (this.showSphericalGrid) {
 			this.sphericalGrid.draw(this.shaderProgram);
 	    }
