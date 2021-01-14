@@ -318,10 +318,10 @@ class FPCatalogue{
 		
 		
 		// setting source shape color 
-//		var rgb = colorHex2RGB(this._descriptor.shapeColor);
-//		var alpha = 1.0;
-//		rgb[3] = alpha;
-//		this._gl.uniform4f(this._attribLocations.color, rgb[0], rgb[1], rgb[2], rgb[3]);
+		var rgb = colorHex2RGB(this._descriptor.shapeColor);
+		var alpha = 1.0;
+		rgb[3] = alpha;
+		this._gl.uniform4f(this._attribLocations.color, rgb[0], rgb[1], rgb[2], rgb[3]);
 		
 		this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer);
 		this._gl.bufferData(this._gl.ELEMENT_ARRAY_BUFFER, this._indexes, this._gl.STATIC_DRAW);
@@ -351,13 +351,14 @@ class FPCatalogue{
 		https://www.khronos.org/registry/webgl/specs/latest/2.0/#4.1.4
 		https://github.com/KhronosGroup/glTF/issues/1142
 		*/
-		this._gl.drawElements (this._gl.LINE_LOOP, this._indexes.length ,this._gl.UNSIGNED_SHORT, 0);
-
+//		this._gl.drawElements (this._gl.LINE_LOOP, this._indexes.length ,this._gl.UNSIGNED_SHORT, 0);
+		this._gl.drawElements (this._gl.LINE_LOOP, this._vertexCataloguePosition.length / 3,this._gl.UNSIGNED_SHORT, 0);
+		
 		
 		//Opengl C: glDrawElements(GL_LINE_STRIP, indices.size(), GL_UNSIGNED_INT, (GLvoid*)0);
 		
-		this._gl.bindBuffer(this._gl.ARRAY_BUFFER, null);
-		this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, null);
+//		this._gl.bindBuffer(this._gl.ARRAY_BUFFER, null);
+//		this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, null);
 		this._oldMouseCoords = in_mouseCoords;
 		
 	}
