@@ -17,15 +17,15 @@ import {healpixGridTileDrawerSingleton} from './HealpixGridTileDrawer';
 import {tileDrawerSingleton} from './TileDrawer';
 import HiPSFormatSelectedEvent from '../events/HiPSFormatSelectedEvent';
 import eventBus from '../events/EventBus';
+import FITSOnTheWeb from 'fitsontheweb';
 
 
 
 
 class HiPS extends AbstractSkyEntity{
 
-	constructor(in_radius, in_position, in_xRad, in_yRad, in_name, in_fovUtils){
-			
-		super(in_radius, in_position, in_xRad, in_yRad, in_name, in_fovUtils);
+	constructor(in_radius, in_position, in_xRad, in_yRad, in_name, in_url, in_formats, in_max_order){
+		super(in_radius, in_position, in_xRad, in_yRad, in_name);
 		
 		this.radius = in_radius;
 		this.in_gl = global.gl;
@@ -45,15 +45,17 @@ class HiPS extends AbstractSkyEntity{
 		this.healpix = global.getHealpix(this.norder);
 		this.maxNPix = this.healpix.getNPix();
 		
-		this.URL = "http://skies.esac.esa.int/DSSColor/";
-		this.maxOrder = 9;
+		this.URL = in_url ? in_url : "http://skies.esac.esa.int/DSSColor/";
+		this.format = in_formats ? in_formats : "jpg";
+		this.maxOrder = in_max_order ? in_max_order : 9;
 		
 		this.showSphericalGrid = false;
 		this.showXyzRefCoord = false;
 		this.showEquatorialGrid = false;
 		
 		// below this value we switch from AllSky to HEALPix geometry/texture
-		this.allskyFovLimit = 50.0;
+		this.allskyFovLimit = 32.0;
+		this.useAllsky = true;
 		
 		this.sphericalGrid = new SphericalGrid(1.004, this.in_gl);
 		
@@ -131,6 +133,9 @@ class HiPS extends AbstractSkyEntity{
 		
 	}
 
+	show(){
+
+	}
 	setUniformLocation (){
 
 		this.shaderProgram.pMatrixUniform = this.in_gl.getUniformLocation(this.shaderProgram, "uPMatrix");
@@ -213,7 +218,7 @@ class HiPS extends AbstractSkyEntity{
 		
 		var textureCoordinates = new Float32Array(8*nPixels);
 		
-		if (this.getMinFoV() >= this.allskyFovLimit){ // AllSky
+		if (this.useAllsky){ // AllSky
 	//	    if (this.fovObj.getMinFoV() >= this.allskyFovLimit){ // AllSky
 			//0.037037037
 			var s_step=1/27;
@@ -296,7 +301,7 @@ class HiPS extends AbstractSkyEntity{
 	initTexture (now) {
 		
 		
-		if (this.getMinFoV() >= this.allskyFovLimit){ // AllSky
+		if (this.useAllsky){ // AllSky
 	//			if (this.fovObj.getMinFoV() >= this.allskyFovLimit){ // AllSky
 			
 	//			this.textures = this.in_gl.createTexture();
@@ -329,10 +334,14 @@ class HiPS extends AbstractSkyEntity{
 			this.textures.images[0].image.setAttribute('crossorigin', 'anonymous');
 			this.textures.images[0].image.setAttribute('crossOrigin', 'anonymous');
 			this.textures.images[0].image.crossOrigin = "anonymous";
-			this.textures.images[0].image.src = this.URL+"/Norder3/Allsky.jpg";
-			
-			
 			var _self = this;
+			if(this.format == 'fits'){
+				this.textures.images[0].image.src = this.URL+"/Norder3/Allsky.png";
+			} else {
+				this.textures.images[0].image.src = this.URL+"/Norder3/Allsky." + this.format;
+			}
+			
+			
 			this.textures.images[0].image.onload = function () {
 				
 				handleLoadedTexture(_self.textures.images[0], 0);
@@ -387,7 +396,7 @@ class HiPS extends AbstractSkyEntity{
 				}else{
 
 	//					this.textures.images[n] = this.in_gl.createTexture();
-					console.log("[HiPS::initTexture] new texture "+this.pixels[n]);
+					// console.log("[HiPS::initTexture] new texture "+this.pixels[n]);
 					this.textures.images[n] = {
 							tex: this.in_gl.createTexture(),
 							image: new Image()
@@ -413,7 +422,21 @@ class HiPS extends AbstractSkyEntity{
 					this.textures.images[n].image.setAttribute('crossorigin', 'anonymous');
 					this.textures.images[n].image.setAttribute('crossOrigin', 'anonymous');
 					this.textures.images[n].image.crossOrigin = "anonymous";
-					this.textures.images[n].image.src = this.URL+"/Norder"+this.norder+"/Dir"+dirNumber+"/Npix"+this.pixels[n]+".jpg";
+					var _self = this;
+					if(this.format == 'fits'){
+						let l = n;
+						let fitsReader = new FITSOnTheWeb(this.URL+"/Norder"+this.norder+"/Dir"+dirNumber+"/Npix"+this.pixels[l]+"." + this.format, "grayscale", "linear", 0.0966, 2.461, 
+						currimg => {
+							_self.textures.images[l].image = currimg;
+							_self.textures.images[l].image.onload = () => {
+								handleLoadedTexture(_self.textures.images[l], 0, l);
+							}
+						});
+						fitsReader.start();
+					} else {
+						this.textures.images[n].image.src = this.URL+"/Norder"+this.norder+"/Dir"+dirNumber+"/Npix"+this.pixels[n]+"." + this.format;
+					}
+
 				}
 				
 				
@@ -467,7 +490,7 @@ class HiPS extends AbstractSkyEntity{
 			}
 			
 			
-			if (_self.getMinFoV() >= _self.allskyFovLimit){
+			if (_self.useAllsky){
 				console.log("handleLoadedTexture - Full sky - no mipmap");
 				// it's not a power of 2. Turn off mip and set wrapping to clamp to edge
 				_self.in_gl.texParameteri(_self.in_gl.TEXTURE_2D, _self.in_gl.TEXTURE_WRAP_S, _self.in_gl.CLAMP_TO_EDGE);
@@ -518,7 +541,7 @@ class HiPS extends AbstractSkyEntity{
 		var gl = global.gl;
 		
 		
-		if (this.getMinFoV() >= this.allskyFovLimit) {
+		if (this.useAllsky) {
 			console.log("[HiPS::updateVisiblePixels] computing all pixels for AllSky");
 			this.computePixels();
 		}else{
@@ -534,7 +557,7 @@ class HiPS extends AbstractSkyEntity{
 	//			var maxY = in_canvas.height;
 
 			
-	//			currentObj.pixels.splice(0, currentObj.pixels.length);
+			this.pixels.splice(0, this.pixels.length);
 			var xy = [];
 			var neighbours = [];
 			var intersectionWithModel = {
@@ -598,6 +621,9 @@ class HiPS extends AbstractSkyEntity{
 		
 	}
 
+	clearAllTiles(){
+		this.pixels.splice(0, this.pixels.length);
+	}
 
 
 	refreshModel (in_fov, in_pan){
@@ -608,6 +634,7 @@ class HiPS extends AbstractSkyEntity{
 		var pMatrix = global.pMatrix;
 		var gl = global.gl;
 		
+		this.useAllsky = in_fov >= this.allskyFovLimit;
 		var now = (new Date()).getTime();
 
 		if (in_pan && in_fov < this.allskyFovLimit){
@@ -645,7 +672,7 @@ class HiPS extends AbstractSkyEntity{
 			}else if (in_fov < 0.125){
 				cnorder = 12;
 			}
-			
+			cnorder = Math.min(cnorder, this.maxOrder);
 			
 			var needsRefresh = (this.norder != cnorder) || 
 					(in_fov < this.allskyFovLimit && this.prevFoV >= this.allskyFovLimit) || 
@@ -743,7 +770,7 @@ class HiPS extends AbstractSkyEntity{
 		
 		
 		// 4. draw
-		if (this.getMinFoV() >= this.allskyFovLimit){ // AllSky
+		if (this.useAllsky){ // AllSky
 			this.in_gl.activeTexture(this.in_gl.TEXTURE0);
 	//			this.in_gl.bindTexture(this.in_gl.TEXTURE_2D, this.textures.images[0]);
 			this.in_gl.bindTexture(this.in_gl.TEXTURE_2D, this.textures.images[0].tex);

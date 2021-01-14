@@ -36,10 +36,11 @@ class HiPSPresenter{
 				global.currentHips.clearAllTiles();
 
 				if(_self.hips == undefined){
+					let format = _self._formats[0] == "fits" ? _self._formats[1] : _self._formats[0];
 					_self.hips = new HiPS(1, [0.0, 0.0, 0.0], 
 						Math.PI / 2, 
 						Math.PI / 2, _self._model.surveyName, 
-						_self._model.url, _self._formats[0],
+						_self._model.url, format,
 						_self._maxOrder);
 				} else {
 					_self.hips.show();
@@ -62,9 +63,18 @@ class HiPSPresenter{
 	fireEvents(in_view){
 		console.log(in_view.getHiPSFormat());
 		in_view.getHiPSFormat().on('change', (event) => {
-			let format = event.target.value;
-		    console.log(format);
-		    eventBus.fireEvent(new HiPSFormatSelectedEvent(format, this._model.surveyName));
+			if(this.hips && this.isChecked){
+				let format = event.target.value;
+				console.log(format);
+				this.hips = new HiPS(1, [0.0, 0.0, 0.0], 
+					Math.PI / 2, 
+					Math.PI / 2, this._model.surveyName, 
+					this._model.url, format,
+					this._maxOrder);
+				global.currentHips = this.hips;
+
+				eventBus.fireEvent(new HiPSFormatSelectedEvent(format, this._model.surveyName));
+			}
 		});
 
 	}
