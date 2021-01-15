@@ -9,7 +9,7 @@ import {vec3, mat4} from 'gl-matrix';
 import global from '../Global';
 
 
-class AbstractSkyEntity{
+class AbstractSkyEntity_extractedTile{
 	
 	constructor(in_radius, in_position, in_xRad, in_yRad, in_name){
 		let in_gl = global.gl;
@@ -183,4 +183,4 @@ class AbstractSkyEntity{
 	
 }
 
-export default AbstractSkyEntity;
+export default AbstractSkyEntity_extractedTile;

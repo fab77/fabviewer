@@ -6,7 +6,7 @@
  * @param in_position - array of double e.g. [0.0, 0.0, -7]
  */
 
-import AbstractSkyEntity from './AbstractSkyEntity';
+import AbstractSkyEntity_extractedTile from './AbstractSkyEntity_extractedTile';
 import SphericalGrid from './SphericalGrid';
 import XYZSystem from './XYZSystem';
 import global from '../Global';
@@ -21,7 +21,7 @@ import eventBus from '../events/EventBus';
 
 
 
-class HiPS_extractedTile extends AbstractSkyEntity{
+class HiPS_extractedTile extends AbstractSkyEntity_extractedTile{
 
 	static className = "HiPSEntity";
 	
@@ -98,7 +98,7 @@ class HiPS_extractedTile extends AbstractSkyEntity{
 
 	removeOrder0Tiles(){
 		for(let i = 0; i < 12; i++){
-			tileBufferSingleton.getTile(0, i, this.format, this.URL).removeFromView();
+			//tileBufferSingleton.getTile(0, i, this.format, this.URL).removeFromView();
 		}
 	}
 
@@ -337,7 +337,10 @@ class HiPS_extractedTile extends AbstractSkyEntity{
 	draw(pMatrix, vMatrix){
 		// TODO enable BLENDING to be checked since for some HiPS (like Herschel) alpha is set to 0 when no data   
 		this.gl.enable(this.gl.BLEND);
-		tileDrawerSingleton.draw(pMatrix, vMatrix, this.modelMatrix);
+		for(let i = 0; i < 12; i++){
+			tileBufferSingleton.getTile(0, i, this.format, this.URL).draw(pMatrix, vMatrix, this.modelMatrix);
+		}
+
 		this.gl.disable(this.gl.BLEND);
 		
 		healpixGridTileDrawerSingleton.draw(pMatrix, vMatrix, this.modelMatrix);
