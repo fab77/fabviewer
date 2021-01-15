@@ -6,8 +6,10 @@ import HiPSSettingsView from '../view/HiPSSettingsView';
 import eventBus from '../events/EventBus';
 import HiPSFormatSelectedEvent from '../events/HiPSFormatSelectedEvent';
 import HiPS from '../model/HiPS';
+import HiPS_extractedTile from '../model/HiPS_extractedTile';
 import global from '../Global';
 
+const USE_OLD_HIPS_JS = true;
 
 class HiPSPresenter{
 	
@@ -37,16 +39,19 @@ class HiPSPresenter{
 
 				if(_self.hips == undefined){
 					let format = _self._formats[0] == "fits" ? _self._formats[1] : _self._formats[0];
-//					_self.hips = new HiPS(1, [0.0, 0.0, 0.0], 
-//							Math.PI / 2, 
-//							Math.PI / 2, _self._model.surveyName, 
-//							_self._model.url, format,
-//							_self._maxOrder);
-					_self.hips = new HiPS(1, [0.0, 0.0, 0.0], 
+					if(USE_OLD_HIPS_JS){
+						_self.hips = new HiPS(1, [0.0, 0.0, 0.0], 
 							0, 
 							0, _self._model.surveyName, 
 							_self._model.url, format,
 							_self._maxOrder);
+					} else {
+						_self.hips = new HiPS_extractedTile(1, [0.0, 0.0, 0.0], 
+							0, 
+							0, _self._model.surveyName, 
+							_self._model.url, format,
+							_self._maxOrder);
+					}
 				} else {
 					_self.hips.show();
 				}
@@ -71,11 +76,19 @@ class HiPSPresenter{
 			if(this.hips && this.isChecked){
 				let format = event.target.value;
 				console.log(format);
-				this.hips = new HiPS(1, [0.0, 0.0, 0.0], 
-					Math.PI / 2, 
-					Math.PI / 2, this._model.surveyName, 
-					this._model.url, format,
-					this._maxOrder);
+				if(USE_OLD_HIPS_JS){
+					this.hips = new HiPS(1, [0.0, 0.0, 0.0], 
+						Math.PI / 2, 
+						Math.PI / 2, this._model.surveyName, 
+						this._model.url, format,
+						this._maxOrder);
+				} else {
+					this.hips = new HiPS_extractedTile(1, [0.0, 0.0, 0.0], 
+						Math.PI / 2, 
+						Math.PI / 2, this._model.surveyName, 
+						this._model.url, format,
+						this._maxOrder);
+				}
 				global.currentHips = this.hips;
 
 				eventBus.fireEvent(new HiPSFormatSelectedEvent(format, this._model.surveyName));
