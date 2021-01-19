@@ -44,7 +44,7 @@ export function colorHex2RGB(hexColor){
 }
 
 export function degToRad(degrees) {
-	return degrees * Math.PI / 180;
+	return (degrees / 180 ) * Math.PI ;
 }
 
 export function radToDeg(radians) {
@@ -58,6 +58,7 @@ export function sphericalToAstroDeg(phiDeg, thetaDeg){
 		raDeg += 360;
 	}
 	
+//	decDeg = 90 - thetaDeg;
 	decDeg = 90 - thetaDeg;
 	
 	return {
@@ -66,25 +67,11 @@ export function sphericalToAstroDeg(phiDeg, thetaDeg){
 	};
 }
 
-Utils.astroDegToSpherical = function(raDeg, decDeg){
-	var phiDeg, thetaDeg;
-//	phiDeg = 90 - raDeg;
-	phiDeg = raDeg;
-	if (phiDeg < 0){
-		phiDeg += 360;
-	}
-	
-	thetaDeg = 90 - decDeg;
-	
-	return {
-		phi: phiDeg,
-		theta: thetaDeg
-	};
-}
 export function sphericalToCartesian(phiDeg, thetaDeg, r){
+	r = (r == undefined) ? 1 : r;
 	var x = r * Math.sin(degToRad(thetaDeg)) * Math.cos(degToRad(phiDeg));
 	var y = r * Math.sin(degToRad(phiDeg)) * Math.sin(degToRad(thetaDeg));
-	var z = r * Math.cos(degToRad(thetaDeg));
+	var z = r * Math.cos(degToRad(thetaDeg)).toFixed(4);
 	return [x, y, z];
 };
 
@@ -105,9 +92,6 @@ export function astroDegToSpherical(raDeg, decDeg){
 		theta: thetaDeg
 	};
 }
-
-
-
 
 export function raDegToHMS(raDeg){
 	

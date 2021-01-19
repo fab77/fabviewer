@@ -45,8 +45,6 @@ class AbstractSkyEntity{
 	}
 	
 	
-	
-	
 	translate(in_translation){
 		mat4.translate(this.T, this.T, this.center);
 		this.refreshModelMatrix();

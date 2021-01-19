@@ -37,11 +37,16 @@ class HiPSPresenter{
 
 				if(_self.hips == undefined){
 					let format = _self._formats[0] == "fits" ? _self._formats[1] : _self._formats[0];
+//					_self.hips = new HiPS(1, [0.0, 0.0, 0.0], 
+//							Math.PI / 2, 
+//							Math.PI / 2, _self._model.surveyName, 
+//							_self._model.url, format,
+//							_self._maxOrder);
 					_self.hips = new HiPS(1, [0.0, 0.0, 0.0], 
-						Math.PI / 2, 
-						Math.PI / 2, _self._model.surveyName, 
-						_self._model.url, format,
-						_self._maxOrder);
+							0, 
+							0, _self._model.surveyName, 
+							_self._model.url, format,
+							_self._maxOrder);
 				} else {
 					_self.hips.show();
 				}

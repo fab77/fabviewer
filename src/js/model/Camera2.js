@@ -2,6 +2,7 @@
  * @author Fabrizio Giordano (Fab)
  */
 import {vec3, mat4} from 'gl-matrix';
+import {degToRad} from '../utils/Utils';
 
 class Camera2{
 	constructor(in_position){
@@ -86,6 +87,49 @@ class Camera2{
 //		console.log("[Camera2::init] this.vMatrix ");
 //		console.log(this.vMatrix);
 //		console.log("[Camera2::init] END -----------");
+		
+		
+		// TODO convert phi and theta to radians
+		
+		let focusPoint = [0.0, 0.0, 0.0];
+		
+		let cameraPos = vec3.clone(in_position);
+		let cameraUp = vec3.clone([0.0, 1.0, 0.0]);
+		
+		let yaw = 0;
+		let pitch = 0.0;
+		
+		yaw += this.phi;
+		pitch += this.theta;
+		
+		
+		
+		/* TODO 
+		 * - rotate cameraPos of yaw and pitch
+		 * - compute new cameraUp
+		 * 
+		 */
+
+		
+		cameraPos[0] = Math.cos(degToRad(yaw)) * Math.cos(degToRad(pitch));
+		cameraPos[1] = Math.sin(degToRad(pitch));
+		cameraPos[2] = Math.sin(degToRad(yaw)) * Math.cos(degToRad(pitch));
+		
+		let cameraRight = vec3.create();
+		let cameraRightNorm = vec3.create();
+		
+		vec3.cross(cameraRight, cameraUp, cameraPos);
+		
+		vec3.normalize(cameraRightNorm, cameraRight);
+		vec3.cross(cameraUp, cameraPos, cameraRight);
+		
+		mat4.lookAt(this.vMatrix, cameraPos, focusPoint, cameraUp);
+//		this.refreshViewMatrix();
+		
+		
+		
+		
+		
 	};
 
 	zoom(inertia){
@@ -111,6 +155,9 @@ class Camera2{
 				
 		this.refreshViewMatrix();
 	}
+	
+	
+	
 	
 	rotateZ(sign){
 		let factorRad = sign * 0.01;

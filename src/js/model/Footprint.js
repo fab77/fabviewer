@@ -34,7 +34,9 @@ class Footprint{
 	
 	computePoints(){
 		
-		let stcsParsed = this.#stcs.replace("ICRS", "").replace("J2000", "").trim().replace(/  +/g, ' ');
+		
+		// TODO STCS parser: it should be a separated class or utility class following the standard
+		let stcsParsed = this.#stcs.replace("ICRS", "").replace("J2000", "").replace("UNION", "").replace("TOPOCENTER", "").trim().replace(/  +/g, ' ');
 		
 		if (stcsParsed.includes("POLYGON")){
 			

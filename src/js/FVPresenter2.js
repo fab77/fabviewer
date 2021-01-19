@@ -39,7 +39,7 @@ import global from './Global';
 import {Vec3, Pointing} from 'healpixjs';
 import HiPS from './model/HiPS';
 
-class FVPresenter{
+class FVPresenter2{
 	constructor(in_view, in_gl){
 		this.in_gl = in_gl;
 		if (DEBUG){
@@ -96,30 +96,13 @@ class FVPresenter{
 		this.previousSeconds;
 		
 		this.nearestVisibleObjectIdx = 0;
-//		RayPickingUtils.getNearestObjectOnRay(this.view.canvas.width / 2, this.view.canvas.height / 2, this.modelRepo);
 		
-//		RayPickingUtils.getNearestObjectOnRay(
-//				this.view.canvas.width / 2, 
-//				this.view.canvas.height / 2,
-//				this.pMatrix,
-//				this.camera,
-//				this.in_gl.canvas,
-//				this.modelRepo);
-		
-//		this.raypicker.getNearestObjectOnRay(
-//				this.view.canvas.width / 2, 
-//				this.view.canvas.height / 2,
-//				this.pMatrix,
-//				this.camera,
-//				this.in_gl.canvas,
-//				this.modelRepo);
-		
-		
-		
-		
+//		global.currentHips = new HiPS(1, [0.0, 0.0, 0.0], 
+//				Math.PI / 2, 
+//				Math.PI / 2, "Herschel SPIRE 250 micron", "//skies.esac.esa.int//Herschel/normalized/hips250_pnorm_allsky/", "png");
 		global.currentHips = new HiPS(1, [0.0, 0.0, 0.0], 
-				Math.PI / 2, 
-				Math.PI / 2, "Herschel SPIRE 250 micron", "//skies.esac.esa.int//Herschel/normalized/hips250_pnorm_allsky/", "png");
+				0, 
+				0, "Herschel SPIRE 250 micron", "//skies.esac.esa.int//Herschel/normalized/hips250_pnorm_allsky/", "png");
 		this.view.setPickedObjectName(global.currentHips);
 		
 		this.lastDrawTime = (new Date()).getTime() * 0.001;
@@ -180,13 +163,6 @@ class FVPresenter{
 				this.in_gl.canvas,
 				(global.currentHips)
 				);
-//		var raDecDeg = FoVUtils.getFoVPolygon(
-//				this.pMatrix,
-//				this.camera,
-//				in_gl.canvas,
-//				(this.modelRepo.objModels[this.neareastModel.idx]),
-//				this.raypicker
-//				);
 
 		console.log(raDecDeg);
 			
@@ -227,12 +203,16 @@ class FVPresenter{
 			if (intersectionWithModel.intersectionPoint.intersectionPoint.length > 0){
 				
 				var phiThetaDeg = cartesianToSpherical(intersectionWithModel.intersectionPoint.intersectionPoint);
+				//TODO to be reviewed. cartesianToSpherical seems to convert already Dec into [-90, 90]
 				var raDecDeg = sphericalToAstroDeg(phiThetaDeg.phi, phiThetaDeg.theta);
+//				var raDecDeg = {
+//						ra: phiThetaDeg.phi,
+//						dec: -phiThetaDeg.theta
+//						};
 				var raHMS = raDegToHMS(raDecDeg.ra);
 				var decDMS = decDegToDMS(raDecDeg.dec);
 				this.view.setPickedSphericalCoordinates(phiThetaDeg);
 				this.view.setPickedAstroCoordinates(raDecDeg, raHMS, decDMS);
-				
 				this.view.setPickedObjectName(intersectionWithModel.pickedObject.name);
 				
 			}else{
@@ -284,7 +264,12 @@ class FVPresenter{
 						}
 
 						var phiThetaDeg = cartesianToSpherical(mousePoint);
+						//TODO to be reviewed. cartesianToSpherical seems to convert already Dec into [-90, 90]
 						var raDecDeg = sphericalToAstroDeg(phiThetaDeg.phi, phiThetaDeg.theta);
+//						var raDecDeg = {
+//								ra: phiThetaDeg.phi,
+//								dec: -phiThetaDeg.theta
+//								};
 						var raHMS = raDegToHMS(raDecDeg.ra);
 						var decDMS = decDegToDMS(raDecDeg.dec);
 						this.view.setPickedSphericalCoordinates(phiThetaDeg);
@@ -368,6 +353,7 @@ class FVPresenter{
 		}
 
 		var handleMouseWheel = (event) => {
+			
 			if (event.deltaY < 0) {
 				// Zoom in
 				this.zoomInertia -= 0.001;
@@ -389,6 +375,37 @@ class FVPresenter{
 		this.view.canvas.onwheel = handleMouseWheel;
 		
 	};
+	
+	getModelCenter(){
+		
+		
+		var rect = this.view.canvas.getBoundingClientRect();
+		
+		
+		let centralCanvasX = (rect.left + this.view.canvas.width)/2;
+		let centralCanvasY = (rect.top + this.view.canvas.height)/2;
+		
+		var intersectionWithModel = RayPickingUtils.getIntersectionPointWithModel(centralCanvasX, centralCanvasY, [global.currentHips]);
+		if (intersectionWithModel.intersectionPoint.intersectionPoint === undefined){
+			return;
+		}
+		if (intersectionWithModel.intersectionPoint.intersectionPoint.length > 0){
+			
+			let phiThetaDeg = cartesianToSpherical(intersectionWithModel.intersectionPoint.intersectionPoint);
+			let raDecDeg = sphericalToAstroDeg(phiThetaDeg.phi, phiThetaDeg.theta);
+			let raHMS = raDegToHMS(raDecDeg.ra);
+			let decDMS = decDegToDMS(raDecDeg.dec);
+			
+			console.log(intersectionWithModel.pickedObject.name);
+			console.log(phiThetaDeg);
+			console.log(raDecDeg);
+			
+			
+		}else{
+			// console.log("no intersection");
+		}	
+		return this.nearestVisibleObjectIdx;
+	}
 	
 	refreshFov(neareastModelIdx){
 		if (DEBUG){
@@ -436,11 +453,15 @@ class FVPresenter{
 		
 		var THETA, PHI;
 		if (this.mouseDown || Math.abs(this.inertiaX) > 0.02 || Math.abs(this.inertiaY) > 0.02) {
-			THETA = 0.9 * this.inertiaY;
-			PHI = 0.9 * this.inertiaX;
+//			THETA = 0.9 * this.inertiaY;
+//			PHI = 0.9 * this.inertiaX;
+			THETA = this.inertiaY;
+			PHI = this.inertiaX;
 			this.inertiaX *= 0.95;
 			this.inertiaY *= 0.95;
 			this.camera.rotate(PHI, THETA);
+//			this.camera.rotate(degToRad(1), THETA);
+			
 			this.refreshViewAndModel(true);
 		}else{
 			this.inertiaY = 0;
@@ -505,4 +526,4 @@ class FVPresenter{
 	};
 }
 
-export default FVPresenter;
+export default FVPresenter2;

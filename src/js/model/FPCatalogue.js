@@ -189,10 +189,6 @@ class FPCatalogue{
 	}
 	
 	
-	
-	
-	
-	
 	initBuffer () {
 
 		
@@ -358,7 +354,7 @@ class FPCatalogue{
 		//Opengl C: glDrawElements(GL_LINE_STRIP, indices.size(), GL_UNSIGNED_INT, (GLvoid*)0);
 		
 //		this._gl.bindBuffer(this._gl.ARRAY_BUFFER, null);
-//		this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, null);
+		this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, null);
 		this._oldMouseCoords = in_mouseCoords;
 		
 	}

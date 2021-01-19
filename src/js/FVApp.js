@@ -2,7 +2,9 @@
  * @author Fabrizio Giordano (Fab77)
  */
 import FVView from './FVView';
-import FVPresenter from './FVPresenter';
+
+//import FVPresenter from './FVPresenter';
+import FVPresenter2 from './FVPresenter2';
 import global from './Global';
 
 
@@ -52,7 +54,7 @@ class FVApp{
 		this.view = new FVView(canvas);
 		
 		global.gl = this.gl;
-		this.presenter = new FVPresenter(this.view, this.gl);
+		this.presenter = new FVPresenter2(this.view, this.gl);
 		
 		this.fabVReqID = '';
 		
