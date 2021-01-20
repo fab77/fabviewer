@@ -35,11 +35,9 @@ class HiPS_extractedTile extends AbstractSkyEntity_extractedTile{
 		
 		this.format = format == undefined ? "fits" : format;
 		
-		this.fitsReader = null;
-
 		this.order = 0;
 
-	    this.URL = url;
+		this.URL = url;
 		this.maxOrder = maxOrder == undefined ? 7 : maxOrder;
 		this.visibleTiles = {};
 
@@ -51,11 +49,11 @@ class HiPS_extractedTile extends AbstractSkyEntity_extractedTile{
 
 		this.xyzRefSystem = new XYZSystem(this.gl);
 
+		tileDrawerSingleton.init();
 		this.initShaders();
 		healpixGridTileDrawerSingleton.init();
-		tileDrawerSingleton.init();
 		setInterval(()=> {this.updateVisibleTiles();}, 100);
-		
+
 		this.registerForEvents();
 
 		this.addOrder0Tiles();
@@ -98,7 +96,7 @@ class HiPS_extractedTile extends AbstractSkyEntity_extractedTile{
 
 	removeOrder0Tiles(){
 		for(let i = 0; i < 12; i++){
-			//tileBufferSingleton.getTile(0, i, this.format, this.URL).removeFromView();
+			tileBufferSingleton.getTile(0, i, this.format, this.URL).removeFromView();
 		}
 	}
 
@@ -119,10 +117,8 @@ class HiPS_extractedTile extends AbstractSkyEntity_extractedTile{
 		this.gl.useProgram(this.shaderProgram);
 
 		this.shaderProgram.vertexPositionAttribute = this.gl.getAttribLocation(this.shaderProgram, "aVertexPosition");
-		this.gl.enableVertexAttribArray(this.shaderProgram.vertexPositionAttribute);
 
 		this.shaderProgram.textureCoordAttribute = this.gl.getAttribLocation(this.shaderProgram, "aTextureCoord");
-		this.gl.enableVertexAttribArray(this.shaderProgram.textureCoordAttribute);
 
 		this.setUniformLocation();
 
@@ -319,9 +315,6 @@ class HiPS_extractedTile extends AbstractSkyEntity_extractedTile{
 		this.shaderProgram.samplerUniform = this.gl.getUniformLocation(this.shaderProgram, "uSampler0");
 		this.shaderProgram.uniformVertexTextureFactor = this.gl.getUniformLocation(this.shaderProgram, "uFactor0");
 		this.shaderProgram.sphericalGridEnabledUniform = this.gl.getUniformLocation(this.shaderProgram, "uSphericalGrid");
-
-		this.shaderProgram.vertexPositionAttribute = this.gl.getAttribLocation(this.shaderProgram, "aVertexPosition");
-		this.shaderProgram.textureCoordAttribute = this.gl.getAttribLocation(this.shaderProgram, "aTextureCoord");
 
 		this.gl.uniform1f(this.shaderProgram.uniformVertexTextureFactor, 1.0);
 		this.gl.uniformMatrix4fv(this.shaderProgram.mMatrixUniform, false, this.modelMatrix);
