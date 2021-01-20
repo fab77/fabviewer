@@ -25,23 +25,21 @@ class TileDrawer {
 		this.gl.useProgram(this.shaderProgram);
 
 		this.shaderProgram.vertexPositionAttribute = this.gl.getAttribLocation(this.shaderProgram, "aVertexPosition");
-		this.gl.enableVertexAttribArray(this.shaderProgram.vertexPositionAttribute);
-
 		this.shaderProgram.textureCoordAttribute = this.gl.getAttribLocation(this.shaderProgram, "aTextureCoord");
-		this.gl.enableVertexAttribArray(this.shaderProgram.textureCoordAttribute);
-
+		
+		
 		this.setUniformLocation();
-
+		
 		this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);
 	}
-
-
+	
+	
 	getShader(id){
 		let shaderScript = document.getElementById(id);
 		if (!shaderScript) {
 			return null;
 		}
-
+		
 		let str = "";
 		let k = shaderScript.firstChild;
 		while (k) {
@@ -50,7 +48,7 @@ class TileDrawer {
 			}
 			k = k.nextSibling;
 		}
-
+		
 		let shader;
 		if (shaderScript.type == "x-shader/x-fragment") {
 			shader = this.gl.createShader(this.gl.FRAGMENT_SHADER);
@@ -85,9 +83,6 @@ class TileDrawer {
 		this.shaderProgram.uniformVertexTextureFactor = this.gl.getUniformLocation(this.shaderProgram, "uFactor0");
 		this.shaderProgram.sphericalGridEnabledUniform = this.gl.getUniformLocation(this.shaderProgram, "uSphericalGrid");
 
-		this.shaderProgram.vertexPositionAttribute = this.gl.getAttribLocation(this.shaderProgram, "aVertexPosition");
-		this.shaderProgram.textureCoordAttribute = this.gl.getAttribLocation(this.shaderProgram, "aTextureCoord");
-
 		this.gl.uniform1f(this.shaderProgram.uniformVertexTextureFactor, 1.0);
 		this.gl.uniformMatrix4fv(this.shaderProgram.mMatrixUniform, false, modelMatrix);
 		this.gl.uniformMatrix4fv(this.shaderProgram.pMatrixUniform, false, pMatrix);
@@ -110,12 +105,10 @@ class TileDrawer {
 		this.initShaders();
 	}
 
-	setBuffers(vertexPositionBuffer, vertexTextureCoordBuffer, vertexIndexBuffer){
+	setBuffers(vertexPositionBuffer, vertexIndexBuffer){
 		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vertexPositionBuffer);
-		this.gl.vertexAttribPointer(this.shaderProgram.vertexPositionAttribute, vertexPositionBuffer.itemSize, this.gl.FLOAT, false, 0, 0);
-		
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vertexTextureCoordBuffer);
-		this.gl.vertexAttribPointer(this.shaderProgram.textureCoordAttribute, vertexTextureCoordBuffer.itemSize, this.gl.FLOAT, false, 0, 0);
+		this.gl.vertexAttribPointer(this.shaderProgram.vertexPositionAttribute, 3, this.gl.FLOAT, false, 20, 0);
+		this.gl.vertexAttribPointer(this.shaderProgram.textureCoordAttribute, 2, this.gl.FLOAT, false, 20, 12);
 		
 		this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, vertexIndexBuffer);
 	}
