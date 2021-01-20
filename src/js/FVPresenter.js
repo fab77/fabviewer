@@ -38,7 +38,8 @@ import FoVUtils from './utils/FoVUtils';
 import global from './Global';
 import {Vec3, Pointing} from 'healpixjs';
 import HiPS from './model/HiPS';
-import HiPSPresenter from './presenter/HiPSPresenter';
+import {USE_OLD_HIPS_JS} from './presenter/HiPSPresenter';
+
 import HiPS_extractedTile from './model/HiPS_extractedTile';
 
 class FVPresenter{
@@ -116,7 +117,7 @@ class FVPresenter{
 //				this.in_gl.canvas,
 //				this.modelRepo);
 
-		if(HiPSPresenter.USE_OLD_HIPS_JS){
+		if(USE_OLD_HIPS_JS){
 			global.currentHips = new HiPS(1, [0.0, 0.0, 0.0], 
 				Math.PI / 2, 
 				Math.PI / 2, "DSS2 color", "//skies.esac.esa.int/DSSColor/", "jpg");

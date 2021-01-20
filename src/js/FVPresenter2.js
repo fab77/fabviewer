@@ -38,6 +38,8 @@ import FoVUtils from './utils/FoVUtils';
 import global from './Global';
 import {Vec3, Pointing} from 'healpixjs';
 import HiPS from './model/HiPS';
+import {USE_OLD_HIPS_JS} from './presenter/HiPSPresenter';
+import HiPS_extractedTile from './model/HiPS_extractedTile';
 
 class FVPresenter2{
 	constructor(in_view, in_gl){
@@ -100,9 +102,16 @@ class FVPresenter2{
 //		global.currentHips = new HiPS(1, [0.0, 0.0, 0.0], 
 //				Math.PI / 2, 
 //				Math.PI / 2, "Herschel SPIRE 250 micron", "//skies.esac.esa.int//Herschel/normalized/hips250_pnorm_allsky/", "png");
-		global.currentHips = new HiPS(1, [0.0, 0.0, 0.0], 
+		if(USE_OLD_HIPS_JS){
+			global.currentHips = new HiPS(1, [0.0, 0.0, 0.0], 
 				0, 
-				0, "Herschel SPIRE 250 micron", "//skies.esac.esa.int//Herschel/normalized/hips250_pnorm_allsky/", "png");
+				0, "DSS2 color", "//skies.esac.esa.int/DSSColor/", "jpg");
+		} else {
+			global.currentHips = new HiPS_extractedTile(1, [0.0, 0.0, 0.0], 
+				0, 
+				0, "DSS2 color", "//skies.esac.esa.int/DSSColor/", "jpg");
+
+		}
 		this.view.setPickedObjectName(global.currentHips);
 		
 		this.lastDrawTime = (new Date()).getTime() * 0.001;

@@ -137,3 +137,4 @@ class HiPSPresenter{
 	}
 }
 export default HiPSPresenter;
+export {USE_OLD_HIPS_JS}
