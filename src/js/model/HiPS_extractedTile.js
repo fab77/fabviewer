@@ -14,7 +14,7 @@ import RayPickingUtils from '../utils/RayPickingUtils';
 import {Vec3, Pointing} from 'healpixjs';
 import {tileBufferSingleton} from './TileBuffer';
 import {healpixGridTileDrawerSingleton} from './HealpixGridTileDrawer';
-import {tileDrawerSingleton} from './TileDrawer';
+import {healpixShader} from './HealpixShader';
 import HiPSFormatSelectedEvent from '../events/HiPSFormatSelectedEvent';
 import eventBus from '../events/EventBus';
 
@@ -49,7 +49,7 @@ class HiPS_extractedTile extends AbstractSkyEntity_extractedTile{
 
 		this.xyzRefSystem = new XYZSystem(this.gl);
 
-		tileDrawerSingleton.init();
+		healpixShader.init();
 		this.initShaders();
 		healpixGridTileDrawerSingleton.init();
 		setInterval(()=> {this.updateVisibleTiles();}, 100);

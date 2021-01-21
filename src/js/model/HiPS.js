@@ -12,11 +12,6 @@ import XYZSystem from './XYZSystem';
 import global from '../Global';
 import RayPickingUtils from '../utils/RayPickingUtils';
 import {Vec3, Pointing} from 'healpixjs';
-import {tileBufferSingleton} from './TileBuffer';
-import {healpixGridTileDrawerSingleton} from './HealpixGridTileDrawer';
-import {tileDrawerSingleton} from './TileDrawer';
-import HiPSFormatSelectedEvent from '../events/HiPSFormatSelectedEvent';
-import eventBus from '../events/EventBus';
 import FITSOnTheWeb from 'fitsontheweb';
 
 

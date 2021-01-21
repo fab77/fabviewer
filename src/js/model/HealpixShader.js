@@ -2,7 +2,7 @@
 
 import global from '../Global';
 
-class TileDrawer {
+class HealpixShader {
 
 	constructor() {
 		this.isInitialized = false;
@@ -113,4 +113,4 @@ class TileDrawer {
 		this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, vertexIndexBuffer);
 	}
 }
-export const tileDrawerSingleton = new TileDrawer();
+export const healpixShader = new HealpixShader();

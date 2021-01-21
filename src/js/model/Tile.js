@@ -4,7 +4,7 @@ import global from '../Global';
 import {tileBufferSingleton} from './TileBuffer';
 import {healpixGridTileBufferSingleton} from './HealpixGridTileBuffer';
 import {healpixGridTileDrawerSingleton} from './HealpixGridTileDrawer';
-import {tileDrawerSingleton} from './TileDrawer';
+import {healpixShader} from './HealpixShader';
 import FITSOnTheWeb from 'fitsontheweb';
 
 class Tile {
@@ -396,13 +396,13 @@ class Tile {
 			});
 		}
 
-		tileDrawerSingleton.useShader(pMatrix, vMatrix, modelMatrix);
+		healpixShader.useShader(pMatrix, vMatrix, modelMatrix);
 		this.gl.activeTexture(this.gl.TEXTURE0);
 		this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
 		let drawsPerTexture = 4 * 6;
 		quadrantsToDraw.forEach((quadrant, i) => {
 			if(quadrant){
-				tileDrawerSingleton.setBuffers(this.vertexPositionBuffer, this.vertexIndexBuffers[i]);
+				healpixShader.setBuffers(this.vertexPositionBuffer, this.vertexIndexBuffers[i]);
 				this.gl.drawElements(this.gl.TRIANGLES, drawsPerTexture, this.gl.UNSIGNED_SHORT, 0);
 			}
 		})
