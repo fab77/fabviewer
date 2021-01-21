@@ -23,18 +23,18 @@ class TileBuffer {
 		return this.tiles[tileKey];
 	}
 
-	getTileByKey(key){
-		let orderIpixFormat = key.split("/");
-		if(this.tiles[key] == undefined){
+	getTileByKey(tileKey){
+		let orderIpixFormat = tileKey.split("/");
+		if(this.tiles[tileKey] == undefined){
 			if(this.tileCache[tileKey] == undefined){
-				this.tiles[key] = new Tile(orderIpixFormat[0], orderIpixFormat[1], orderIpixFormat[2], orderIpixFormat[3]);
+				this.tiles[tileKey] = new Tile(orderIpixFormat[0], orderIpixFormat[1], orderIpixFormat[2], orderIpixFormat[3]);
 			} else {
-				this.tiles[key] = this.tileCache[key];
-				delete this.tileCache[key];
+				this.tiles[tileKey] = this.tileCache[tileKey];
+				delete this.tileCache[tileKey];
 			}
 		}
 		this.tiles[tileKey].age = 0; 
-		return this.tiles[key];
+		return this.tiles[tileKey];
 	}
 	
 	getIfAlreadyExist(order, ipix, format, url){
