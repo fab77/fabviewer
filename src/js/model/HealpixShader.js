@@ -27,10 +27,7 @@ class HealpixShader {
 		this.shaderProgram.vertexPositionAttribute = this.gl.getAttribLocation(this.shaderProgram, "aVertexPosition");
 		this.shaderProgram.textureCoordAttribute = this.gl.getAttribLocation(this.shaderProgram, "aTextureCoord");
 		
-		
 		this.setUniformLocation();
-		
-		this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);
 	}
 	
 	

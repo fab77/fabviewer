@@ -17,6 +17,8 @@ class Tile {
 		this.url = url;
 		this.radius = 1;
 		this.useMipmap = true;
+		this.step = 8;
+		this.xyf = global.getHealpix(order).nest2xyf(ipix);
 
 		this.imageLoaded = false;
 		this.textureLoaded = false;
@@ -27,7 +29,6 @@ class Tile {
 
 		this.format = format != undefined ? format : "png";
 		
-		this.initBuffer();
 		this.initImage();
 
 		this.getExistingChildren().forEach((child) =>{
@@ -35,88 +36,6 @@ class Tile {
 				this.numberOfVisibleChildrenReadyToDraw++;
 			}
 		});
-		
-	}
-	
-	initBuffer () {
-		this.vertexPosition = new Float32Array(25 * 3 + 2 * 25);
-		this.vertexPositionBuffer = this.gl.createBuffer();
-        let tileTextureCoordinates = new Float32Array(25*2);
-        let index = 0;
-
-        tileTextureCoordinates[index++] = 1.00;
-        tileTextureCoordinates[index++] = 0.00;
-        tileTextureCoordinates[index++] = 1.00;
-        tileTextureCoordinates[index++] = 0.25;
-        tileTextureCoordinates[index++] = 1.00;
-        tileTextureCoordinates[index++] = 0.50;
-        tileTextureCoordinates[index++] = 1.00;
-        tileTextureCoordinates[index++] = 0.75;
-        tileTextureCoordinates[index++] = 1.00;
-        tileTextureCoordinates[index++] = 1.00;
-
-        //5
-        tileTextureCoordinates[index++] = 0.75;
-        tileTextureCoordinates[index++] = 1.00;
-        tileTextureCoordinates[index++] = 0.50;
-        tileTextureCoordinates[index++] = 1.00;
-        tileTextureCoordinates[index++] = 0.25;
-        tileTextureCoordinates[index++] = 1.00;
-
-        //8
-        tileTextureCoordinates[index++] = 0.00;
-        tileTextureCoordinates[index++] = 1.00;
-        tileTextureCoordinates[index++] = 0.00;
-        tileTextureCoordinates[index++] = 0.75;
-        tileTextureCoordinates[index++] = 0.00;
-        tileTextureCoordinates[index++] = 0.50;
-
-        //11
-        tileTextureCoordinates[index++] = 0.00;
-        tileTextureCoordinates[index++] = 0.25;
-        tileTextureCoordinates[index++] = 0.00;
-        tileTextureCoordinates[index++] = 0.00;
-        tileTextureCoordinates[index++] = 0.25;
-        tileTextureCoordinates[index++] = 0.00;
-        tileTextureCoordinates[index++] = 0.50;
-        tileTextureCoordinates[index++] = 0.00;
-        //15
-        tileTextureCoordinates[index++] = 0.75;
-        tileTextureCoordinates[index++] = 0.00;
-        tileTextureCoordinates[index++] = 0.75;
-        tileTextureCoordinates[index++] = 0.25;
-        tileTextureCoordinates[index++] = 0.75;
-        tileTextureCoordinates[index++] = 0.50;
-        tileTextureCoordinates[index++] = 0.75;
-        tileTextureCoordinates[index++] = 0.75;
-        
-        //19
-        tileTextureCoordinates[index++] = 0.50;
-        tileTextureCoordinates[index++] = 0.75;
-        tileTextureCoordinates[index++] = 0.25;
-        tileTextureCoordinates[index++] = 0.75;
-        tileTextureCoordinates[index++] = 0.25;
-        tileTextureCoordinates[index++] = 0.50;
-        //22
-        tileTextureCoordinates[index++] = 0.25;
-        tileTextureCoordinates[index++] = 0.25;
-        tileTextureCoordinates[index++] = 0.50;
-        tileTextureCoordinates[index++] = 0.25;
-        tileTextureCoordinates[index++] = 0.50;
-        tileTextureCoordinates[index++] = 0.50;
-
-
-		global.getHealpix(this.order).get25Points(this.ipix).forEach((position, i) => {
-			this.addVertexPosition(position, tileTextureCoordinates, i);
-		});
-	}
-
-	addVertexPosition(position, tileTextureCoordinates, i) {
-		this.vertexPosition[this.vertexPositionIndex++] = position.x;
-		this.vertexPosition[this.vertexPositionIndex++] = position.y;
-		this.vertexPosition[this.vertexPositionIndex++] = position.z;
-		this.vertexPosition[this.vertexPositionIndex++] = tileTextureCoordinates[i * 2];
-		this.vertexPosition[this.vertexPositionIndex++] = tileTextureCoordinates[i * 2 + 1];
 	}
 
 	initImage () {
@@ -138,7 +57,132 @@ class Tile {
 		this.imageLoaded = true;
 		this.isDownloading = false;
 		this.createTexture();
-		this.addTile();
+		this.setupBuffers();
+	}
+
+	createTexture(){
+		this.texture = this.gl.createTexture();
+		this.gl.activeTexture(this.gl.TEXTURE0);
+		this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
+
+		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+		if(this.useMipmap){
+			this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_NEAREST);// 4 times per pixel
+			// this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_LINEAR);// 8 times per pixel
+		} else {
+			this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
+			// this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
+		}
+	}
+
+	setupBuffers(){
+		this.setupVertexPositionBuffer();
+		this.vertexIndexBuffers = [];
+		this.setupIndexBufferForQuadrant(0, 0);
+		this.setupIndexBufferForQuadrant(0, 1);
+		this.setupIndexBufferForQuadrant(1, 1);
+		this.setupIndexBufferForQuadrant(1, 0);
+
+		this.gl.activeTexture(this.gl.TEXTURE0);
+		this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
+		this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.image);
+		this.gl.generateMipmap(this.gl.TEXTURE_2D);
+		
+		this.anythingToRender = true;
+		this.textureLoaded = true;
+	}
+
+	setupVertexPositionBuffer () {
+		this.vertexPosition = new Float32Array(5 * (this.step + 1) * (this.step + 1));
+		this.vertexPositionBuffer = this.gl.createBuffer();
+		this.populateVertexList(this.step);
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexPositionBuffer);
+		this.gl.bufferData(this.gl.ARRAY_BUFFER, this.vertexPosition, this.gl.STATIC_DRAW);
+	}
+
+	setupIndexBufferForQuadrant(x, y){
+		let index = 0;
+		let indexArray = new Uint16Array(3 * this.step * this.step / 2);
+		for (let i = x * this.step / 2; i < (this.step / 2) * (x + 1); i++){
+			for (let j = y * this.step / 2; j < (this.step / 2) * (y + 1); j++){
+				indexArray[index++] = i * (this.step + 1) + j;
+				indexArray[index++] = 1 + i * (this.step + 1) + j;
+				indexArray[index++] = this.step + 1 + i * (this.step + 1) + j;
+				indexArray[index++] = 1 + i * (this.step + 1) + j;
+				indexArray[index++] = this.step + 1 + i * (this.step + 1) + j;
+				indexArray[index++] = this.step + 2 + i * (this.step + 1) + j;
+			}
+		}
+
+		let quadrant = x * 2 + y;
+		this.vertexIndexBuffers[quadrant] = this.gl.createBuffer();
+		this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.vertexIndexBuffers[quadrant]);
+		this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, indexArray, this.gl.STATIC_DRAW);
+	}
+	
+	/*
+	* Vertices distributed in a grid pattern like the example below
+	* Example for pattern with step set to 4
+	*            24
+	*          19  23
+	*       14   18  22
+	*      9   13  17  21
+	*    4   8   12  16  20
+	*      3   7   11  15
+	*        2   6   10
+	*          1   5
+	*            0
+	* 
+	*/
+	populateVertexList(step){
+		for (let y = 0; y < step; y += 2){
+			for (let x = 0; x < step; x += 2){
+				let points = this.getPointsForXyf(x, y, step);
+
+				this.addVertexPosition(points[2], (1 / step) * y, (1 / step) * x, y * (step + 1) + x);
+				this.addVertexPosition(points[3], (1 / step) * y, (1 / step) + (1 / step) * x, y * (step + 1) + x + 1);
+				this.addVertexPosition(points[1], (1 / step) + (1 / step) * y, (1 / step) * x, (y + 1) * (step + 1) + x);
+				this.addVertexPosition(points[0], (1 / step) + (1 / step) * y, (1 / step) + (1 / step) * x, (y + 1) * (step + 1) + x + 1);
+				if (x + 2 >= step && step > 1){
+					x = step - 1;
+					points = this.getPointsForXyf(x, y, step);
+					this.addVertexPosition(points[3], (1 / step) * y, (1 / step) + (1 / step) * x, y * (step + 1) + step);
+					this.addVertexPosition(points[0], (1 / step) + (1 / step) * y, (1 / step) + (1 / step) * x, (y + 1) * (step + 1) + step);
+				}
+			}
+		}
+		if (step > 1){
+			this.vertexOfLastRow(step);
+		}
+	}
+
+	vertexOfLastRow(step) {
+		let y = step - 1;
+
+		for (let x = 0; x < step; x += 2){
+			let points = this.getPointsForXyf(x, y, step);
+			this.addVertexPosition(points[1], (1 / step) + (1 / step) * y, (1 / step) * x, (y + 1) * (step + 1) + x);
+			this.addVertexPosition(points[0], (1 / step) + (1 / step) * y, (1 / step) + (1 / step) * x, (y + 1) * (step + 1) + x + 1);
+			if (x + 2 >= step){
+				x = step - 1;
+				points = this.getPointsForXyf(x, y, step);
+				this.addVertexPosition(points[0], (1 / step) + (1 / step) * y, (1 / step) + (1 / step) * x, (y + 1) * (step + 1) + step);
+			}
+		}
+	}
+
+	getPointsForXyf(x, y, step){
+		return global.getHealpix(this.order).getPointsForXyf(x + this.xyf.ix * step, y + this.xyf.iy * step, step, this.xyf.face);
+	}
+
+	addVertexPosition(position, u , v, index) {
+		index *= 5;
+		this.vertexPosition[index++] = position.x;
+		this.vertexPosition[index++] = position.y;
+		this.vertexPosition[index++] = position.z;
+		this.vertexPosition[index++] = u;
+		this.vertexPosition[index++] = v;
 	}
 
 	startLoadingImage(){
@@ -185,7 +229,7 @@ class Tile {
 		healpixGridTileDrawerSingleton.add(healpixGridTileBufferSingleton.getTile(this.order, this.ipix));
 
 		if(this.imageLoaded && !this.textureLoaded){
-			this.addTile();
+			this.setupBuffers();
 		}
 	}
 
@@ -246,140 +290,6 @@ class Tile {
 		return children;
 	}
 
-	createTexture(){
-		this.texture = this.gl.createTexture();
-		this.gl.activeTexture(this.gl.TEXTURE0);
-		this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
-
-		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
-		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
-		if(this.useMipmap){
-			this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_NEAREST);// 4 times per pixel
-			// this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_LINEAR);// 8 times per pixel
-		} else {
-			this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
-			// this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
-		}
-	}
-
-
-    addTile(){
-		let tileVertexIndices = [];
-		tileVertexIndices[0] = new Uint16Array(3 * 2 * 4);
-		tileVertexIndices[1] = new Uint16Array(3 * 2 * 4);
-		tileVertexIndices[2] = new Uint16Array(3 * 2 * 4);
-		tileVertexIndices[3] = new Uint16Array(3 * 2 * 4);
-		this.vertexIndexBuffers = [];
-		this.vertexIndexBuffers[0] = this.gl.createBuffer();
-		this.vertexIndexBuffers[1] = this.gl.createBuffer();
-		this.vertexIndexBuffers[2] = this.gl.createBuffer();
-		this.vertexIndexBuffers[3] = this.gl.createBuffer();
-        let baseFaceIndex = 0;
-
-		this.nextTileVertexIndexPosition = 0;
-
-        this.setVertexIndexFor4Points(tileVertexIndices[3],
-            baseFaceIndex + 0, baseFaceIndex + 1, baseFaceIndex + 16, baseFaceIndex + 15);
-        this.setVertexIndexFor4Points(tileVertexIndices[3],
-			baseFaceIndex + 1, baseFaceIndex + 2, baseFaceIndex + 17, baseFaceIndex + 16);
-		this.setVertexIndexFor4Points(tileVertexIndices[3],
-			baseFaceIndex + 15, baseFaceIndex + 16, baseFaceIndex + 23, baseFaceIndex + 14);
-		this.setVertexIndexFor4Points(tileVertexIndices[3],
-			baseFaceIndex + 16, baseFaceIndex + 17, baseFaceIndex + 24, baseFaceIndex + 23);
-		this.nextTileVertexIndexPosition = 0;
-			
-        this.setVertexIndexFor4Points(tileVertexIndices[2],
-            baseFaceIndex + 2, baseFaceIndex + 3, baseFaceIndex + 18, baseFaceIndex + 17);
-        this.setVertexIndexFor4Points(tileVertexIndices[2],
-            baseFaceIndex + 3, baseFaceIndex + 4, baseFaceIndex + 5, baseFaceIndex + 18);
-        this.setVertexIndexFor4Points(tileVertexIndices[2],
-            baseFaceIndex + 17, baseFaceIndex + 18, baseFaceIndex + 19, baseFaceIndex + 24);
-        this.setVertexIndexFor4Points(tileVertexIndices[2],
-            baseFaceIndex + 18, baseFaceIndex + 5, baseFaceIndex + 6, baseFaceIndex + 19);
-		this.nextTileVertexIndexPosition = 0;
-        
-        this.setVertexIndexFor4Points(tileVertexIndices[1],
-            baseFaceIndex + 14, baseFaceIndex + 23, baseFaceIndex + 22, baseFaceIndex + 13);
-        this.setVertexIndexFor4Points(tileVertexIndices[1],
-            baseFaceIndex + 23, baseFaceIndex + 24, baseFaceIndex + 21, baseFaceIndex + 22);
-		this.setVertexIndexFor4Points(tileVertexIndices[1],
-			baseFaceIndex + 13, baseFaceIndex + 22, baseFaceIndex + 11, baseFaceIndex + 12);
-		this.setVertexIndexFor4Points(tileVertexIndices[1],
-			baseFaceIndex + 22, baseFaceIndex + 21, baseFaceIndex + 10, baseFaceIndex + 11);
-		this.nextTileVertexIndexPosition = 0;
-		
-		this.setVertexIndexFor4Points(tileVertexIndices[0],
-			baseFaceIndex + 24, baseFaceIndex + 19, baseFaceIndex + 20, baseFaceIndex + 21);
-		this.setVertexIndexFor4Points(tileVertexIndices[0],
-			baseFaceIndex + 19, baseFaceIndex + 6, baseFaceIndex + 7, baseFaceIndex + 20);
-        this.setVertexIndexFor4Points(tileVertexIndices[0],
-            baseFaceIndex + 21, baseFaceIndex + 20, baseFaceIndex + 9, baseFaceIndex + 10);
-        this.setVertexIndexFor4Points(tileVertexIndices[0],
-            baseFaceIndex + 20, baseFaceIndex + 7, baseFaceIndex + 8, baseFaceIndex + 9);
-
-
-        this.gl.activeTexture(this.gl.TEXTURE0);
-        this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
-        this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.image);
-        if(this.useMipmap){
-            this.updateMipmapAndWriteToBuffer(tileVertexIndices);
-        } else {
-            this.writeToBuffer(tileVertexIndices);
-        }
-
-        this.textureLoaded = true;
-	}
-	
-	updateMipmapAndWriteToBuffer(tileVertexIndices){
-        if(DEBUG){
-            console.log("mipmap Update - Batch: " + this.batchIndex);
-        }
-        this.gl.activeTexture(this.gl.TEXTURE0);
-        
-        this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
-        this.gl.generateMipmap(this.gl.TEXTURE_2D);
-
-        this.writeToBuffer(tileVertexIndices);
-
-        this.anythingToRender = true;
-	}
-	
-	writeToBuffer(tileVertexIndices) {
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexPositionBuffer);
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, this.vertexPosition, this.gl.STATIC_DRAW);
-
-        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.vertexIndexBuffers[0]);
-        this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, tileVertexIndices[0], this.gl.STATIC_DRAW);
-        this.vertexIndexBuffers[0].itemSize = 1;
-		this.vertexIndexBuffers[0].numItems = tileVertexIndices[0].length;
-		
-		this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.vertexIndexBuffers[1]);
-        this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, tileVertexIndices[1], this.gl.STATIC_DRAW);
-        this.vertexIndexBuffers[1].itemSize = 1;
-		this.vertexIndexBuffers[1].numItems = tileVertexIndices[1].length;
-		
-		this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.vertexIndexBuffers[2]);
-        this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, tileVertexIndices[2], this.gl.STATIC_DRAW);
-        this.vertexIndexBuffers[2].itemSize = 1;
-		this.vertexIndexBuffers[2].numItems = tileVertexIndices[2].length;
-
-		this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.vertexIndexBuffers[3]);
-        this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, tileVertexIndices[3], this.gl.STATIC_DRAW);
-        this.vertexIndexBuffers[3].itemSize = 1;
-        this.vertexIndexBuffers[3].numItems = tileVertexIndices[3].length;
-
-        this.anythingToRender = true;
-    }
-
-    setVertexIndexFor4Points(tileVertexIndices, point0, point1, point2, point3){
-        tileVertexIndices[this.nextTileVertexIndexPosition++] = point0;
-        tileVertexIndices[this.nextTileVertexIndexPosition++] = point1;
-        tileVertexIndices[this.nextTileVertexIndexPosition++] = point2;
-        tileVertexIndices[this.nextTileVertexIndexPosition++] = point0;
-        tileVertexIndices[this.nextTileVertexIndexPosition++] = point2;
-        tileVertexIndices[this.nextTileVertexIndexPosition++] = point3;
-    }
-
 	draw(pMatrix, vMatrix, modelMatrix){
 		if(this.isInView() && !this.imageLoaded){
 			this.startLoadingImage();
@@ -389,17 +299,16 @@ class Tile {
 		let quadrantsToDraw = [true, true, true, true];
 		if(global.order > this.order){
 			this.getChildren().forEach((child, i) =>{
-				if(child.isInView()
-				){
-					quadrantsToDraw[i] = !child.draw(pMatrix, vMatrix, modelMatrix)
-				}
-			});
+				if(child.isInView()){
+						quadrantsToDraw[i] = !child.draw(pMatrix, vMatrix, modelMatrix)
+					}
+				});
 		}
 
 		healpixShader.useShader(pMatrix, vMatrix, modelMatrix);
 		this.gl.activeTexture(this.gl.TEXTURE0);
 		this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
-		let drawsPerTexture = 4 * 6;
+		let drawsPerTexture = this.step * this.step / 4 * 3 * 2;
 		quadrantsToDraw.forEach((quadrant, i) => {
 			if(quadrant){
 				healpixShader.setBuffers(this.vertexPositionBuffer, this.vertexIndexBuffers[i]);
