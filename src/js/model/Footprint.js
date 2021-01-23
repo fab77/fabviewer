@@ -46,7 +46,7 @@ class Footprint{
 				
 				let points = polys[i].trim().split(" ");
 				if (points.length >= 2){
-					for (let p = 0; p < points.length - 1; p = p+2){
+					for (let p = 0; p < points.length - 3; p = p+2){
 						let point = new Point({
 							"raDeg": points[p],
 							"decDeg": points[p+1]

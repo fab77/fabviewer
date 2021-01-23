@@ -209,17 +209,16 @@ class FPCatalogue{
 		let positionIndex = 0;
 		let vIdx = 0;
 
-		var R = 1.000000000000001;
+		var R = 1.1;
 		for(let j = 0; j < nFootprints; j++){
 			
 			let footprint = this._footprints[j].polygons;
 			for (let polyIdx in footprint){
 				for (let pointIdx in footprint[polyIdx]){
-					this._vertexCataloguePosition[positionIndex] = footprint[polyIdx][pointIdx].x;
-					this._vertexCataloguePosition[positionIndex+1] = footprint[polyIdx][pointIdx].y;
-					this._vertexCataloguePosition[positionIndex+2] = footprint[polyIdx][pointIdx].z;
+					this._vertexCataloguePosition[positionIndex] = R * footprint[polyIdx][pointIdx].x;
+					this._vertexCataloguePosition[positionIndex+1] = R * footprint[polyIdx][pointIdx].y;
+					this._vertexCataloguePosition[positionIndex+2] = R * footprint[polyIdx][pointIdx].z;
 					
-//					this._indexes[vIdx] = positionIndex;
 					this._indexes[vIdx] = vIdx;
 					
 					vIdx += 1;
@@ -229,11 +228,6 @@ class FPCatalogue{
 					this._indexes[vIdx] = MAX_UNSIGNED_SHORT; // TODO last one shouldn't be added
 					vIdx += 1;
 				}
-				
-//				this._vertexCataloguePosition[positionIndex] = 0.0;
-//				this._vertexCataloguePosition[positionIndex+1] = 8.0;
-//				positionIndex += 2;
-//				positionIndex += 1;
 				
 			}
 		}

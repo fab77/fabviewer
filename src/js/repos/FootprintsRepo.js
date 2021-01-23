@@ -79,10 +79,14 @@ class FootprintsRepo{
 		
 		var fovPolyCartesian = FoVUtils.getFoVPolygon (global.pMatrix, global.camera, global.gl.canvas, global.model, global.rayPicker);
 		var fovPolyAstro = FoVUtils.getAstroFoVPolygon(fovPolyCartesian);
-		var adqlQuery = "select top 10 * " +
-				"from "+tapTable+" where " +
-				"1=INTERSECTS(fov, " +
-				"POLYGON('ICRS', "+fovPolyAstro+"))";
+		var adqlQuery = "select top 3 * " +
+			"from "+tapTable+" where " +
+			"1=INTERSECTS(fov, " +
+			"POLYGON('ICRS', "+fovPolyAstro+"))";
+		
+//		var adqlQuery = "select * " +
+//			"from "+tapTable+" where " +
+//			"observation_id = '1342233200'";
 		var queryString = "/esasky-tap/tap/sync?request=doQuery&lang=ADQL&format=json&query="+encodeURI(adqlQuery);
 		console.log(queryString);
 		
