@@ -3,6 +3,7 @@
 import HiPSDescriptor from '../model/HiPSDescriptor';
 import HiPSPresenter from './HiPSPresenter';
 import HiPSView from '../view/HiPSView';
+import { tileBufferSingleton } from '../model/TileBuffer';
 
 class HiPSListPresenter{
 	
@@ -54,6 +55,7 @@ class HiPSListPresenter{
 		this.hipsPresenters.forEach((hipsPresenter) => {
 			hipsPresenter.draw(pMatrix, vMatrix);
 		})
+		tileBufferSingleton.ageTiles();
 	}
 	
 	

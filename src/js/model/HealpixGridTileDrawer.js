@@ -1,7 +1,6 @@
 "use strict";
 
 import global from '../Global';
-import { tileBufferSingleton } from './TileBuffer';
 
 class HealpixGridTileDrawer {
 
@@ -18,15 +17,13 @@ class HealpixGridTileDrawer {
 		this.gl.attachShader(this.gridShaderProgram, fragmentShader);
 		this.gl.linkProgram(this.gridShaderProgram);
 		this.gl.gridShaderProgram = this.gridShaderProgram;
+		this.gridShaderProgram.vertexPositionAttribute = this.gl.getAttribLocation(this.gridShaderProgram, "aVertexPosition");
 
 		if (!this.gl.getProgramParameter(this.gridShaderProgram, this.gl.LINK_STATUS)) {
 			alert("Could not initialise shaders");
 		}
 
 		this.gl.useProgram(this.gridShaderProgram);
-
-		this.gridShaderProgram.vertexPositionAttribute = this.gl.getAttribLocation(this.gridShaderProgram, "aVertexPosition");
-		this.gl.enableVertexAttribArray(this.gridShaderProgram.vertexPositionAttribute);
 		
 		this.setUniformLocation();
 	}
@@ -72,25 +69,10 @@ class HealpixGridTileDrawer {
 		this.gridShaderProgram.vMatrixUniform = this.gl.getUniformLocation(this.gridShaderProgram, "uVMatrix");
 	}
 
-	enableGridShader(pMatrix, vMatrix, modelMatrix){
-		this.gl.useProgram(this.gridShaderProgram);
-
-		this.gridShaderProgram.pMatrixUniform = this.gl.getUniformLocation(this.gridShaderProgram, "uPMatrix");
-		this.gridShaderProgram.mMatrixUniform = this.gl.getUniformLocation(this.gridShaderProgram, "uMMatrix");
-		this.gridShaderProgram.vMatrixUniform = this.gl.getUniformLocation(this.gridShaderProgram, "uVMatrix");
-
-		this.gridShaderProgram.vertexPositionAttribute = this.gl.getAttribLocation(this.gridShaderProgram, "aVertexPosition");
-
-		this.gl.uniformMatrix4fv(this.gridShaderProgram.mMatrixUniform, false, modelMatrix);
-		this.gl.uniformMatrix4fv(this.gridShaderProgram.pMatrixUniform, false, pMatrix);
-		this.gl.uniformMatrix4fv(this.gridShaderProgram.vMatrixUniform, false, vMatrix);
-	}
-
 	init(){
 		if(this.isInitialized){
 			return;
 		}
-		this.isInitialized = true;
 		this.gl = global.gl;
 		this.initGridShaders();
 		this.isInitialized = true;
@@ -106,22 +88,33 @@ class HealpixGridTileDrawer {
 	}
 
 	clear(){
+		Object.keys(this.tiles).forEach(tileKey => {
+			this.tiles[tileKey].destruct();
+		});
 		this.tiles = {};
 	}
 
 	draw(pMatrix, vMatrix, modelMatrix){
-		this.enableGridShader(pMatrix, vMatrix, modelMatrix);
+		this.gl.useProgram(this.gridShaderProgram);
+		this.setUniformLocation();
+		if(!this.isInitialized){
+			return;
+		}
+
+		this.gl.uniformMatrix4fv(this.gridShaderProgram.mMatrixUniform, false, modelMatrix);
+		this.gl.uniformMatrix4fv(this.gridShaderProgram.pMatrixUniform, false, pMatrix);
+		this.gl.uniformMatrix4fv(this.gridShaderProgram.vMatrixUniform, false, vMatrix);
+
 		Object.keys(this.tiles).forEach(tileKey => {
 			this.drawTile(this.tiles[tileKey]);
 		});
 	}
 
 	drawTile(tile){
-
+		this.gl.enableVertexAttribArray(this.gridShaderProgram.vertexPositionAttribute);
 		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, tile.vertexPositionBuffer);
-		this.gl.vertexAttribPointer(tile.vertexPositionAttribute, 3, this.gl.FLOAT, false, 0, 0);
-		this.gl.enableVertexAttribArray(tile.vertexPositionAttribute);
-		
+		this.gl.vertexAttribPointer(this.gridShaderProgram.vertexPositionAttribute, 3, this.gl.FLOAT, false, 0, 0);
+
 		this.gl.drawArrays(this.gl.LINE_LOOP, 0, tile.vertexPosition.length / 3);
 	}
 }

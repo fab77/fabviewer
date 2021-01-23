@@ -5,20 +5,20 @@ import {healpixGridTileBufferSingleton} from './HealpixGridTileBuffer';
 
 class HealpixGridTile {
 
-	constructor(order, ipix, radius) {
+	constructor(order, ipix) {
 		this.gl = global.gl;
 		this.order = order;
 		this.ipix = ipix;
 		this.key = order + "/" + ipix;
-		this.radius = radius != undefined ? radius : 1.2;
 		this.vertexPositionIndex = 0;
+		this.step = 8;
 		this.initBuffer();
 	}
 
 	initBuffer () {
-		this.vertexPosition = new Float32Array(16*3);
+		this.vertexPosition = new Float32Array(4 * this.step * 3);
 
-		global.getHealpix(this.order).getBoundariesWithStep(this.ipix, 4).forEach(position => {
+		global.getHealpix(this.order).getBoundariesWithStep(this.ipix, this.step).forEach(position => {
 			this.addVertexPosition(position);
 		});
 

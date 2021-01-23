@@ -6,7 +6,7 @@
  * @param in_position - array of double e.g. [0.0, 0.0, -7]
  */
 
-import AbstractSkyEntity from './AbstractSkyEntity';
+import AbstractSkyEntity_extractedTile from './AbstractSkyEntity_extractedTile';
 import SphericalGrid from './SphericalGrid';
 import XYZSystem from './XYZSystem';
 import global from '../Global';
@@ -14,14 +14,14 @@ import RayPickingUtils from '../utils/RayPickingUtils';
 import {Vec3, Pointing} from 'healpixjs';
 import {tileBufferSingleton} from './TileBuffer';
 import {healpixGridTileDrawerSingleton} from './HealpixGridTileDrawer';
-import {tileDrawerSingleton} from './TileDrawer';
+import {healpixShader} from './HealpixShader';
 import HiPSFormatSelectedEvent from '../events/HiPSFormatSelectedEvent';
 import eventBus from '../events/EventBus';
 
 
 
 
-class HiPS_extractedTile extends AbstractSkyEntity{
+class HiPS_extractedTile extends AbstractSkyEntity_extractedTile{
 
 	static className = "HiPSEntity";
 	
@@ -35,11 +35,9 @@ class HiPS_extractedTile extends AbstractSkyEntity{
 		
 		this.format = format == undefined ? "fits" : format;
 		
-		this.fitsReader = null;
-
 		this.order = 0;
 
-	    this.URL = url;
+		this.URL = url;
 		this.maxOrder = maxOrder == undefined ? 7 : maxOrder;
 		this.visibleTiles = {};
 
@@ -51,11 +49,11 @@ class HiPS_extractedTile extends AbstractSkyEntity{
 
 		this.xyzRefSystem = new XYZSystem(this.gl);
 
+		healpixShader.init();
 		this.initShaders();
 		healpixGridTileDrawerSingleton.init();
-		tileDrawerSingleton.init();
 		setInterval(()=> {this.updateVisibleTiles();}, 100);
-		
+
 		this.registerForEvents();
 
 		this.addOrder0Tiles();
@@ -119,10 +117,8 @@ class HiPS_extractedTile extends AbstractSkyEntity{
 		this.gl.useProgram(this.shaderProgram);
 
 		this.shaderProgram.vertexPositionAttribute = this.gl.getAttribLocation(this.shaderProgram, "aVertexPosition");
-		this.gl.enableVertexAttribArray(this.shaderProgram.vertexPositionAttribute);
 
 		this.shaderProgram.textureCoordAttribute = this.gl.getAttribLocation(this.shaderProgram, "aTextureCoord");
-		this.gl.enableVertexAttribArray(this.shaderProgram.textureCoordAttribute);
 
 		this.setUniformLocation();
 
@@ -320,9 +316,6 @@ class HiPS_extractedTile extends AbstractSkyEntity{
 		this.shaderProgram.uniformVertexTextureFactor = this.gl.getUniformLocation(this.shaderProgram, "uFactor0");
 		this.shaderProgram.sphericalGridEnabledUniform = this.gl.getUniformLocation(this.shaderProgram, "uSphericalGrid");
 
-		this.shaderProgram.vertexPositionAttribute = this.gl.getAttribLocation(this.shaderProgram, "aVertexPosition");
-		this.shaderProgram.textureCoordAttribute = this.gl.getAttribLocation(this.shaderProgram, "aTextureCoord");
-
 		this.gl.uniform1f(this.shaderProgram.uniformVertexTextureFactor, 1.0);
 		this.gl.uniformMatrix4fv(this.shaderProgram.mMatrixUniform, false, this.modelMatrix);
 		this.gl.uniformMatrix4fv(this.shaderProgram.pMatrixUniform, false, pMatrix);
@@ -337,7 +330,10 @@ class HiPS_extractedTile extends AbstractSkyEntity{
 	draw(pMatrix, vMatrix){
 		// TODO enable BLENDING to be checked since for some HiPS (like Herschel) alpha is set to 0 when no data   
 		this.gl.enable(this.gl.BLEND);
-		tileDrawerSingleton.draw(pMatrix, vMatrix, this.modelMatrix);
+		for(let i = 0; i < 12; i++){
+			tileBufferSingleton.getTile(0, i, this.format, this.URL).draw(pMatrix, vMatrix, this.modelMatrix);
+		}
+
 		this.gl.disable(this.gl.BLEND);
 		
 		healpixGridTileDrawerSingleton.draw(pMatrix, vMatrix, this.modelMatrix);

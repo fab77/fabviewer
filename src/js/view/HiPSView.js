@@ -40,7 +40,7 @@ class HiPSView{
  
     init(){
 //    	this.html = $("<li><input type='checkbox'/><label></label><button>O</button><br></li>");
-    	this.html = $("<tr><td><input type='radio' name='hips'/><label></label></td><td><button>O</button></td></tr>");
+    	this.html = $("<tr><td><input type='checkbox' name='hips'/><label></label></td><td><button>O</button></td></tr>");
 //    	this.html.css("height","150px");
     }
 }

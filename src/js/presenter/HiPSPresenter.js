@@ -6,8 +6,10 @@ import HiPSSettingsView from '../view/HiPSSettingsView';
 import eventBus from '../events/EventBus';
 import HiPSFormatSelectedEvent from '../events/HiPSFormatSelectedEvent';
 import HiPS from '../model/HiPS';
+import HiPS_extractedTile from '../model/HiPS_extractedTile';
 import global from '../Global';
 
+const USE_OLD_HIPS_JS = false;
 
 class HiPSPresenter{
 	
@@ -19,7 +21,6 @@ class HiPSPresenter{
 	constructor(in_view, in_model){
 		this._view = in_view;
 		this._formats = [];
-		var _self = this;
 		this._model = in_model;
 		this.retrieveHiPSProperties();
 		if(global.currentHips.name === this._model.surveyName){
@@ -28,38 +29,41 @@ class HiPSPresenter{
 			this.isChecked = true;
 		}
 		
-		this._view.addCheckedHandler(function(){
+		this._view.addCheckedHandler((event)=>{
 
-			var checkbox = this;
-			_self.isChecked = checkbox.checked;
-			if (checkbox.checked){
-				global.currentHips.clearAllTiles();
-
-				if(_self.hips == undefined){
-					let format = _self._formats[0] == "fits" ? _self._formats[1] : _self._formats[0];
-//					_self.hips = new HiPS(1, [0.0, 0.0, 0.0], 
-//							Math.PI / 2, 
-//							Math.PI / 2, _self._model.surveyName, 
-//							_self._model.url, format,
-//							_self._maxOrder);
-					_self.hips = new HiPS(1, [0.0, 0.0, 0.0], 
+			var checkbox = event.currentTarget;
+			this.isChecked = checkbox.checked;
+			if(!this.isChecked){
+				this.hips.clearAllTiles();
+			} else {
+				if(this.hips == undefined){
+					let format = this._formats[0] == "fits" ? this._formats[1] : this._formats[0];
+					if(USE_OLD_HIPS_JS){
+						this.hips = new HiPS(1, [0.0, 0.0, 0.0], 
 							0, 
-							0, _self._model.surveyName, 
-							_self._model.url, format,
-							_self._maxOrder);
+							0, this._model.surveyName, 
+							this._model.url, format,
+							this._maxOrder);
+					} else {
+						this.hips = new HiPS_extractedTile(1, [0.0, 0.0, 0.0], 
+							0, 
+							0, this._model.surveyName, 
+							this._model.url, format,
+							this._maxOrder);
+					}
 				} else {
-					_self.hips.show();
+					this.hips.show();
 				}
-				global.currentHips = _self.hips;
-				_self.hips.refreshModel(_self.hips.refreshFoV().minFoV);
+				global.currentHips = this.hips;
+				this.hips.refreshModel(this.hips.refreshFoV().minFoV);
 			}
         });
 		
-		this._view.addHiPSSettingsHandler(function(){
+		this._view.addHiPSSettingsHandler(()=>{
 			console.log("clicked on HiPS settings button");
-			let hipsSettingsView = new HiPSSettingsView(_self._model, _self._formats);
-			_self._view.appendSettingsPopup(hipsSettingsView.getHtml());
-			_self.fireEvents(hipsSettingsView);	
+			let hipsSettingsView = new HiPSSettingsView(this._model, this._formats);
+			this._view.appendSettingsPopup(hipsSettingsView.getHtml());
+			this.fireEvents(hipsSettingsView);	
 		});
 
 		
@@ -71,11 +75,19 @@ class HiPSPresenter{
 			if(this.hips && this.isChecked){
 				let format = event.target.value;
 				console.log(format);
-				this.hips = new HiPS(1, [0.0, 0.0, 0.0], 
-					Math.PI / 2, 
-					Math.PI / 2, this._model.surveyName, 
-					this._model.url, format,
-					this._maxOrder);
+				if(USE_OLD_HIPS_JS){
+					this.hips = new HiPS(1, [0.0, 0.0, 0.0], 
+						Math.PI / 2, 
+						Math.PI / 2, this._model.surveyName, 
+						this._model.url, format,
+						this._maxOrder);
+				} else {
+					this.hips = new HiPS_extractedTile(1, [0.0, 0.0, 0.0], 
+						Math.PI / 2, 
+						Math.PI / 2, this._model.surveyName, 
+						this._model.url, format,
+						this._maxOrder);
+				}
 				global.currentHips = this.hips;
 
 				eventBus.fireEvent(new HiPSFormatSelectedEvent(format, this._model.surveyName));
@@ -124,3 +136,4 @@ class HiPSPresenter{
 	}
 }
 export default HiPSPresenter;
+export {USE_OLD_HIPS_JS}
