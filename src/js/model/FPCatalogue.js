@@ -193,7 +193,8 @@ class FPCatalogue{
 
 		
 		let nFootprints = this._footprints.length;
-		this._indexes = new Uint16Array(this._totPoints + nFootprints - 1);
+//		this._indexes = new Uint16Array(this._totPoints + nFootprints - 1);
+		this._indexes = new Uint16Array(this._totPoints + nFootprints);
 		
 		let MAX_UNSIGNED_SHORT = 65535; // this is used to enable and disable GL_PRIMITIVE_RESTART_FIXED_INDEX
 		
@@ -209,7 +210,7 @@ class FPCatalogue{
 		let positionIndex = 0;
 		let vIdx = 0;
 
-		var R = 1.1;
+		let R = 1.001;
 		for(let j = 0; j < nFootprints; j++){
 			
 			let footprint = this._footprints[j].polygons;
@@ -219,15 +220,16 @@ class FPCatalogue{
 					this._vertexCataloguePosition[positionIndex+1] = R * footprint[polyIdx][pointIdx].y;
 					this._vertexCataloguePosition[positionIndex+2] = R * footprint[polyIdx][pointIdx].z;
 					
-					this._indexes[vIdx] = vIdx;
+//					this._indexes[vIdx] = vIdx;
+					this._indexes[vIdx] = Math.floor(positionIndex/3);
 					
 					vIdx += 1;
 					positionIndex += 3;
 				}
-				if (polyIdx < nFootprints){
-					this._indexes[vIdx] = MAX_UNSIGNED_SHORT; // TODO last one shouldn't be added
+//				if (polyIdx < nFootprints){
+					this._indexes[vIdx] = MAX_UNSIGNED_SHORT; // TODO last one shouldn't be added?
 					vIdx += 1;
-				}
+//				}
 				
 			}
 		}
