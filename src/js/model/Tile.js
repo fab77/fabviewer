@@ -17,7 +17,7 @@ class Tile {
 		this.url = url;
 		this.radius = 1;
 		this.useMipmap = true;
-		this.step = 8;
+		this.step = 16;
 		this.xyf = global.getHealpix(order).nest2xyf(ipix);
 
 		this.imageLoaded = false;
