@@ -21,7 +21,7 @@ class SystemView {
 			},
 			addFovPolyHandler : function(handler) {
 				console.log("addFovPolyHandler ");
-				$("#getFovPoly").click(handler);
+				$("#getFovPoly").on("click", handler);
 			}
 		}
 	

@@ -2,14 +2,13 @@
 /**
  * @author Fabrizio Giordano (Fab77)
  */
-import HiPSSettingsView from '../view/HiPSSettingsView';
 import eventBus from '../events/EventBus';
 import HiPSFormatSelectedEvent from '../events/HiPSFormatSelectedEvent';
 import HiPS from '../model/HiPS';
 import HiPS_extractedTile from '../model/HiPS_extractedTile';
 import global from '../Global';
 
-const USE_OLD_HIPS_JS = true;
+const USE_OLD_HIPS_JS = false;
 
 class HiPSPresenter{
 	
@@ -59,19 +58,14 @@ class HiPSPresenter{
 			}
         });
 		
-		this._view.addHiPSSettingsHandler(()=>{
-			console.log("clicked on HiPS settings button");
-			let hipsSettingsView = new HiPSSettingsView(this._model, this._formats);
-			this._view.appendSettingsPopup(hipsSettingsView.getHtml());
-			this.fireEvents(hipsSettingsView);	
-		});
+		// this._view.addHiPSSettingsHandler(()=>{
+		// 	console.log("clicked on HiPS settings button");
+		// 	let hipsSettingsView = new HiPSSettingsView(this._model, this._formats);
+		// 	// this._view.appendSettingsPopup(hipsSettingsView.getHtml());
+		// 	this.fireEvents(hipsSettingsView);	
+		// });
 
-		
-	}
-	
-	fireEvents(in_view){
-		console.log(in_view.getHiPSFormat());
-		in_view.getHiPSFormat().on('change', (event) => {
+		in_view.addFormatChangedHandler((event) => {
 			if(this.hips && this.isChecked){
 				let format = event.target.value;
 				console.log(format);
@@ -89,11 +83,11 @@ class HiPSPresenter{
 						this._maxOrder);
 				}
 				global.currentHips = this.hips;
-
+	
 				eventBus.fireEvent(new HiPSFormatSelectedEvent(format, this._model.surveyName));
 			}
 		});
-
+		
 	}
 	
 	get view(){
@@ -114,7 +108,7 @@ class HiPSPresenter{
 					if (lines[i].includes("hips_tile_format")){
 						let formats = lines[i].split("=")[1].trim().replace(/jpeg/ig, "jpg").split(" ");
 						this._formats = formats;
-						this._view.setModel(this._model);
+						this._view.setModel(this._model, formats);
 					} else if (lines[i].includes("hips_order") && !lines[i].includes("hips_order_")){
 						this._maxOrder = parseInt(lines[i].split("=")[1].trim());
 					}

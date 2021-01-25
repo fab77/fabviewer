@@ -37,6 +37,8 @@ class FVView{
 		this.coords_rahms_dom = document.getElementById('RA_hms');
 		this.coords_decdms_dom = document.getElementById('Dec_dms');
 		
+		
+
 		this.order0 = document.getElementById('order0');
 		this.order1 = document.getElementById('order1');
 		this.order2 = document.getElementById('order2');
@@ -61,6 +63,9 @@ class FVView{
 //		this.cataloguesDiv = document.getElementById('catalogues');
 	};
 	
+	addHipsButtonHandler(handler){
+		$("#hips_button").on("click", handler);
+	}
 	
 	appendChild(html){
 		$("#controlpanel").append(html);

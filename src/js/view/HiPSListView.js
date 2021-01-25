@@ -10,8 +10,10 @@ class HiPSListView{
                 return this.html;
             },
             addHiPS: (hipsView)=>{
-//                this.html.find("#hipsList").append(hipsView.getHtml());
                 $("#hipsList").append(hipsView.getHtml());
+            },
+            toggle: ()=>{
+                this.html.toggle();
             }
         }
      
@@ -19,12 +21,24 @@ class HiPSListView{
     }
  
     init(){
-//    	this.html = $("<div ><ul id='hipsList'></ul></div>");
-    	this.html = $("<div id='hipsList'><table></table></div>");
-        this.html.css("height","150px");
-        this.html.css("overflow", "scroll");
-        
+        this.html = $("<div id='hipsList'></div>");
+        this.html.css("position","absolute");
+        this.html.css("top","5%");
+        this.html.css("left","121%");
+        this.html.css("border","1px solid black");
+        this.html.css("background-color","rgba(255, 255, 255, .15)");
+        this.html.css("backdrop-filter","blur(5px)");
+        this.html.css("color","#A5F6F1");
+        this.html.css("cursor","move");
+        this.html.find("#close-hips-settings").on('click', ()=>{
+            this.detach();
+        });
+
+
+
+        this.html.hide();
     }
+
  
 }
 

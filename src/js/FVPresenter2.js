@@ -99,9 +99,6 @@ class FVPresenter2{
 		
 		this.nearestVisibleObjectIdx = 0;
 		
-//		global.currentHips = new HiPS(1, [0.0, 0.0, 0.0], 
-//				Math.PI / 2, 
-//				Math.PI / 2, "Herschel SPIRE 250 micron", "//skies.esac.esa.int//Herschel/normalized/hips250_pnorm_allsky/", "png");
 		if(USE_OLD_HIPS_JS){
 			global.currentHips = new HiPS(1, [0.0, 0.0, 0.0], 
 				0, 
@@ -129,11 +126,15 @@ class FVPresenter2{
 		
 //		this.camera.rotate(phiThetaRad[0], phiThetaRad[1]);
 
+		this.view.addHipsButtonHandler(()=>{
+			this.hipsListPresenter.toggle();
+		});
+
 	};
 	
 	initPresenter(){
 		
-		var hipsListView = new HiPSListView();
+		let hipsListView = new HiPSListView();
 		this.hipsListPresenter = new HiPSListPresenter(hipsListView);
 		this.view.appendChild(hipsListView.getHtml());
 		
@@ -265,12 +266,12 @@ class FVPresenter2{
 					
 					if (mousePoint.length > 0){
 						
-						let currP = new Pointing(new Vec3(mousePoint[0], mousePoint[1], mousePoint[2]));
+						// let currP = new Pointing(new Vec3(mousePoint[0], mousePoint[1], mousePoint[2]));
 
-						for(let i = 0; i < 6; i++){
-							let currPixNo = global.getHealpix(i).ang2pix(currP);
-							this.view.setHoverIpix(i, currPixNo);
-						}
+						// for(let i = 0; i < 6; i++){
+						// 	let currPixNo = global.getHealpix(i).ang2pix(currP);
+						// 	this.view.setHoverIpix(i, currPixNo);
+						// }
 
 						var phiThetaDeg = cartesianToSpherical(mousePoint);
 						//TODO to be reviewed. cartesianToSpherical seems to convert already Dec into [-90, 90]

@@ -50,6 +50,10 @@ class HiPSListPresenter{
 //            this.#view.addHiPS(hipsPresenter.view);
 //    	}
 	}
+
+	toggle(){
+		this.#view.toggle();
+	}
 	
 	draw(pMatrix, vMatrix){
 		this.hipsPresenters.forEach((hipsPresenter) => {
