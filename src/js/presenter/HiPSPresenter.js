@@ -36,7 +36,7 @@ class HiPSPresenter{
 				this.hips.clearAllTiles();
 			} else {
 				if(this.hips == undefined){
-					let format = this._formats[0] == "fits" ? this._formats[1] : this._formats[0];
+					let format = this.view.getSelectedFormat();
 					if(USE_OLD_HIPS_JS){
 						this.hips = new HiPS(1, [0.0, 0.0, 0.0], 
 							0, 
@@ -68,17 +68,16 @@ class HiPSPresenter{
 		in_view.addFormatChangedHandler((event) => {
 			if(this.hips && this.isChecked){
 				let format = event.target.value;
-				console.log(format);
 				if(USE_OLD_HIPS_JS){
 					this.hips = new HiPS(1, [0.0, 0.0, 0.0], 
-						Math.PI / 2, 
-						Math.PI / 2, this._model.surveyName, 
+						0, 
+						0, this._model.surveyName, 
 						this._model.url, format,
 						this._maxOrder);
 				} else {
 					this.hips = new HiPS_extractedTile(1, [0.0, 0.0, 0.0], 
-						Math.PI / 2, 
-						Math.PI / 2, this._model.surveyName, 
+						0, 
+						0, this._model.surveyName, 
 						this._model.url, format,
 						this._maxOrder);
 				}

@@ -214,8 +214,7 @@
 			gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
 		}else{
 			vec4 color0 = texture2D(uSampler0, vTextureCoord);
-			finalColor = vec3(finalColor.x +  color0.x *uFactor0 ,finalColor.y +  color0.y*uFactor0,finalColor.z +  color0.z*uFactor0); 
-			gl_FragColor = vec4(finalColor, color0.a);
+			gl_FragColor = vec4(color0.rgb, color0.a*uFactor0);
 		}
 		
 		

@@ -40,6 +40,8 @@ import {Vec3, Pointing} from 'healpixjs';
 import HiPS from './model/HiPS';
 import {USE_OLD_HIPS_JS} from './presenter/HiPSPresenter';
 import HiPS_extractedTile from './model/HiPS_extractedTile';
+import {visibleTilesManager} from './model/VisibleTilesManager';
+import HealpixGrid from './model/HealpixGrid';
 
 class FVPresenter2{
 	constructor(in_view, in_gl){
@@ -48,7 +50,7 @@ class FVPresenter2{
 			console.log("[FVPresenter::FVPresenter]");
 		}
 
-		this.neareastModel;
+		this.nearestModel;
 		this.enableCatalogues = true;
 		this.init(in_view);
 	}
@@ -78,7 +80,7 @@ class FVPresenter2{
 		this.aspectRatio;
 		this.fovDeg = 45;
 		this.nearPlane = 0.001;
-		this.farPlane = 4.5;
+		this.farPlane = 2.5;
 		
 		// projection matrix
 		this.pMatrix = mat4.create();
@@ -102,12 +104,14 @@ class FVPresenter2{
 		if(USE_OLD_HIPS_JS){
 			global.currentHips = new HiPS(1, [0.0, 0.0, 0.0], 
 				0, 
-				0, "DSS2 color", "//skies.esac.esa.int/DSSColor/", "jpg");
+				0, "DSS2 color", "//skies.esac.esa.int/DSSColor/", "jpg", 9);
 		} else {
 			global.currentHips = new HiPS_extractedTile(1, [0.0, 0.0, 0.0], 
 				0, 
-				0, "DSS2 color", "//skies.esac.esa.int/DSSColor/", "jpg");
-
+				// 0, "INTEGRAL-IBIS 65-100 keV", "//skies.esac.esa.int/Integral/65-100/", "fits", 3);
+				// 0, "Herschel SPIRE 500 micron", "//skies.esac.esa.int/Herschel/normalized/hips500_pnorm_allsky/", "fits", 5);
+				// 0, "Herschel SPIRE 500 micron", "//skies.esac.esa.int/Herschel/normalized/hips500_pnorm_allsky/", "png", 5);
+				0, "DSS2 color", "//skies.esac.esa.int/DSSColor/", "jpg", 9);
 		}
 		this.view.setPickedObjectName(global.currentHips);
 		
@@ -123,13 +127,17 @@ class FVPresenter2{
 
 		let xyz = sphericalToCartesian(phiThetaDeg.phi, phiThetaDeg.theta);
 		
-		
 //		this.camera.rotate(phiThetaRad[0], phiThetaRad[1]);
 
 		this.view.addHipsButtonHandler(()=>{
 			this.hipsListPresenter.toggle();
 		});
 
+		this.healpixGrid = new HealpixGrid();
+
+		this.view.addHealpixGridCheckboxHandler((event)=>{
+			this.showHealpixGrid = event.target.checked;
+		});
 	};
 	
 	initPresenter(){
@@ -417,7 +425,7 @@ class FVPresenter2{
 		return this.nearestVisibleObjectIdx;
 	}
 	
-	refreshFov(neareastModelIdx){
+	refreshFov(nearestModelIdx){
 		if (DEBUG){
 			console.log("[FVPresenter::refreshFov]");
 		}
@@ -427,29 +435,24 @@ class FVPresenter2{
 		
 	};
 	
-	refreshModel(neareastModelIdx, fov, pan){
+	refreshModel(nearestModelIdx, fov, pan){
 		if (DEBUG){
 			console.log("[FVPresenter::refreshModel]");
 		}
 
-
-		var selectedModel = global.currentHips;
-		global.model = selectedModel;
-		// compute FoV against the nearest object
-		// TODO this should be an object variable
-		selectedModel.refreshModel(fov, pan);
-
+		visibleTilesManager.refreshModel(fov)
+		global.model = global.currentHips;
 	};
 	
 
 	refreshViewAndModel(pan) {
-		this.neareastModel = RayPickingUtils.getNearestObjectOnRay(this.view.canvas.width / 2, this.view.canvas.height / 2, [global.currentHips]);
-		this.fovObj = this.refreshFov(this.neareastModel.idx);
+		this.nearestModel = RayPickingUtils.getNearestObjectOnRay(this.view.canvas.width / 2, this.view.canvas.height / 2, [global.currentHips]);
+		this.fovObj = this.refreshFov(this.nearestModel.idx);
 
 		if(this.updateFovTimer == null){
 			this.updateFovTimer = setTimeout(()=>this.updateFov(), 100);
 		}
-		this.refreshModel(this.neareastModel.idx, this.fovObj.minFoV, pan);
+		this.refreshModel(this.nearestModel.idx, this.fovObj.minFoV, pan);
 	};
 
 	updateFov(){
@@ -500,22 +503,21 @@ class FVPresenter2{
 		this.in_gl.viewport(0, 0, this.in_gl.viewportWidth, this.in_gl.viewportHeight);
 		this.in_gl.clear(this.in_gl.COLOR_BUFFER_BIT | this.in_gl.DEPTH_BUFFER_BIT);
 		
-		// TODO move this part outside the draw loop. Not needed to reset the perspective matrix every loop cycle
-		mat4.perspective(this.pMatrix, this.fovDeg, this.aspectRatio, this.nearPlane, this.farPlane);
+		let extra = 0.55;
+		let farPlane = Math.sqrt((this.camera.cam_pos[2]-extra) * (this.camera.cam_pos[2]-extra));
+		mat4.perspective(this.pMatrix, this.fovDeg, this.aspectRatio, this.nearPlane, farPlane);
 
 		if (global.pMatrix == null){
 			global.pMatrix = this.pMatrix;
 			this.refreshViewAndModel();
 		}
 		
-		// for (var i = 0; i < this.modelRepo.objModels.length; i++){
-			
-			// this.hips.draw(this.pMatrix, this.camera.getCameraMatrix());
-			
-		// }
-		
 		this.hipsListPresenter.draw(this.pMatrix, this.camera.getCameraMatrix());
-		var mMatrix = global.currentHips.getModelMatrix();
+		let mMatrix = global.currentHips.getModelMatrix();
+		if(this.showHealpixGrid){
+			this.healpixGrid.draw(this.pMatrix, this.camera.getCameraMatrix(), mMatrix);
+		}
+
 		// var mMatrix = this.modelRepo.objModels[0].getModelMatrix();
 		
 		var k,

@@ -31,12 +31,17 @@ class HiPSView{
                 this.html.find("input[type='range']").on('input', handler);
             },
 
+            getSelectedFormat: ()=>{
+                return this.html.find("select").find(":selected").val();
+            }
+
         }
         return _public;
     }
  
     init(){
-        this.html = $("<div style='display: flex;align-items: center; justify-content: space-between;'><input type='checkbox' name='hips'/><label style='white-space: nowrap; flex: auto'></label>"
+        this.html = $("<div style='display: flex;align-items: center; justify-content: space-between;'>"
+        + "<input type='checkbox' name='hips'/><label style='white-space: nowrap; flex: auto'></label>"
         + "<select name='format' id='format' onmousedown='event.stopPropagation()'></select>"
         + "<div onmousedown='event.stopPropagation()'>"
         + "<input type='range' min='0' max='100' value='100'>"

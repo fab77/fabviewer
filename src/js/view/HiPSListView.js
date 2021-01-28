@@ -30,6 +30,8 @@ class HiPSListView{
         this.html.css("backdrop-filter","blur(5px)");
         this.html.css("color","#A5F6F1");
         this.html.css("cursor","move");
+        this.html.css("max-height","800px");
+        this.html.css("overflow","auto");
         this.html.find("#close-hips-settings").on('click', ()=>{
             this.detach();
         });
