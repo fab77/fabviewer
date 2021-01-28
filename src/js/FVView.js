@@ -46,7 +46,7 @@ class FVView{
 		this.order4 = document.getElementById('order4');
 		this.order5 = document.getElementById('order5');
 
-
+		this.healpixGridCheckbox = document.getElementById('healpix-grid-checkbox');
 //		this.fpsvalue_dom = document.getElementById('fpsvalue');
 //		this.avgfpsvalue_dom = document.getElementById('avgfpsvalue');
 		
@@ -71,6 +71,10 @@ class FVView{
 		$("#controlpanel").append(html);
 		
 	};
+
+	addHealpixGridCheckboxHandler(handler){
+		this.healpixGridCheckbox.onclick = handler;
+	}
 	
 	
 	fillCataloguesDiv(cataloguesDescriptor){

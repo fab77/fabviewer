@@ -2,8 +2,6 @@
 
 import global from '../Global';
 import {tileBufferSingleton} from './TileBuffer';
-import {healpixGridTileBufferSingleton} from './HealpixGridTileBuffer';
-import {healpixGridTileDrawerSingleton} from './HealpixGridTileDrawer';
 import {healpixShader} from './HealpixShader';
 import FITSOnTheWeb from 'fitsontheweb';
 
@@ -209,7 +207,7 @@ class Tile {
 		if(!this.imageLoaded){
 			this.image.src = "";
 			this.isDownloading = false;
-			if(this.format == 'fits'){
+			if(this.fitsReader){
 				this.fitsReader.stop();
 			}
 		}
@@ -226,7 +224,6 @@ class Tile {
 		if(parent){
 			parent.addToView();
 		}
-		healpixGridTileDrawerSingleton.add(healpixGridTileBufferSingleton.getTile(this.order, this.ipix));
 
 		if(this.imageLoaded && !this.textureLoaded){
 			this.setupBuffers();
@@ -239,7 +236,6 @@ class Tile {
 
 		this.stopLoadingImage();
 		tileBufferSingleton.tileRemovedFromView(this.key);
-		healpixGridTileDrawerSingleton.remove(healpixGridTileBufferSingleton.getTile(this.order, this.ipix));
 		let parent = this.getParent();
 		if(parent){
 			parent.childRemovedFromView();
@@ -290,7 +286,7 @@ class Tile {
 		return children;
 	}
 
-	draw(pMatrix, vMatrix, modelMatrix){
+	draw(pMatrix, vMatrix, modelMatrix, opacity){
 		if(this.isInView() && !this.imageLoaded){
 			this.startLoadingImage();
 		}
@@ -300,12 +296,13 @@ class Tile {
 		if(global.order > this.order){
 			this.getChildren().forEach((child, i) =>{
 				if(child.isInView()){
-						quadrantsToDraw[i] = !child.draw(pMatrix, vMatrix, modelMatrix)
+						quadrantsToDraw[i] = !child.draw(pMatrix, vMatrix, modelMatrix, opacity)
 					}
-				});
+				}
+			);
 		}
 
-		healpixShader.useShader(pMatrix, vMatrix, modelMatrix);
+		healpixShader.useShader(pMatrix, vMatrix, modelMatrix, opacity);
 		this.gl.activeTexture(this.gl.TEXTURE0);
 		this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
 		let drawsPerTexture = this.step * this.step / 4 * 3 * 2;

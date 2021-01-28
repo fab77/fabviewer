@@ -2,10 +2,36 @@
 
 import global from '../Global';
 
-class HealpixGridTileDrawer {
+import {healpixGridTileBufferSingleton} from './HealpixGridTileBuffer';
+import eventBus from '../events/EventBus';
+import VisibleTilesChangedEvent from '../events/VisibleTilesChangedEvent';
+
+
+class HealpixGrid {
 
 	constructor() {
 		this.tiles = {};
+		eventBus.registerForEvent(this, VisibleTilesChangedEvent.name);
+		this.init();
+	}
+	
+	notify(in_event){
+		if (in_event instanceof VisibleTilesChangedEvent){
+			this.removeTiles(in_event.tilesRemoved)
+			this.addTiles(in_event.tilesToAddInOrder);
+		}
+	}
+
+	addTiles(tilesToAdd){
+		tilesToAdd.forEach(tile => {
+			this.add(healpixGridTileBufferSingleton.getTile(tile.order, tile.ipix));
+		});
+	}
+
+	removeTiles(tilesToRemove){
+		Object.keys(tilesToRemove).forEach(tileKey => {
+			this.remove(healpixGridTileBufferSingleton.getTile(tilesToRemove[tileKey].order, tilesToRemove[tileKey].ipix));
+		});
 	}
 
 	initGridShaders () {
@@ -118,4 +144,4 @@ class HealpixGridTileDrawer {
 		this.gl.drawArrays(this.gl.LINE_LOOP, 0, tile.vertexPosition.length / 3);
 	}
 }
-export const healpixGridTileDrawerSingleton = new HealpixGridTileDrawer();
+export default HealpixGrid;
