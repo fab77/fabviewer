@@ -442,6 +442,9 @@ class FVPresenter2{
 
 		visibleTilesManager.refreshModel(fov)
 		global.model = global.currentHips;
+		if(USE_OLD_HIPS_JS){
+			global.model.refreshModel(fov, pan);
+		}
 	};
 	
 
