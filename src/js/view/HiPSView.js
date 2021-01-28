@@ -13,24 +13,22 @@ class HiPSView{
                 return this.html;
             },
             setModel: (model, formats)=>{
-            	
-//            	console.log(model);
-//            	console.log(formats);
-                this.html.find("input").attr('id', model.surveyName);
+                this.html.find("input[type='checkbox']").attr('id', model.surveyName);
                 this.html.find("label").attr('for', model.surveyName);
                 this.html.find("label").html(model.surveyName);
                 this.html.find("select").append(this.formatOptions(formats));
-                //TODO select format...
-    
             },
             addCheckedHandler: (handler)=>{
-                this.html.find("input").on('change', handler);
+                this.html.find("input[type='checkbox']").on('change', handler);
             },
             setChecked: (checked)=>{
-                this.html.find("input").prop('checked', true);
+                this.html.find("input[type='checkbox']").prop('checked', true);
             },
             addFormatChangedHandler: (handler)=>{
                 this.html.find("select").on('change', handler);
+            },
+            addOpacityChangedHandler: (handler)=>{
+                this.html.find("input[type='range']").on('input', handler);
             },
 
         }
@@ -38,8 +36,12 @@ class HiPSView{
     }
  
     init(){
-        this.html = $("<div style='display: flex;align-items: center; justify-content: space-between;'><input type='checkbox' name='hips'/><label style='white-space: nowrap'></label>"
-        + "<select name='format' id='format' onmousedown='event.stopPropagation()'></select></div>");
+        this.html = $("<div style='display: flex;align-items: center; justify-content: space-between;'><input type='checkbox' name='hips'/><label style='white-space: nowrap; flex: auto'></label>"
+        + "<select name='format' id='format' onmousedown='event.stopPropagation()'></select>"
+        + "<div onmousedown='event.stopPropagation()'>"
+        + "<input type='range' min='0' max='100' value='100'>"
+        + "</div>"
+        + "</div>");
     }
 
     formatOptions(formats){

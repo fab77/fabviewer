@@ -87,6 +87,12 @@ class HiPSPresenter{
 				eventBus.fireEvent(new HiPSFormatSelectedEvent(format, this._model.surveyName));
 			}
 		});
+
+		in_view.addOpacityChangedHandler((event) => {
+			if(this.hips){
+				this.hips.setOpacity(event.target.value/100);
+			}
+		});
 		
 	}
 	
