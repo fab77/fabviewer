@@ -25,6 +25,30 @@ class VisibleTilesManager {
 		return this.visibleTiles;
 	}
 
+	getVisibleTilesOfOrder3(){
+		let keys = Object.keys(this.visibleTiles);
+		if(keys.length > 0 && this.visibleTiles[keys[0]].order < 3){
+			return {};
+		}
+		let orderOfVisibleTiles = keys.length > 0 ? this.visibleTiles[keys[0]].order : this.order; 
+		let tiles = this.visibleTiles;
+		
+		for(let order = orderOfVisibleTiles; order > 3; order--){
+			tiles = this.getParentTiles(tiles);
+		}
+
+		return tiles;
+	}
+
+	getParentTiles(tiles){
+		let parentTiles = {}
+		Object.keys(tiles).forEach((key)=>{
+			let parent = {order: tiles[key].order - 1, ipix: Math.floor(tiles[key].ipix / 4), key: (this.order - 1) + "/" + Math.floor(tiles[key].ipix / 4)};
+			parentTiles[parent.key] = parent;
+		});
+		return parentTiles;
+	}
+
 	refreshModel (in_fov){
 		if ( in_fov >= 179){
 			this.order = 0;
@@ -78,7 +102,6 @@ class VisibleTilesManager {
 		});
 
 		eventBus.fireEvent(new VisibleTilesChangedEvent(tilesRemoved, tilesToAddInOrder));
-		global.visibleTiles = this.visibleTiles;
 	}
 
 	pollViewAndAddTiles(xyPollingPoints, previouslyVisibleKeys, tilesRemoved, tilesAdded, tilesToAddInOrder) {
