@@ -434,7 +434,7 @@ class FVPresenter2{
 		return fovXY;
 		
 	};
-	
+
 	refreshModel(nearestModelIdx, fov, pan){
 		if (DEBUG){
 			console.log("[FVPresenter::refreshModel]");
@@ -446,7 +446,6 @@ class FVPresenter2{
 			global.model.refreshModel(fov, pan);
 		}
 	};
-	
 
 	refreshViewAndModel(pan) {
 		this.nearestModel = RayPickingUtils.getNearestObjectOnRay(this.view.canvas.width / 2, this.view.canvas.height / 2, [global.currentHips]);

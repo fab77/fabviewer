@@ -16,6 +16,7 @@ import HiPSFormatSelectedEvent from '../events/HiPSFormatSelectedEvent';
 import eventBus from '../events/EventBus';
 import VisibleTilesChangedEvent from '../events/VisibleTilesChangedEvent';
 import {visibleTilesManager} from './VisibleTilesManager';
+import AllSky from './AllSky';
 
 
 class HiPS_extractedTile extends AbstractSkyEntity_extractedTile{
@@ -233,12 +234,41 @@ class HiPS_extractedTile extends AbstractSkyEntity_extractedTile{
 
 
 	draw(pMatrix, vMatrix){
-		// TODO enable BLENDING to be checked since for some HiPS (like Herschel) alpha is set to 0 when no data   
 		this.gl.enable(this.gl.BLEND);
 		this.gl.disable(this.gl.DEPTH_TEST);
-
+		let failedOrder0Tiles = 0;
 		for(let i = 0; i < 12; i++){
-			tileBufferSingleton.getTile(0, i, this.format, this.URL).draw(pMatrix, vMatrix, this.modelMatrix, this.opacity);
+			let tile = tileBufferSingleton.getTile(0, i, this.format, this.URL);
+			tile.draw(pMatrix, vMatrix, this.modelMatrix, this.opacity);
+			if(tile.imageLoadFailed){
+				failedOrder0Tiles++;
+			}
+		}
+		if(failedOrder0Tiles == 12){
+			if(!this.allsky){
+				this.allsky = new AllSky(this.gl, this.shaderProgram, 3, this.URL, 1, this.format);
+			}
+			if(global.order > 2){
+				this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, false);
+				
+				let order3TilesDrawnSuccessfully = true;
+				let order3Tiles = visibleTilesManager.getVisibleTilesOfOrder3();
+				let ipixToSkipDuringAllskyDraw = {};
+				let keys = Object.keys(order3Tiles);
+				keys.forEach((key)=>{
+					let successfulDraw = tileBufferSingleton.getTile(order3Tiles[key].order, order3Tiles[key].ipix, this.format, this.URL).draw(pMatrix, vMatrix, this.modelMatrix, this.opacity);
+					if(successfulDraw){
+						ipixToSkipDuringAllskyDraw[order3Tiles[key].ipix] = true;
+					}
+					order3TilesDrawnSuccessfully = order3TilesDrawnSuccessfully && successfulDraw;
+				});
+				if (!order3TilesDrawnSuccessfully || keys.length == 0){
+					this.allsky.draw(pMatrix, vMatrix, this.modelMatrix, this.opacity, ipixToSkipDuringAllskyDraw);
+				} 
+			} else {
+				this.allsky.draw(pMatrix, vMatrix, this.modelMatrix, this.opacity, {});
+				this.lastDrawUsedAllsky = true;
+			}
 		}
 
 		
