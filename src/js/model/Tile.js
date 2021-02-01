@@ -44,6 +44,9 @@ class Tile {
 			this.image.onload = ()=> {
 				this.onLoad();
 			}
+			this.image.onerror = ()=> {
+				this.imageLoadFailed = true;
+			}
 		}
 		
 		//TODO remove cross origin attribute for maps on the same domain as it slightly degrades loading time
@@ -61,6 +64,7 @@ class Tile {
 	createTexture(){
 		this.texture = this.gl.createTexture();
 		this.gl.activeTexture(this.gl.TEXTURE0);
+		this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, false);
 		this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
 
 		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
@@ -290,31 +294,36 @@ class Tile {
 		if(this.isInView() && !this.imageLoaded){
 			this.startLoadingImage();
 		}
-		if(!this.anythingToRender){return;}
-		
-		let quadrantsToDraw = [true, true, true, true];
-		if(global.order > this.order){
-			this.getChildren().forEach((child, i) =>{
-				if(child.isInView()){
-						quadrantsToDraw[i] = !child.draw(pMatrix, vMatrix, modelMatrix, opacity)
-					}
-				}
-			);
-		}
+		if(this.anythingToRender){
+			let quadrantsToDraw = this.drawChildren(pMatrix, vMatrix, modelMatrix, opacity);
 
-		healpixShader.useShader(pMatrix, vMatrix, modelMatrix, opacity);
-		this.gl.activeTexture(this.gl.TEXTURE0);
-		this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
-		let drawsPerTexture = this.step * this.step / 4 * 3 * 2;
-		quadrantsToDraw.forEach((quadrant, i) => {
-			if(quadrant){
-				healpixShader.setBuffers(this.vertexPositionBuffer, this.vertexIndexBuffers[i]);
-				this.gl.drawElements(this.gl.TRIANGLES, drawsPerTexture, this.gl.UNSIGNED_SHORT, 0);
-			}
-		})
-		return true; //Completed draw
+			healpixShader.useShader(pMatrix, vMatrix, modelMatrix, opacity);
+			this.gl.activeTexture(this.gl.TEXTURE0);
+			this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
+			let drawsPerTexture = this.step * this.step / 4 * 3 * 2;
+			quadrantsToDraw.forEach((quadrant, i) => {
+				if(quadrant){
+					healpixShader.setBuffers(this.vertexPositionBuffer, this.vertexIndexBuffers[i]);
+					this.gl.drawElements(this.gl.TRIANGLES, drawsPerTexture, this.gl.UNSIGNED_SHORT, 0);
+				}
+			})
+			return true; //Completed draw
+		}
+		return false;
 	}
 	
+	drawChildren(pMatrix, vMatrix, modelMatrix, opacity) {
+		let quadrantsToDraw = [true, true, true, true];
+		if (global.order > this.order) {
+			this.getChildren().forEach((child, i) => {
+				if (child.isInView()) {
+					quadrantsToDraw[i] = !child.draw(pMatrix, vMatrix, modelMatrix, opacity);
+				}
+			}
+			);
+		}
+		return quadrantsToDraw;
+	}
 
 	parentDestructed(){
 		this.parent = null;
