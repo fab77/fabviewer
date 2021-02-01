@@ -357,6 +357,12 @@ class Tile {
 			child.parentDestructed();
 		});
 		
+		this.gl.deleteTexture(this.texture);
+		this.gl.deleteBuffer(this.vertexPositionBuffer);
+		
+		this.vertexIndexBuffers.forEach((buffer)=>{
+			this.gl.deleteBuffer(buffer);
+		})
 
 		this.image = null;
 		this.imageLoaded = false;
