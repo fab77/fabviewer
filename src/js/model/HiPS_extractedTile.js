@@ -126,7 +126,10 @@ class HiPS_extractedTile extends AbstractSkyEntity_extractedTile{
 			this.removeTiles(parents);
 		} else {
 			Object.keys(tilesToRemove).forEach(tileKey => {
-				tileBufferSingleton.getTile(tilesToRemove[tileKey].order, tilesToRemove[tileKey].ipix, this.format, this.URL).removeFromView();
+				let tile = tileBufferSingleton.getIfAlreadyExist(tilesToRemove[tileKey].order, tilesToRemove[tileKey].ipix, this.format, this.URL);
+				if(tile){
+					tile.removeFromView();
+				}
 			});
 		}
 	}
@@ -139,7 +142,10 @@ class HiPS_extractedTile extends AbstractSkyEntity_extractedTile{
 
 	removeOrder0Tiles(){
 		for(let i = 0; i < 12; i++){
-			tileBufferSingleton.getTile(0, i, this.format, this.URL).removeFromView();
+			let tile = tileBufferSingleton.getIfAlreadyExist(0, i, this.format, this.URL);
+			if(tile){
+				tile.removeFromView();
+			}
 		}
 	}
 

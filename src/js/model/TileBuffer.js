@@ -51,8 +51,8 @@ class TileBuffer {
 	}
 
 	ageTiles(){
-		Object.keys({}).forEach(tileKey => {
-			if(this.tileCache[tileKey].age > 500){
+		Object.keys(this.tileCache).forEach(tileKey => {
+			if(this.tileCache[tileKey].age > 60 * 60 * 2){ // ~2 minutes
 				this.removeTile(tileKey);
 			} else {
 				this.tileCache[tileKey].age++;
