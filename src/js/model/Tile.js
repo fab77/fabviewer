@@ -45,7 +45,10 @@ class Tile {
 				this.onLoad();
 			}
 			this.image.onerror = ()=> {
-				this.imageLoadFailed = true;
+				if(this.isDownloading){ //download not canceled
+					this.imageLoadFailed = true;
+					this.isDownloading = false;
+				}
 			}
 		}
 		
@@ -188,16 +191,26 @@ class Tile {
 	}
 
 	startLoadingImage(){
-		if(this.isDownloading){
+		if(this.isDownloading || this.imageLoadFailed){
 			return;
 		}
 		this.isDownloading = true;
 		if(this.format == 'fits'){
 			if(this.fitsReader == null){
-				this.fitsReader = new FITSOnTheWeb(this.imageUrl, "grayscale", "linear", 0.0966, 2.461, currimg => {
+				this.fitsReader = new FITSOnTheWeb(this.imageUrl, "grayscale", "linear", -0.0966, 20.461, currimg => {
 					this.image = currimg;
 					this.image.onload = () => {
 						this.onLoad();
+					}
+					this.image.onerror = ()=> {
+						if(this.isDownloading){ //download not canceled
+							this.imageLoadFailed = true;
+							this.isDownloading = false;
+							console.log("FITS failed to load");
+						} else {
+							console.log("Fits download canceled");
+						}
+						
 					}
 				});
 			}
@@ -209,8 +222,9 @@ class Tile {
 
 	stopLoadingImage(){
 		if(!this.imageLoaded){
-			this.image.src = "";
 			this.isDownloading = false;
+			this.image.src = "";
+
 			if(this.fitsReader){
 				this.fitsReader.stop();
 			}
