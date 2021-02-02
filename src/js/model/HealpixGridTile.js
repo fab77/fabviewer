@@ -23,10 +23,6 @@ class HealpixGridTile {
 		});
 
 		this.vertexPositionBuffer = this.gl.createBuffer();
-		this.vertexPositionBuffer.itemSize = 3;
-		this.vertexPositionBuffer.numItems = this.vertexPosition.length;
-
-
 		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexPositionBuffer);
 		this.gl.bufferData(this.gl.ARRAY_BUFFER, this.vertexPosition, this.gl.STATIC_DRAW);
 	}

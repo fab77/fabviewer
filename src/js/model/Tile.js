@@ -206,7 +206,7 @@ class Tile {
 						if(this.isDownloading){ //download not canceled
 							this.imageLoadFailed = true;
 							this.isDownloading = false;
-							console.log("FITS failed to load");
+							// console.log("FITS failed to load");
 						} else {
 							console.log("Fits download canceled");
 						}
@@ -249,15 +249,18 @@ class Tile {
 	}
 
 	removeFromView(){
+		tileBufferSingleton.tileRemovedFromView(this.key);
 		if(!this._isInView) {return}
 		this._isInView = false;
 
 		this.stopLoadingImage();
-		tileBufferSingleton.tileRemovedFromView(this.key);
 		let parent = this.getParent();
 		if(parent){
 			parent.childRemovedFromView();
 		}
+		this.getExistingChildren().forEach(child => {
+			child.removeFromView();
+		});
 	}
 
 	childRemovedFromView(){
@@ -276,10 +279,9 @@ class Tile {
 	}
 
 	getParent(){
-		if(this.parent == null && this.order > 0){
-			this.parent = tileBufferSingleton.getTile(this.order - 1, Math.floor(this.ipix / 4), this.format, this.url);
+		if(this.order > 0){
+			return tileBufferSingleton.getTile(this.order - 1, Math.floor(this.ipix / 4), this.format, this.url);
 		}
-		return this.parent;
 	}
 
 	getExistingChildren(){
@@ -310,7 +312,6 @@ class Tile {
 		}
 		if(this.anythingToRender){
 			let quadrantsToDraw = this.drawChildren(pMatrix, vMatrix, modelMatrix, opacity);
-
 			healpixShader.useShader(pMatrix, vMatrix, modelMatrix, opacity);
 			this.gl.activeTexture(this.gl.TEXTURE0);
 			this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
@@ -341,18 +342,11 @@ class Tile {
 
 	parentDestructed(){
 		this.parent = null;
+		this.removeFromView();
 	}
 
-	childDestructed(child){
-		if(child.textureLoaded){
-			this.numberOfVisibleChildrenReadyToDraw--;
-		}
-	}
 
 	destruct(){
-		if(this.parent != null){
-			this.parent.childDestructed(this);
-		}
 		this.getExistingChildren().forEach(child => {
 			child.parentDestructed();
 		});
@@ -360,16 +354,17 @@ class Tile {
 		this.gl.deleteTexture(this.texture);
 		this.gl.deleteBuffer(this.vertexPositionBuffer);
 		
-		this.vertexIndexBuffers.forEach((buffer)=>{
-			this.gl.deleteBuffer(buffer);
-		})
+		if(this.vertexIndexBuffers){
+			this.vertexIndexBuffers.forEach((buffer)=>{
+				this.gl.deleteBuffer(buffer);
+			});
+		}
 
 		this.image = null;
 		this.imageLoaded = false;
 		this.textureLoaded = false;
 
 		this.fitsReader = null;
-		this.parent = null;
 		this.vertexPosition = null;
 	}
 }

@@ -122,11 +122,15 @@ class HealpixGrid {
 
 	draw(pMatrix, vMatrix, modelMatrix){
 		this.gl.useProgram(this.gridShaderProgram);
-		this.setUniformLocation();
 		if(!this.isInitialized){
 			return;
 		}
 
+		this.gl.disableVertexAttribArray(0);
+		this.gl.disableVertexAttribArray(1);
+		this.gl.disableVertexAttribArray(2);
+		
+		this.gl.enableVertexAttribArray(this.gridShaderProgram.vertexPositionAttribute);
 		this.gl.uniformMatrix4fv(this.gridShaderProgram.mMatrixUniform, false, modelMatrix);
 		this.gl.uniformMatrix4fv(this.gridShaderProgram.pMatrixUniform, false, pMatrix);
 		this.gl.uniformMatrix4fv(this.gridShaderProgram.vMatrixUniform, false, vMatrix);
@@ -137,10 +141,8 @@ class HealpixGrid {
 	}
 
 	drawTile(tile){
-		this.gl.enableVertexAttribArray(this.gridShaderProgram.vertexPositionAttribute);
 		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, tile.vertexPositionBuffer);
 		this.gl.vertexAttribPointer(this.gridShaderProgram.vertexPositionAttribute, 3, this.gl.FLOAT, false, 0, 0);
-
 		this.gl.drawArrays(this.gl.LINE_LOOP, 0, tile.vertexPosition.length / 3);
 	}
 }
