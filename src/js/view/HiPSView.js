@@ -12,26 +12,27 @@ class HiPSView{
             getHtml: ()=>{
                 return this.html;
             },
-            setModel: (model)=>{
-            	
-//            	console.log(model);
-//            	console.log(formats);
-                this.html.find("input").attr('id', model.surveyName);
+            setModel: (model, formats)=>{
+                this.html.find("input[type='checkbox']").attr('id', model.surveyName);
                 this.html.find("label").attr('for', model.surveyName);
                 this.html.find("label").html(model.surveyName);
-    
+                this.html.find("select").append(this.formatOptions(formats));
             },
             addCheckedHandler: (handler)=>{
-                this.html.find("input").on('change', handler);
+                this.html.find("input[type='checkbox']").on('change', handler);
             },
             setChecked: (checked)=>{
-                this.html.find("input").prop('checked', true);
+                this.html.find("input[type='checkbox']").prop('checked', true);
             },
-            addHiPSSettingsHandler: (handler)=>{
-            	this.html.find("button").click(handler);
+            addFormatChangedHandler: (handler)=>{
+                this.html.find("select").on('change', handler);
             },
-            appendSettingsPopup: (hipsSettingsHTML)=>{
-            	this.html.append(hipsSettingsHTML);
+            addOpacityChangedHandler: (handler)=>{
+                this.html.find("input[type='range']").on('input', handler);
+            },
+
+            getSelectedFormat: ()=>{
+                return this.html.find("select").find(":selected").val();
             }
 
         }
@@ -39,9 +40,21 @@ class HiPSView{
     }
  
     init(){
-//    	this.html = $("<li><input type='checkbox'/><label></label><button>O</button><br></li>");
-    	this.html = $("<tr><td><input type='checkbox' name='hips'/><label></label></td><td><button>O</button></td></tr>");
-//    	this.html.css("height","150px");
+        this.html = $("<div style='display: flex;align-items: center; justify-content: space-between;'>"
+        + "<input type='checkbox' name='hips'/><label style='white-space: nowrap; flex: auto'></label>"
+        + "<select name='format' id='format' onmousedown='event.stopPropagation()'></select>"
+        + "<div onmousedown='event.stopPropagation()'>"
+        + "<input type='range' min='0' max='100' value='100'>"
+        + "</div>"
+        + "</div>");
+    }
+
+    formatOptions(formats){
+        let html = "";
+    	for (var i = 0; i < formats.length; i++){
+    		html += "<option value='" + formats[i]+"'>" + formats[i] + "</option>";
+        }
+        return html;
     }
 }
 

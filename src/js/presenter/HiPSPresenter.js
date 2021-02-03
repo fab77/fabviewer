@@ -2,7 +2,6 @@
 /**
  * @author Fabrizio Giordano (Fab77)
  */
-import HiPSSettingsView from '../view/HiPSSettingsView';
 import eventBus from '../events/EventBus';
 import HiPSFormatSelectedEvent from '../events/HiPSFormatSelectedEvent';
 import HiPS from '../model/HiPS';
@@ -37,7 +36,7 @@ class HiPSPresenter{
 				this.hips.clearAllTiles();
 			} else {
 				if(this.hips == undefined){
-					let format = this._formats[0] == "fits" ? this._formats[1] : this._formats[0];
+					let format = this.view.getSelectedFormat();
 					if(USE_OLD_HIPS_JS){
 						this.hips = new HiPS(1, [0.0, 0.0, 0.0], 
 							0, 
@@ -59,41 +58,41 @@ class HiPSPresenter{
 			}
         });
 		
-		this._view.addHiPSSettingsHandler(()=>{
-			console.log("clicked on HiPS settings button");
-			let hipsSettingsView = new HiPSSettingsView(this._model, this._formats);
-			this._view.appendSettingsPopup(hipsSettingsView.getHtml());
-			this.fireEvents(hipsSettingsView);	
-		});
+		// this._view.addHiPSSettingsHandler(()=>{
+		// 	console.log("clicked on HiPS settings button");
+		// 	let hipsSettingsView = new HiPSSettingsView(this._model, this._formats);
+		// 	// this._view.appendSettingsPopup(hipsSettingsView.getHtml());
+		// 	this.fireEvents(hipsSettingsView);	
+		// });
 
-		
-	}
-	
-	fireEvents(in_view){
-		console.log(in_view.getHiPSFormat());
-		in_view.getHiPSFormat().on('change', (event) => {
+		in_view.addFormatChangedHandler((event) => {
 			if(this.hips && this.isChecked){
 				let format = event.target.value;
-				console.log(format);
 				if(USE_OLD_HIPS_JS){
 					this.hips = new HiPS(1, [0.0, 0.0, 0.0], 
-						Math.PI / 2, 
-						Math.PI / 2, this._model.surveyName, 
+						0, 
+						0, this._model.surveyName, 
 						this._model.url, format,
 						this._maxOrder);
 				} else {
 					this.hips = new HiPS_extractedTile(1, [0.0, 0.0, 0.0], 
-						Math.PI / 2, 
-						Math.PI / 2, this._model.surveyName, 
+						0, 
+						0, this._model.surveyName, 
 						this._model.url, format,
 						this._maxOrder);
 				}
 				global.currentHips = this.hips;
-
+	
 				eventBus.fireEvent(new HiPSFormatSelectedEvent(format, this._model.surveyName));
 			}
 		});
 
+		in_view.addOpacityChangedHandler((event) => {
+			if(this.hips){
+				this.hips.setOpacity(event.target.value/100);
+			}
+		});
+		
 	}
 	
 	get view(){
@@ -114,7 +113,7 @@ class HiPSPresenter{
 					if (lines[i].includes("hips_tile_format")){
 						let formats = lines[i].split("=")[1].trim().replace(/jpeg/ig, "jpg").split(" ");
 						this._formats = formats;
-						this._view.setModel(this._model);
+						this._view.setModel(this._model, formats);
 					} else if (lines[i].includes("hips_order") && !lines[i].includes("hips_order_")){
 						this._maxOrder = parseInt(lines[i].split("=")[1].trim());
 					}

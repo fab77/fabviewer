@@ -30,7 +30,9 @@ class FVApp{
 				console.log(canvas);
 			}
 			
-			this.gl = canvas.getContext("webgl2");
+			this.gl = canvas.getContext("webgl2", {
+				alpha: false
+			});
 			
 			let params = new URLSearchParams(location.search);
 			if (params.get('debug') != null){

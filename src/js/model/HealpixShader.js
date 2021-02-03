@@ -74,7 +74,7 @@ class HealpixShader {
 		this.gl.uniform1f(this.shaderProgram.uniformVertexTextureFactor, 1.0);
 	}
 
-	useShader(pMatrix, vMatrix, modelMatrix){
+	useShader(pMatrix, vMatrix, modelMatrix, opacity){
 		this.gl.useProgram(this.shaderProgram);
 
 		this.shaderProgram.uniformVertexTextureFactor = this.gl.getUniformLocation(this.shaderProgram, "uFactor0");
@@ -86,6 +86,7 @@ class HealpixShader {
 		this.gl.uniformMatrix4fv(this.shaderProgram.vMatrixUniform, false, vMatrix);
 
 		this.uniformVertexTextureFactorLoc = this.gl.getUniformLocation(this.shaderProgram, "uFactor0");
+		this.gl.uniform1f(this.uniformVertexTextureFactorLoc, opacity);
 
 		this.gl.enableVertexAttribArray(this.shaderProgram.vertexPositionAttribute);
 		this.gl.enableVertexAttribArray(this.shaderProgram.textureCoordAttribute);

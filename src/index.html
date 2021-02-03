@@ -214,8 +214,7 @@
 			gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
 		}else{
 			vec4 color0 = texture2D(uSampler0, vTextureCoord);
-			finalColor = vec3(finalColor.x +  color0.x *uFactor0 ,finalColor.y +  color0.y*uFactor0,finalColor.z +  color0.z*uFactor0); 
-			gl_FragColor = vec4(finalColor, color0.a);
+			gl_FragColor = vec4(color0.rgb, color0.a*uFactor0);
 		}
 		
 		
@@ -355,12 +354,14 @@
 			<br> <span id="RA_deg"></span>&nbsp; &nbsp;<span id="Dec_deg"></span>
 			<br> <span>RA(hms)</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>Dec(dms)</span>
 			<br> <span id="RA_hms"></span>&nbsp; &nbsp;<span id="Dec_dms"></span>
-			<br> <span id="order0"></span>
+			<br> <input type="checkbox" id="healpix-grid-checkbox" style="vertical-align: middle;"></input><label for="healpix-grid-checkbox">Healpix Grid</label>
+			<!-- <br> <span id="order0"></span>
 			<br> <span id="order1"></span>
 			<br> <span id="order2"></span>
 			<br> <span id="order3"></span>
 			<br> <span id="order4"></span>
-			<br> <span id="order5"></span>
+			<br> <span id="order5"></span> -->
+			<button id="hips_button" style="display: block" >Skies</button>
 		</div>
 
 	</div>

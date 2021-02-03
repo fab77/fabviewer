@@ -37,6 +37,8 @@ class FVView{
 		this.coords_rahms_dom = document.getElementById('RA_hms');
 		this.coords_decdms_dom = document.getElementById('Dec_dms');
 		
+		
+
 		this.order0 = document.getElementById('order0');
 		this.order1 = document.getElementById('order1');
 		this.order2 = document.getElementById('order2');
@@ -44,7 +46,7 @@ class FVView{
 		this.order4 = document.getElementById('order4');
 		this.order5 = document.getElementById('order5');
 
-
+		this.healpixGridCheckbox = document.getElementById('healpix-grid-checkbox');
 //		this.fpsvalue_dom = document.getElementById('fpsvalue');
 //		this.avgfpsvalue_dom = document.getElementById('avgfpsvalue');
 		
@@ -61,11 +63,18 @@ class FVView{
 //		this.cataloguesDiv = document.getElementById('catalogues');
 	};
 	
+	addHipsButtonHandler(handler){
+		$("#hips_button").on("click", handler);
+	}
 	
 	appendChild(html){
 		$("#controlpanel").append(html);
 		
 	};
+
+	addHealpixGridCheckboxHandler(handler){
+		this.healpixGridCheckbox.onclick = handler;
+	}
 	
 	
 	fillCataloguesDiv(cataloguesDescriptor){

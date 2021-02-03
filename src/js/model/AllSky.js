@@ -1,21 +1,22 @@
 "use strict";
 
-import Healpix from 'healpix';
+import {healpixShader} from './HealpixShader';
+import global from '../Global';
+
 
 class AllSky {
-	
-	// constructor(in_radius, in_gl, in_canvas, in_position, in_xRad, in_yRad, in_name, in_fovUtils){
-    constructor(in_gl, shaderProgram, norder, URL, radius){
+
+	constructor(in_gl, shaderProgram, norder, URL, radius, format){
 		this.gl = in_gl;
-        this.shaderProgram = shaderProgram;
-        this.norder = norder;
-        this.URL = URL;
+		this.shaderProgram = shaderProgram;
+		this.norder = norder;
+		this.URL = URL;
 		this.radius = radius;
-		this.healpix = new Healpix(Math.pow(2, this.norder));
-        this.maxNPix = this.healpix.getNPix();
-        this.textures = [];
+		this.maxNPix = global.getHealpix(this.norder).getNPix();
+		this.textures = [];
 		this.textures.images = [];
-        this.pixels = [];
+		this.pixels = [];
+		this.format = format;
 		this.opacity = 1.00 * 100.0/100.0;
 
 		this.isInitialized = false;
@@ -35,200 +36,114 @@ class AllSky {
 
 	initBuffer () {
 		if(this.isInitialized) {return;}
-		var nPixels = this.pixels.length;
-		var vertexPosition = new Float32Array(12*nPixels);
+		let nPixels = this.pixels.length;
+		this.vertexPosition = new Float32Array(20*nPixels);
 
-		var facesVec3Array;
-		
-		var theta0, theta1, theta2, theta3;
-		var phi0, phi1, phi2, phi3;
-		
-		for (var i=0; i < nPixels; i++){			
-			facesVec3Array = new Array();
-			facesVec3Array = this.healpix.getBoundaries(this.pixels[i]);
-			
-			if (this.radius != 1){
-				// HiPS radius different from Healpix default radius 1. 
-				// Mapping HEALPix coordinates to the new sphere and radius
-				theta0 = Math.acos(facesVec3Array[0].z);
-				theta1 = Math.acos(facesVec3Array[1].z);
-				theta2 = Math.acos(facesVec3Array[2].z);
-				theta3 = Math.acos(facesVec3Array[3].z);
-				
-				phi0 = Math.atan2(facesVec3Array[0].y, facesVec3Array[0].x);
-				phi1 = Math.atan2(facesVec3Array[1].y, facesVec3Array[1].x);
-				phi2 = Math.atan2(facesVec3Array[2].y, facesVec3Array[2].x);
-				phi3 = Math.atan2(facesVec3Array[3].y, facesVec3Array[3].x);
-				
-				vertexPosition[12*i] = -this.radius * Math.sin(theta0) * Math.cos(phi0);
-				vertexPosition[12*i+1] = this.radius * Math.sin(theta0) * Math.sin(phi0);
-				vertexPosition[12*i+2] = this.radius * Math.cos(theta0);
-				
-				vertexPosition[12*i+3] = -this.radius * Math.sin(theta1) * Math.cos(phi1);
-				vertexPosition[12*i+4] = this.radius * Math.sin(theta1) * Math.sin(phi1);
-				vertexPosition[12*i+5] = this.radius * Math.cos(theta1);
-				
-				vertexPosition[12*i+6] = -this.radius * Math.sin(theta2) * Math.cos(phi2);
-				vertexPosition[12*i+7] = this.radius * Math.sin(theta2) * Math.sin(phi2);
-				vertexPosition[12*i+8] = this.radius * Math.cos(theta2);
-				
-				vertexPosition[12*i+9] = -this.radius * Math.sin(theta3) * Math.cos(phi3);
-				vertexPosition[12*i+10] = this.radius * Math.sin(theta3) * Math.sin(phi3);
-				vertexPosition[12*i+11] = this.radius * Math.cos(theta3);
-			}else{
-				// Default Healpix radius 1
-				vertexPosition[12*i] = facesVec3Array[0].x ;
-				vertexPosition[12*i+1] = facesVec3Array[0].y ;
-				vertexPosition[12*i+2] = facesVec3Array[0].z;
-				
-				vertexPosition[12*i+3] = facesVec3Array[1].x;
-				vertexPosition[12*i+4] = facesVec3Array[1].y;
-				vertexPosition[12*i+5] = facesVec3Array[1].z;
-				
-				vertexPosition[12*i+6] = facesVec3Array[2].x;
-				vertexPosition[12*i+7] = facesVec3Array[2].y;
-				vertexPosition[12*i+8] = facesVec3Array[2].z;
-				
-				vertexPosition[12*i+9] = facesVec3Array[3].x;
-				vertexPosition[12*i+10] = facesVec3Array[3].y;
-				vertexPosition[12*i+11] = facesVec3Array[3].z;
-			}
-		}
-		
-		var textureCoordinates = new Float32Array(8*nPixels);
-		
 		//0.037037037
-		var s_step=1/27;
+		let s_step=1/27;
 		//0.034482759
-		var t_step=1/29;
-		
-		var sindex = 0;
-		var tindex = 0;
-		for (var i=0; i < nPixels; i++){
-			// AllSky map. One map texture
-			// [1, 0],[1, 1],[0, 1],[0, 0]
-			textureCoordinates[8*i] = (s_step + (s_step * sindex)).toFixed(9);
-			textureCoordinates[8*i+1] = (1 - (t_step + t_step * tindex)).toFixed(9);
-			textureCoordinates[8*i+2] = (s_step + (s_step * sindex)).toFixed(9);
-			textureCoordinates[8*i+3] = (1 - (t_step * tindex)).toFixed(9);
-			textureCoordinates[8*i+4] = (s_step * sindex).toFixed(9);
-			textureCoordinates[8*i+5] = (1 - (t_step * tindex)).toFixed(9);
-			textureCoordinates[8*i+6] = (s_step * sindex).toFixed(9);
-			textureCoordinates[8*i+7] = (1 - (t_step + t_step * tindex)).toFixed(9);
-			sindex++;
-			if(sindex == 27){
-				tindex++;
-				sindex=0;
+		let t_step=1/29;
+		let uindex = 0;
+		let vindex = 0;
+
+		for (let i=0; i < nPixels; i++){			
+			let positionArray = global.getHealpix(this.norder).getBoundaries(this.pixels[i]);
+			for(let j = 0; j < 4; j++){
+				let uBase = j < 2;
+				let vBase = j % 3 == 0;
+				this.addVertexPosition(positionArray[j], 
+					s_step * uBase + s_step * uindex, 
+					1 - (t_step * vBase + t_step * vindex), 
+					i * 4 + j);
+			}
+			uindex++;
+			if(uindex == 27){
+				vindex++;
+				uindex=0;
 			}
 		}
 
-	    var vertexIndices = new Uint16Array(6*nPixels);
-	    var baseFaceIndex = 0; 
-	    for (var j=0; j< nPixels; j++){
-	    	vertexIndices[6*j] = baseFaceIndex;
-	    	vertexIndices[6*j+1] = baseFaceIndex + 1;
-	    	vertexIndices[6*j+2] = baseFaceIndex + 2;
-	    	
-	    	vertexIndices[6*j+3] = baseFaceIndex;
-	    	vertexIndices[6*j+4] = baseFaceIndex + 2;
-	    	vertexIndices[6*j+5] = baseFaceIndex + 3;
-	    		
-	    	baseFaceIndex = baseFaceIndex+4;
-	    }
-	    
-	    this.vertexPositionBuffer = this.gl.createBuffer();
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexPositionBuffer);
-		this.gl.bufferData(this.gl.ARRAY_BUFFER, vertexPosition, this.gl.STATIC_DRAW);
-		this.vertexPositionBuffer.itemSize = 3;
-		this.vertexPositionBuffer.numItems = vertexPosition.length;
+		let vertexIndices = new Uint16Array(6*nPixels);
+		let baseFaceIndex = 0; 
+		for (let i=0; i< nPixels; i++){
+			vertexIndices[6*i] = baseFaceIndex;
+			vertexIndices[6*i+1] = baseFaceIndex + 1;
+			vertexIndices[6*i+2] = baseFaceIndex + 3;
+			
+			vertexIndices[6*i+3] = baseFaceIndex + 1;
+			vertexIndices[6*i+4] = baseFaceIndex + 2;
+			vertexIndices[6*i+5] = baseFaceIndex + 3;
+				
+			baseFaceIndex = baseFaceIndex+4;
+		}
 		
-		this.vertexTextureCoordBuffer = this.gl.createBuffer();
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexTextureCoordBuffer); 
-		this.gl.bufferData(this.gl.ARRAY_BUFFER, textureCoordinates, this.gl.STATIC_DRAW);
-		this.vertexTextureCoordBuffer.itemSize = 2;
-		this.vertexTextureCoordBuffer.numItems = textureCoordinates.length;
-	    
+		this.vertexPositionBuffer = this.gl.createBuffer();
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexPositionBuffer);
+		this.gl.bufferData(this.gl.ARRAY_BUFFER, this.vertexPosition, this.gl.STATIC_DRAW);
+		
 		this.vertexIndexBuffer = this.gl.createBuffer();
-	    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.vertexIndexBuffer);
-	    this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, vertexIndices, this.gl.STATIC_DRAW);
-	    this.vertexIndexBuffer.itemSize = 1;
-		this.vertexIndexBuffer.numItems = vertexIndices.length;
+		this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.vertexIndexBuffer);
+		this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, vertexIndices, this.gl.STATIC_DRAW);
 	};
+
+	addVertexPosition(position, u , v, index) {
+		index *= 5;
+
+		if(this.radius != 1){
+			let theta = Math.acos(position.z);
+			let phi = Math.atan2(position.y, position.x);
+			
+			this.vertexPosition[index++] = -this.radius * Math.sin(theta) * Math.cos(phi);
+			this.vertexPosition[index++] = this.radius * Math.sin(theta) * Math.sin(phi);
+			this.vertexPosition[index++] = this.radius * Math.cos(theta);
+		} else {
+			this.vertexPosition[index++] = position.x;
+			this.vertexPosition[index++] = position.y;
+			this.vertexPosition[index++] = position.z;
+		}
+
+		this.vertexPosition[index++] = u;
+		this.vertexPosition[index++] = v;
+	}
 
 	initTexture () {
 		if(this.isInitialized) {return;}
-		this.textures.images[0] = {
-				tex: this.gl.createTexture(),
-				image: new Image()
-		};
+		this.image = new Image();
+		this.texture = this.gl.createTexture();
+		this.image.setAttribute('crossorigin', 'anonymous');
+		this.image.src = this.URL+"/Norder3/Allsky." + this.format;
 		
-		this.textures.images[0].image = new Image();
-		//TODO remove cross origin attribute for maps on the same domain as it slightly degrades loading time
-		this.textures.images[0].image.setAttribute('crossorigin', 'anonymous');
-		this.textures.images[0].image.src = this.URL+"/Norder3/Allsky.jpg";
-		
-		this.addOnLoad(this.textures.images[0], 0);
-	}
-
-	addOnLoad(image, n){
-		image.image.onload = ()=> {
+		this.image.onload = ()=> {
 			this.isFullyLoaded = true;
-			if(!image.isDeleted){
-				this.handleLoadedTexture(image, 0, n);
-			}
+			this.handleLoadedTexture();
 		};
 	}
 
-	handleLoadedTexture (textureObj, shaderSkyIndex, idx){
-		this.gl.activeTexture(this.gl.TEXTURE0 + shaderSkyIndex);
+	handleLoadedTexture (){
+		this.gl.activeTexture(this.gl.TEXTURE0);
 		this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);
-		this.gl.bindTexture(this.gl.TEXTURE_2D, textureObj.tex);
+		this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
 
-		try{
-			this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, textureObj.image);
-		}catch(error){
-			console.error("ERROR");
-			console.error(error);
-			console.error("idx: "+idx+" pixels[idx] "+this.pixels[idx]);
-			console.error(this.pixels);
-		}
-		console.log("handleLoadedTexture - Full sky - no mipmap");
-		// it's not a power of 2. Turn off mip and set wrapping to clamp to edge
-		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
-		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+		this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.image);
+
 		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
 
-		// TODO REVIEW uniformSamplerLoc[shaderSkyIndex] !!!
-		this.gl.uniform1i(this.shaderProgram.samplerUniform, shaderSkyIndex);
-
-		if (!this.gl.isTexture(textureObj.tex)){
-			console.log("error in texture");
-		}
-		
-		this.gl.bindTexture(this.gl.TEXTURE_2D, null);
+		this.anythingToRender = true;
 	}
 
 
-	draw(uniformVertexTextureFactor){
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexPositionBuffer);
-		this.gl.vertexAttribPointer(this.shaderProgram.vertexPositionAttribute, this.vertexPositionBuffer.itemSize, this.gl.FLOAT, false, 0, 0);
-		
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexTextureCoordBuffer);
-		this.gl.vertexAttribPointer(this.shaderProgram.textureCoordAttribute, this.vertexTextureCoordBuffer.itemSize, this.gl.FLOAT, false, 0, 0);
-		
-		this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.vertexIndexBuffer);
-		
-	    this.gl.enableVertexAttribArray(this.shaderProgram.vertexPositionAttribute);
-		this.gl.enableVertexAttribArray(this.shaderProgram.textureCoordAttribute);
-
-		this.gl.activeTexture(this.gl.TEXTURE0);
-//			this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures.images[0]);
-		this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures.images[0].tex);
-		this.gl.uniform1f(uniformVertexTextureFactor, this.opacity);
-		
-		for (var i=0;i<this.pixels.length;i++){
-			this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, 12*i);
+	draw(pMatrix, vMatrix, modelMatrix, opacity, ipixToSkip){
+		if(this.anythingToRender){
+			healpixShader.useShader(pMatrix, vMatrix, modelMatrix, opacity);
+			this.gl.activeTexture(this.gl.TEXTURE0);
+			this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
+			healpixShader.setBuffers(this.vertexPositionBuffer, this.vertexIndexBuffer);
+			for (let i = 0; i < this.pixels.length; i++){
+				if(!ipixToSkip[i]){
+					this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, 12 * i);
+				}
+			}
 		}
-    }
+	}
 }
 export default AllSky;

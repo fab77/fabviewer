@@ -2,10 +2,36 @@
 
 import global from '../Global';
 
-class HealpixGridTileDrawer {
+import {healpixGridTileBufferSingleton} from './HealpixGridTileBuffer';
+import eventBus from '../events/EventBus';
+import VisibleTilesChangedEvent from '../events/VisibleTilesChangedEvent';
+
+
+class HealpixGrid {
 
 	constructor() {
 		this.tiles = {};
+		eventBus.registerForEvent(this, VisibleTilesChangedEvent.name);
+		this.init();
+	}
+	
+	notify(in_event){
+		if (in_event instanceof VisibleTilesChangedEvent){
+			this.removeTiles(in_event.tilesRemoved)
+			this.addTiles(in_event.tilesToAddInOrder);
+		}
+	}
+
+	addTiles(tilesToAdd){
+		tilesToAdd.forEach(tile => {
+			this.add(healpixGridTileBufferSingleton.getTile(tile.order, tile.ipix));
+		});
+	}
+
+	removeTiles(tilesToRemove){
+		Object.keys(tilesToRemove).forEach(tileKey => {
+			this.remove(healpixGridTileBufferSingleton.getTile(tilesToRemove[tileKey].order, tilesToRemove[tileKey].ipix));
+		});
 	}
 
 	initGridShaders () {
@@ -96,11 +122,15 @@ class HealpixGridTileDrawer {
 
 	draw(pMatrix, vMatrix, modelMatrix){
 		this.gl.useProgram(this.gridShaderProgram);
-		this.setUniformLocation();
 		if(!this.isInitialized){
 			return;
 		}
 
+		this.gl.disableVertexAttribArray(0);
+		this.gl.disableVertexAttribArray(1);
+		this.gl.disableVertexAttribArray(2);
+		
+		this.gl.enableVertexAttribArray(this.gridShaderProgram.vertexPositionAttribute);
 		this.gl.uniformMatrix4fv(this.gridShaderProgram.mMatrixUniform, false, modelMatrix);
 		this.gl.uniformMatrix4fv(this.gridShaderProgram.pMatrixUniform, false, pMatrix);
 		this.gl.uniformMatrix4fv(this.gridShaderProgram.vMatrixUniform, false, vMatrix);
@@ -111,11 +141,9 @@ class HealpixGridTileDrawer {
 	}
 
 	drawTile(tile){
-		this.gl.enableVertexAttribArray(this.gridShaderProgram.vertexPositionAttribute);
 		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, tile.vertexPositionBuffer);
 		this.gl.vertexAttribPointer(this.gridShaderProgram.vertexPositionAttribute, 3, this.gl.FLOAT, false, 0, 0);
-
 		this.gl.drawArrays(this.gl.LINE_LOOP, 0, tile.vertexPosition.length / 3);
 	}
 }
-export const healpixGridTileDrawerSingleton = new HealpixGridTileDrawer();
+export default HealpixGrid;

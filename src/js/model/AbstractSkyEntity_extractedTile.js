@@ -14,7 +14,6 @@ class AbstractSkyEntity_extractedTile{
 	constructor(in_radius, in_position, in_xRad, in_yRad, in_name){
 		let in_gl = global.gl;
 		this.fovObj = new FoV(this);
-//		this.fovObj = new FoV(in_gl, in_canvas, this);
 		this.refreshMe = false;
 		this.fovX_deg = 180;
 		this.fovY_deg = 180;
