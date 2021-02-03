@@ -505,9 +505,28 @@ class FVPresenter2{
 		this.in_gl.viewport(0, 0, this.in_gl.viewportWidth, this.in_gl.viewportHeight);
 		this.in_gl.clear(this.in_gl.COLOR_BUFFER_BIT | this.in_gl.DEPTH_BUFFER_BIT);
 		
-		let extra = 0.55;
-		let farPlane = Math.sqrt((this.camera.cam_pos[2]-extra) * (this.camera.cam_pos[2]-extra));
-		mat4.perspective(this.pMatrix, this.fovDeg, this.aspectRatio, this.nearPlane, farPlane);
+		let distCamera = -this.camera.getCameraMatrix()[14];
+		let r = 1; // Need this to be the radius of the HiPS sphere. Can we get that somewhere?
+
+		//Min value of radius of camera fov or angle from camera to top of sphere
+		let alpha = Math.min(this.fovDeg * Math.PI / 180.0, Math.atan2(r,pc))
+		//Min value of radius of camera fov or angle from camera to side of sphere
+		let beta = Math.min(this.fovDeg * Math.PI / 180.0, Math.atan2(r,pc))*this.aspectRatio;
+
+		// Solution of the 2nd degree equation on the the angle from the camera to the first intersection of the sphere.
+		// Handles to get the corner of the screen in view if close enough
+		let a = 1 + Math.pow(Math.tan(alpha) / Math.cos(beta), 2);
+		let b = -  distCamera;
+		let c = distCamera * distCamera - r * r;
+
+		// The parameters of the standard solution for 2nd degree equation x = p +- SQRT(p^2 - q)
+		// Ensure that the values under the sqrt is at least 0
+		let p = b / a;
+		let q = c / a;
+		let s = Math.max(0, p * p  - q);
+		let farPlane = - p  - Math.sqrt(s);
+
+		mat4.perspective(this.pMatrix, this.fovDeg , this.aspectRatio, this.nearPlane, farPlane);
 
 		if (global.pMatrix == null){
 			global.pMatrix = this.pMatrix;
