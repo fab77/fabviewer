@@ -12,6 +12,7 @@ class Footprint{
 	#details;
 	#center;
 	#totPoints;
+	#npix256;
 
 	/**
 	 * 
@@ -29,8 +30,19 @@ class Footprint{
 		this.#polygons = [];
 		this.#totPoints = 0;
 		
+		this.#npix256 = this.computeNpix256();
+		
 		this.computePoints();
 	}
+	
+	/**
+	 * return: array of int representing the HEALPix pixels covering the footprint 
+	 */
+	computeNpix256(){
+		// TODO call healpix library with query_inclusive
+		return [];
+		
+	};
 	
 	computePoints(){
 		
@@ -71,8 +83,6 @@ class Footprint{
 	get totPoints(){
 		return this.#totPoints;
 	}
-	
-	
 
 	get polygons(){
 		return this.#polygons;
@@ -85,6 +95,11 @@ class Footprint{
 	get center(){
 		return this.#center;
 	}
+	
+	get pixels(){
+		return this.#npix256;
+	}
+	
 }
 
 export default Footprint;
