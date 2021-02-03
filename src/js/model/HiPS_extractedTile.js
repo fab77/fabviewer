@@ -215,25 +215,17 @@ class HiPS_extractedTile extends AbstractSkyEntity_extractedTile{
 		this.shaderProgram.vMatrixUniform = this.gl.getUniformLocation(this.shaderProgram, "uVMatrix");
 		this.shaderProgram.samplerUniform = this.gl.getUniformLocation(this.shaderProgram, "uSampler0");
 		this.shaderProgram.uniformVertexTextureFactor = this.gl.getUniformLocation(this.shaderProgram, "uFactor0");
+		this.shaderProgram.sphericalGridEnabledUniform = this.gl.getUniformLocation(this.shaderProgram, "uSphericalGrid");
 		this.gl.uniform1f(this.shaderProgram.uniformVertexTextureFactor, 1.0);
 	}
 
 	enableShader(pMatrix, vMatrix){
 		this.gl.useProgram(this.shaderProgram);
 
-		this.shaderProgram.pMatrixUniform = this.gl.getUniformLocation(this.shaderProgram, "uPMatrix");
-		this.shaderProgram.mMatrixUniform = this.gl.getUniformLocation(this.shaderProgram, "uMMatrix");
-		this.shaderProgram.vMatrixUniform = this.gl.getUniformLocation(this.shaderProgram, "uVMatrix");
-		this.shaderProgram.samplerUniform = this.gl.getUniformLocation(this.shaderProgram, "uSampler0");
-		this.shaderProgram.uniformVertexTextureFactor = this.gl.getUniformLocation(this.shaderProgram, "uFactor0");
-		this.shaderProgram.sphericalGridEnabledUniform = this.gl.getUniformLocation(this.shaderProgram, "uSphericalGrid");
-
 		this.gl.uniform1f(this.shaderProgram.uniformVertexTextureFactor, 1.0);
 		this.gl.uniformMatrix4fv(this.shaderProgram.mMatrixUniform, false, this.modelMatrix);
 		this.gl.uniformMatrix4fv(this.shaderProgram.pMatrixUniform, false, pMatrix);
 		this.gl.uniformMatrix4fv(this.shaderProgram.vMatrixUniform, false, vMatrix);
-
-		this.uniformVertexTextureFactorLoc = this.gl.getUniformLocation(this.shaderProgram, "uFactor0");
 
 		this.gl.uniform1f(this.shaderProgram.sphericalGridEnabledUniform, 0.0);
 	}
