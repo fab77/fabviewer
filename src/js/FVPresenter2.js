@@ -509,9 +509,9 @@ class FVPresenter2{
 		let r = 1; // Need this to be the radius of the HiPS sphere. Can we get that somewhere?
 
 		//Min value of radius of camera fov or angle from camera to top of sphere
-		let alpha = Math.min(this.fovDeg * Math.PI / 180.0, Math.atan2(r,pc))
+		let alpha = Math.min(this.fovDeg * Math.PI / 180.0, Math.atan2(r,distCamera))
 		//Min value of radius of camera fov or angle from camera to side of sphere
-		let beta = Math.min(this.fovDeg * Math.PI / 180.0, Math.atan2(r,pc))*this.aspectRatio;
+		let beta = Math.min(this.fovDeg * Math.PI / 180.0, Math.atan2(r,distCamera))*this.aspectRatio;
 
 		// Solution of the 2nd degree equation on the the angle from the camera to the first intersection of the sphere.
 		// Handles to get the corner of the screen in view if close enough
