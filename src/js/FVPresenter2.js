@@ -526,7 +526,7 @@ class FVPresenter2{
 		let s = Math.max(0, p * p  - q);
 		let farPlane = - p  - Math.sqrt(s);
 
-		mat4.perspective(this.pMatrix, this.fovDeg , this.aspectRatio, this.nearPlane, farPlane);
+		mat4.perspective(this.pMatrix, this.fovDeg * Math.PI / 180.0 , this.aspectRatio, this.nearPlane, farPlane);
 
 		if (global.pMatrix == null){
 			global.pMatrix = this.pMatrix;
