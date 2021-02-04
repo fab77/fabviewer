@@ -77,16 +77,12 @@ class HealpixShader {
 	useShader(pMatrix, vMatrix, modelMatrix, opacity){
 		this.gl.useProgram(this.shaderProgram);
 
-		this.shaderProgram.uniformVertexTextureFactor = this.gl.getUniformLocation(this.shaderProgram, "uFactor0");
-		this.shaderProgram.sphericalGridEnabledUniform = this.gl.getUniformLocation(this.shaderProgram, "uSphericalGrid");
-
 		this.gl.uniform1f(this.shaderProgram.uniformVertexTextureFactor, 1.0);
 		this.gl.uniformMatrix4fv(this.shaderProgram.mMatrixUniform, false, modelMatrix);
 		this.gl.uniformMatrix4fv(this.shaderProgram.pMatrixUniform, false, pMatrix);
 		this.gl.uniformMatrix4fv(this.shaderProgram.vMatrixUniform, false, vMatrix);
 
-		this.uniformVertexTextureFactorLoc = this.gl.getUniformLocation(this.shaderProgram, "uFactor0");
-		this.gl.uniform1f(this.uniformVertexTextureFactorLoc, opacity);
+		this.gl.uniform1f(this.shaderProgram.uniformVertexTextureFactor, opacity);
 
 		this.gl.enableVertexAttribArray(this.shaderProgram.vertexPositionAttribute);
 		this.gl.enableVertexAttribArray(this.shaderProgram.textureCoordAttribute);

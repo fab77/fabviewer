@@ -21,10 +21,7 @@ class SystemPresenter{
     //            view.setModel(model);
     //        },
             refreshModel: ()=>{
-                
                 this.setModel();
-                this.view.setModel(this.model);
-                
             },
             getElapsedTime: ()=>{
                 return this.elapsedTime;
@@ -89,6 +86,7 @@ class SystemPresenter{
 
             this.model.setFps(this.fps);
             this.model.setAvgFps(averageFPS);
+            this.view.setModel(this.model);
         }
 		
 

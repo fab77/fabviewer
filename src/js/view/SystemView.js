@@ -15,13 +15,13 @@ class SystemView {
 			getHtml : () => {
 				return this.html;
 			},
-			setModel : function(model) {
-				$("#fpsvalue").html(model.getFps());
-				$("#avgfpsvalue").html(model.getAvgFps());
+			setModel : (model)=> {
+				this.html.find("#fpsvalue").html(model.getFps());
+				this.html.find("#avgfpsvalue").html(model.getAvgFps());
 			},
-			addFovPolyHandler : function(handler) {
+			addFovPolyHandler : (handler) => {
 				console.log("addFovPolyHandler ");
-				$("#getFovPoly").on("click", handler);
+				this.html.find("#getFovPoly").on("click", handler);
 			}
 		}
 	
