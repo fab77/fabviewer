@@ -210,18 +210,18 @@ class FPCatalogue{
 		let positionIndex = 0;
 		let vIdx = 0;
 
-		let R = 1.001;
+		let R = 1.0;
 		for(let j = 0; j < nFootprints; j++){
 			
 			let footprint = this._footprints[j].polygons;
 			
-			footprint.pixels.forEach(function(pix){
-				if (footprintsInPix256.has(pix)){ 
-					let newElem = footprintsInPix256.get(pix).push(footprint.identifier);
-					footprintsInPix256.set(pix, newElem);
-				}
-			});
-			if (pix256ToFootprints.has())
+//			footprint.pixels.forEach(function(pix){
+//				if (footprintsInPix256.has(pix)){ 
+//					let newElem = footprintsInPix256.get(pix).push(footprint.identifier);
+//					footprintsInPix256.set(pix, newElem);
+//				}
+//			});
+//			if (pix256ToFootprints.has())
 			
 			
 			for (let polyIdx in footprint){
@@ -274,6 +274,8 @@ class FPCatalogue{
 	 * @param in_Matrix: model matrix the current catalogue is associated to (e.g. HiPS matrix)
 	 */
 	draw(in_mMatrix, in_mouseCoords){
+		
+		
 		
 
 		this._gl.useProgram(this._shaderProgram);

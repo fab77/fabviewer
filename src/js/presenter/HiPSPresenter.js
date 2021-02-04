@@ -8,7 +8,7 @@ import HiPS from '../model/HiPS';
 import HiPS_extractedTile from '../model/HiPS_extractedTile';
 import global from '../Global';
 
-const USE_OLD_HIPS_JS = true;
+const USE_OLD_HIPS_JS = false;
 
 class HiPSPresenter{
 	

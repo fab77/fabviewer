@@ -48,17 +48,17 @@ class Footprint{
 		
 		
 		// TODO STCS parser: it should be a separated class or utility class following the standard
-		let stcsParsed = this.#stcs.replace("ICRS", "").replace("J2000", "").replace("UNION", "").replace("TOPOCENTER", "").trim().replace(/  +/g, ' ');
+		let stcsParsed = this.#stcs.replaceAll("ICRS", "").replaceAll("J2000", "").replaceAll("UNION", "").replaceAll("TOPOCENTER", "").trim().replace(/  +/g, ' ');
 		
 		if (stcsParsed.includes("POLYGON")){
 			
 			let polys = stcsParsed.split("POLYGON ");
-			let currPoly = [];
+			
 			for (let i = 0; i < polys.length; i++){
-				
+				let currPoly = [];
 				let points = polys[i].trim().split(" ");
 				if (points.length >= 2){
-					for (let p = 0; p < points.length - 3; p = p+2){
+					for (let p = 0; p < points.length - 1; p = p+2){
 						let point = new Point({
 							"raDeg": points[p],
 							"decDeg": points[p+1]
