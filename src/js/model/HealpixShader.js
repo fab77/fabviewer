@@ -1,6 +1,7 @@
 "use strict";
 
 import global from '../Global';
+import {shaderUtility} from '../utils/ShaderUtility';
 
 class HealpixShader {
 
@@ -22,11 +23,11 @@ class HealpixShader {
 			alert("Could not initialise shaders");
 		}
 
-		this.gl.useProgram(this.shaderProgram);
+		shaderUtility.useProgram(this.shaderProgram);
 
 		this.shaderProgram.vertexPositionAttribute = this.gl.getAttribLocation(this.shaderProgram, "aVertexPosition");
 		this.shaderProgram.textureCoordAttribute = this.gl.getAttribLocation(this.shaderProgram, "aTextureCoord");
-		
+
 		this.setUniformLocation();
 	}
 	
@@ -72,22 +73,21 @@ class HealpixShader {
 		this.shaderProgram.samplerUniform = this.gl.getUniformLocation(this.shaderProgram, "uSampler0");
 		this.shaderProgram.uniformVertexTextureFactor = this.gl.getUniformLocation(this.shaderProgram, "uFactor0");
 		this.gl.uniform1f(this.shaderProgram.uniformVertexTextureFactor, 1.0);
+		this.gl.uniform1i(this.shaderProgram.samplerUniform, 0);
 	}
 
 	useShader(pMatrix, vMatrix, modelMatrix, opacity){
-		this.gl.useProgram(this.shaderProgram);
-
-		this.gl.uniform1f(this.shaderProgram.uniformVertexTextureFactor, 1.0);
+		if(shaderUtility.lastUsedProgram != this.shaderProgram){
+			shaderUtility.useProgram(this.shaderProgram);
+			this.gl.enableVertexAttribArray(this.shaderProgram.textureCoordAttribute);
+			this.gl.enableVertexAttribArray(this.shaderProgram.vertexPositionAttribute);
+		}
+		
 		this.gl.uniformMatrix4fv(this.shaderProgram.mMatrixUniform, false, modelMatrix);
 		this.gl.uniformMatrix4fv(this.shaderProgram.pMatrixUniform, false, pMatrix);
 		this.gl.uniformMatrix4fv(this.shaderProgram.vMatrixUniform, false, vMatrix);
-
+	
 		this.gl.uniform1f(this.shaderProgram.uniformVertexTextureFactor, opacity);
-
-		this.gl.enableVertexAttribArray(this.shaderProgram.vertexPositionAttribute);
-		this.gl.enableVertexAttribArray(this.shaderProgram.textureCoordAttribute);
-
-		this.gl.uniform1i(this.shaderProgram.samplerUniform, 0);
 	}
 
 	init(){
@@ -103,7 +103,6 @@ class HealpixShader {
 		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vertexPositionBuffer);
 		this.gl.vertexAttribPointer(this.shaderProgram.vertexPositionAttribute, 3, this.gl.FLOAT, false, 20, 0);
 		this.gl.vertexAttribPointer(this.shaderProgram.textureCoordAttribute, 2, this.gl.FLOAT, false, 20, 12);
-		
 		this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, vertexIndexBuffer);
 	}
 }

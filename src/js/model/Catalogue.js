@@ -6,6 +6,8 @@ import global from '../Global';
 import Point from '../utils/Point';
 import CoordsType from '../utils/CoordsType';
 import Source from './Source';
+import {shaderUtility} from '../utils/ShaderUtility';
+
 
 
 class Catalogue{
@@ -81,7 +83,7 @@ class Catalogue{
 			alert("Could not initialise shaders");
 		}
 
-		gl.useProgram(shaderProgram);
+		shaderUtility.useProgram(shaderProgram);
 
 		// TODO USELESS
 		this.setUniformLocation();
@@ -281,7 +283,7 @@ class Catalogue{
 	draw(in_mMatrix, in_mouseCoords){
 		
 
-		this.#gl.useProgram(this.#shaderProgram);
+		shaderUtility.useProgram(this.#shaderProgram);
 		
 		this.enableShader(in_mMatrix);
 		

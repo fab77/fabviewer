@@ -13,6 +13,7 @@ import global from '../Global';
 import RayPickingUtils from '../utils/RayPickingUtils';
 import {Vec3, Pointing} from 'healpixjs';
 import FITSOnTheWeb from 'fitsontheweb';
+import {shaderUtility} from '../utils/ShaderUtility';
 
 
 
@@ -80,7 +81,7 @@ class HiPS extends AbstractSkyEntity{
 			alert("Could not initialise shaders");
 		}
 
-		this.in_gl.useProgram(this.shaderProgram);
+		shaderUtility.useProgram(this.shaderProgram);
 
 		this.shaderProgram.vertexPositionAttribute = this.in_gl.getAttribLocation(this.shaderProgram, "aVertexPosition");
 		this.in_gl.enableVertexAttribArray(this.shaderProgram.vertexPositionAttribute);
@@ -620,6 +621,10 @@ class HiPS extends AbstractSkyEntity{
 		this.pixels.splice(0, this.pixels.length);
 	}
 
+	hide(){
+		this.clearAllTiles();
+	}
+
 
 	refreshModel (in_fov, in_pan){
 	//		refreshModel (in_fov, in_pan, in_camerObj, in_pMatrix, in_canvas, in_rayPickingObj){
@@ -702,7 +707,7 @@ class HiPS extends AbstractSkyEntity{
 
 
 	enableShader(pMatrix, vMatrix){
-		this.in_gl.useProgram(this.shaderProgram);
+		shaderUtility.useProgram(this.shaderProgram);
 		
 		this.shaderProgram.pMatrixUniform = this.in_gl.getUniformLocation(this.shaderProgram, "uPMatrix");
 		this.shaderProgram.mMatrixUniform = this.in_gl.getUniformLocation(this.shaderProgram, "uMMatrix");

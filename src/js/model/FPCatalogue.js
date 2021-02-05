@@ -6,6 +6,7 @@ import global from '../Global';
 import Point from '../utils/Point';
 import CoordsType from '../utils/CoordsType';
 import Footprint from './Footprint';
+import { shaderUtility } from '../utils/ShaderUtility';
 
 
 class FPCatalogue{
@@ -92,7 +93,7 @@ class FPCatalogue{
 			alert("Could not initialise shaders");
 		}
 
-		gl.useProgram(this._shaderProgram);
+		shaderUtility.useProgram(this._shaderProgram);
 
 		// TODO USELESS
 		this.setUniformLocation();
@@ -290,7 +291,7 @@ class FPCatalogue{
 	draw(in_mMatrix, in_mouseCoords){
 		
 
-		this._gl.useProgram(this._shaderProgram);
+		shaderUtility.useProgram(this._shaderProgram);
 		
 		this.enableShader(in_mMatrix);
 		

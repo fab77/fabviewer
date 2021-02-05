@@ -15,25 +15,18 @@ class Tile {
 		this.url = url;
 		this.radius = 1;
 		this.useMipmap = true;
-		this.step = 16;
+		this.step = 8;
 		this.xyf = global.getHealpix(order).nest2xyf(ipix);
 
 		this.imageLoaded = false;
 		this.textureLoaded = false;
 		this.isDownloading = false;
 		this._isInView = false;
-		this.numberOfVisibleChildrenReadyToDraw = 0;
 		this.vertexPositionIndex = 0;
 
 		this.format = format != undefined ? format : "png";
 		
 		this.initImage();
-
-		this.getExistingChildren().forEach((child) =>{
-			if(child.imageLoaded){
-				this.numberOfVisibleChildrenReadyToDraw++;
-			}
-		});
 	}
 
 	initImage () {
@@ -198,6 +191,7 @@ class Tile {
 		if(this.format == 'fits'){
 			if(this.fitsReader == null){
 				this.fitsReader = new FITSOnTheWeb(this.imageUrl, "grayscale", "linear", -0.0966, 20.461, currimg => {
+				// this.fitsReader = new FITSOnTheWeb(this.imageUrl, "grayscale", "linear", Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, currimg => {
 					this.image = currimg;
 					this.image.onload = () => {
 						this.onLoad();
@@ -249,7 +243,7 @@ class Tile {
 	}
 
 	removeFromView(){
-		tileBufferSingleton.tileRemovedFromView(this.key);
+		tileBufferSingleton.tileRemovedFromView(this);
 		if(!this._isInView) {return}
 		this._isInView = false;
 

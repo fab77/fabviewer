@@ -8,7 +8,7 @@ import HiPS from '../model/HiPS';
 import HiPS_extractedTile from '../model/HiPS_extractedTile';
 import global from '../Global';
 
-const USE_OLD_HIPS_JS = true;
+const USE_OLD_HIPS_JS = false;
 
 class HiPSPresenter{
 	
@@ -33,7 +33,7 @@ class HiPSPresenter{
 			var checkbox = event.currentTarget;
 			this.isChecked = checkbox.checked;
 			if(!this.isChecked){
-				this.hips.clearAllTiles();
+				this.hips.hide();
 			} else {
 				if(this.hips == undefined){
 					let format = this.view.getSelectedFormat();
@@ -49,7 +49,8 @@ class HiPSPresenter{
 							0, this._model.surveyName, 
 							this._model.url, format,
 							this._maxOrder);
-					}
+						}
+					this.hips.show();
 				} else {
 					this.hips.show();
 				}

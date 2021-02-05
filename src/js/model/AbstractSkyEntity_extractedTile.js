@@ -2,7 +2,7 @@
  * @author Fabrizio Giordano (Fab)
  * @param in_radius - number
  * @param in_gl - GL context
- * @param in_position - array of double e.g. [0.0, 0.0, -7]
+ * @param in_position - array of double e.g. [0.0, 0.0, 0.0]
  */
 import FoV from './FoV';
 import {vec3, mat4} from 'gl-matrix';

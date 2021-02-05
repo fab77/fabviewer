@@ -65,7 +65,7 @@ function XYZSystem3(in_gl, in_cameraPosition){
 			alert("Could not initialise shaders");
 		}
 
-		in_gl.useProgram(currentObj.shaderProgram);
+		shaderUtility.useProgram(currentObj.shaderProgram);
 
 		currentObj.shaderProgram.vertexPositionAttribute = in_gl.getAttribLocation(currentObj.shaderProgram, "aVertexPosition");
 		in_gl.enableVertexAttribArray(currentObj.shaderProgram.vertexPositionAttribute);
@@ -124,7 +124,7 @@ function XYZSystem3(in_gl, in_cameraPosition){
 		
 		
 		// -----------------
-		in_gl.useProgram(currentObj.shaderProgram);
+		shaderUtility.useProgram(currentObj.shaderProgram);
 		currentObj.shaderProgram.pMatrixUniform = in_gl.getUniformLocation(currentObj.shaderProgram, "uPMatrix");
 		currentObj.shaderProgram.mMatrixUniform = in_gl.getUniformLocation(currentObj.shaderProgram, "uMMatrix");
 		currentObj.shaderProgram.vMatrixUniform = in_gl.getUniformLocation(currentObj.shaderProgram, "uVMatrix");
