@@ -35,14 +35,14 @@ class Tile {
 
 	initImage () {
 		this.image = new Image();
-		var dirNumber = Math.floor(this.ipix / 10000) * 10000;
+		let dirNumber = Math.floor(this.ipix / 10000) * 10000;
 
 		if(this.format !== 'fits'){
 			this.image.onload = ()=> {
 				this.onLoad();
 			}
 			this.image.onerror = ()=> {
-				if(this.isDownloading){ //download not canceled
+				if(!this.canceledDownload){
 					this.imageLoadFailed = true;
 					this.isDownloading = false;
 				}
@@ -55,10 +55,12 @@ class Tile {
 	}
 	
 	onLoad(){
-		this.imageLoaded = true;
-		this.isDownloading = false;
-		this.createTexture();
-		this.setupBuffers();
+		if(!this.canceledDownload){
+			this.imageLoaded = true;
+			this.isDownloading = false;
+			this.createTexture();
+			this.setupBuffers();
+		}
 	}
 
 	createTexture(){
@@ -74,7 +76,6 @@ class Tile {
 			// this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_LINEAR);// 8 times per pixel
 		} else {
 			this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
-			// this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
 		}
 	}
 
@@ -192,6 +193,8 @@ class Tile {
 			return;
 		}
 		this.isDownloading = true;
+		this.canceledDownload = false;
+
 		if(this.format == 'fits'){
 			if(this.fitsReader == null){
 				this.fitsReader = new FITSOnTheWeb(this.imageUrl, "grayscale", "linear", -0.0966, 20.461, currimg => {
@@ -201,12 +204,9 @@ class Tile {
 						this.onLoad();
 					}
 					this.image.onerror = ()=> {
-						if(this.isDownloading){ //download not canceled
+						if(!this.canceledDownload){
 							this.imageLoadFailed = true;
 							this.isDownloading = false;
-							// console.log("FITS failed to load");
-						} else {
-							console.log("Fits download canceled");
 						}
 						
 					}
@@ -221,6 +221,7 @@ class Tile {
 	stopLoadingImage(){
 		if(!this.imageLoaded){
 			this.isDownloading = false;
+			this.canceledDownload = true;
 			this.image.src = "";
 
 			if(this.fitsReader){
