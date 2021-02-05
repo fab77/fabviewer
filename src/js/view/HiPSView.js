@@ -30,9 +30,11 @@ class HiPSView{
             addOpacityChangedHandler: (handler)=>{
                 this.html.find("input[type='range']").on('input', handler);
             },
-
             getSelectedFormat: ()=>{
                 return this.html.find("select").find(":selected").val();
+            },
+            getSelectedOpacity: ()=>{
+                return this.html.find("input[type='range']").val();
             }
 
         }

@@ -25,7 +25,7 @@ class HiPS_extractedTile extends AbstractSkyEntity_extractedTile{
 
 	static className = "HiPSEntity";
 	
-	constructor(in_radius, in_position, in_xRad, in_yRad, in_name, url, format, maxOrder){
+	constructor(in_radius, in_position, in_xRad, in_yRad, in_name, url, format, maxOrder, opacity){
 
 		super(in_radius, in_position, in_xRad, in_yRad, in_name);
 
@@ -43,7 +43,7 @@ class HiPS_extractedTile extends AbstractSkyEntity_extractedTile{
 		this.showSphericalGrid = false;
 		this.showXyzRefCoord = false;
 		this.showEquatorialGrid = false;
-		this.opacity = 1.0;
+		this.opacity = opacity ? opacity : 1.0;
 
 		this.sphericalGrid = new SphericalGrid(1.004, this.gl);
 

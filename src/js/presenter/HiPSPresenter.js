@@ -37,6 +37,7 @@ class HiPSPresenter{
 			} else {
 				if(this.hips == undefined){
 					let format = this.view.getSelectedFormat();
+					let opacity = this.view.getSelectedOpacity() / 100;
 					if(USE_OLD_HIPS_JS){
 						this.hips = new HiPS(1, [0.0, 0.0, 0.0], 
 							0, 
@@ -48,7 +49,7 @@ class HiPSPresenter{
 							0, 
 							0, this._model.surveyName, 
 							this._model.url, format,
-							this._maxOrder);
+							this._maxOrder, opacity);
 						}
 					this.hips.show();
 				} else {
@@ -69,6 +70,7 @@ class HiPSPresenter{
 		in_view.addFormatChangedHandler((event) => {
 			if(this.hips && this.isChecked){
 				let format = event.target.value;
+				let opacity = this.view.getSelectedOpacity() / 100;
 				if(USE_OLD_HIPS_JS){
 					this.hips = new HiPS(1, [0.0, 0.0, 0.0], 
 						0, 
@@ -80,7 +82,7 @@ class HiPSPresenter{
 						0, 
 						0, this._model.surveyName, 
 						this._model.url, format,
-						this._maxOrder);
+						this._maxOrder, opacity);
 				}
 				global.currentHips = this.hips;
 	
@@ -97,10 +99,9 @@ class HiPSPresenter{
 	}
 	
 	get view(){
-        return this._view;
-    }
+		return this._view;
+	}
 	
-
     retrieveHiPSProperties(){
 
 		var xhr = new XMLHttpRequest();
