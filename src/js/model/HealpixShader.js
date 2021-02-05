@@ -100,9 +100,17 @@ class HealpixShader {
 	}
 
 	setBuffers(vertexPositionBuffer, vertexIndexBuffer){
+		this.setPositionTextureBuffer(vertexPositionBuffer);
+		this.setIndexBuffer(vertexIndexBuffer);
+	}
+
+	setPositionTextureBuffer(vertexPositionBuffer){
 		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vertexPositionBuffer);
 		this.gl.vertexAttribPointer(this.shaderProgram.vertexPositionAttribute, 3, this.gl.FLOAT, false, 20, 0);
 		this.gl.vertexAttribPointer(this.shaderProgram.textureCoordAttribute, 2, this.gl.FLOAT, false, 20, 12);
+	}
+	
+	setIndexBuffer(vertexIndexBuffer){
 		this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, vertexIndexBuffer);
 	}
 }

@@ -314,8 +314,9 @@ class Tile {
 			healpixShader.useShader(pMatrix, vMatrix, modelMatrix, opacity);
 			this.gl.activeTexture(this.gl.TEXTURE0);
 			this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
+			healpixShader.setPositionTextureBuffer(this.vertexPositionBuffer);
 			quadrantsToDraw.forEach((quadrant) => {
-				healpixShader.setBuffers(this.vertexPositionBuffer, this.vertexIndexBuffers[quadrant]);
+				healpixShader.setIndexBuffer(this.vertexIndexBuffers[quadrant]);
 				this.gl.drawElements(this.gl.TRIANGLES, this.drawsPerTexture, this.gl.UNSIGNED_SHORT, 0);
 			})
 			return true; //Completed draw
