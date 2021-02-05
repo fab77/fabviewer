@@ -15,7 +15,7 @@ class Tile {
 		this.url = url;
 		this.radius = 1;
 		this.useMipmap = true;
-		this.step = 8;
+		this.setStep();
 		this.drawsPerTexture = this.step * this.step / 4 * 3 * 2;
 
 		this.xyf = global.getHealpix(order).nest2xyf(ipix);
@@ -31,6 +31,26 @@ class Tile {
 		this.children = new Set();
 
 		this.initImage();
+	}
+
+	setStep(){
+		switch (this.order){
+			case 0:
+			case 1:
+			case 2:
+			case 3:
+				this.step = 16;
+				break;
+			case 4:
+				this.step = 8;
+				break;
+			case 5:
+				this.step = 4;
+				break;
+			default:
+				this.step = 2;
+				break;
+		}
 	}
 
 	initImage () {

@@ -11,8 +11,28 @@ class HealpixGridTile {
 		this.ipix = ipix;
 		this.key = order + "/" + ipix;
 		this.vertexPositionIndex = 0;
-		this.step = 8;
+		this.setStep();
 		this.initBuffer();
+	}
+
+	setStep(){
+		switch (this.order){
+			case 0:
+			case 1:
+			case 2:
+			case 3:
+				this.step = 16;
+				break;
+			case 4:
+				this.step = 8;
+				break;
+			case 5:
+				this.step = 4;
+				break;
+			default:
+				this.step = 2;
+				break;
+		}
 	}
 
 	initBuffer () {
