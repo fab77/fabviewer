@@ -13,8 +13,6 @@ class AllSky {
 		this.URL = URL;
 		this.radius = radius;
 		this.maxNPix = global.getHealpix(this.norder).getNPix();
-		this.textures = [];
-		this.textures.images = [];
 		this.pixels = [];
 		this.format = format;
 		this.opacity = 1.00 * 100.0/100.0;
