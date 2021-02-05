@@ -16,6 +16,8 @@ class Tile {
 		this.radius = 1;
 		this.useMipmap = true;
 		this.step = 8;
+		this.drawsPerTexture = this.step * this.step / 4 * 3 * 2;
+
 		this.xyf = global.getHealpix(order).nest2xyf(ipix);
 
 		this.imageLoaded = false;
@@ -26,6 +28,8 @@ class Tile {
 
 		this.format = format != undefined ? format : "png";
 		
+		this.children = new Set();
+
 		this.initImage();
 	}
 
@@ -274,14 +278,14 @@ class Tile {
 
 	getParent(){
 		if(this.order > 0){
-			return tileBufferSingleton.getTile(this.order - 1, Math.floor(this.ipix / 4), this.format, this.url);
+			return tileBufferSingleton.getTile(this.order - 1, (this.ipix >> 2), this.format, this.url);
 		}
 	}
 
 	getExistingChildren(){
 		let children = [];
 		for(let i = 0; i < 4; i++){
-			let child = tileBufferSingleton.getIfAlreadyExist(this.order + 1, this.ipix * 4 + i, this.format, this.url);
+			let child = tileBufferSingleton.getIfAlreadyExist(this.order + 1, (this.ipix << 2) + i, this.format, this.url);
 			if(child){
 				children.push(child);
 			}
@@ -290,17 +294,18 @@ class Tile {
 	}
 
 	getChildren(){
-		let children = [];
-		for(let i = 0; i < 4; i++){
-			let child = tileBufferSingleton.getTile(this.order + 1, this.ipix * 4 + i, this.format, this.url);
-			if(child){
-				children.push(child);
+		if(this.children.size != 4){
+			this.children = new Set();
+			for(let i = 0; i < 4; i++){
+				let child = tileBufferSingleton.getTile(this.order + 1, (this.ipix << 2) + i, this.format, this.url);
+					this.children.add(child);
 			}
 		}
-		return children;
+		return this.children;
 	}
 
 	draw(pMatrix, vMatrix, modelMatrix, opacity){
+		this.age = 0;
 		if(this.isInView() && !this.imageLoaded){
 			this.startLoadingImage();
 		}
@@ -309,12 +314,9 @@ class Tile {
 			healpixShader.useShader(pMatrix, vMatrix, modelMatrix, opacity);
 			this.gl.activeTexture(this.gl.TEXTURE0);
 			this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
-			let drawsPerTexture = this.step * this.step / 4 * 3 * 2;
-			quadrantsToDraw.forEach((quadrant, i) => {
-				if(quadrant){
-					healpixShader.setBuffers(this.vertexPositionBuffer, this.vertexIndexBuffers[i]);
-					this.gl.drawElements(this.gl.TRIANGLES, drawsPerTexture, this.gl.UNSIGNED_SHORT, 0);
-				}
+			quadrantsToDraw.forEach((quadrant) => {
+				healpixShader.setBuffers(this.vertexPositionBuffer, this.vertexIndexBuffers[quadrant]);
+				this.gl.drawElements(this.gl.TRIANGLES, this.drawsPerTexture, this.gl.UNSIGNED_SHORT, 0);
 			})
 			return true; //Completed draw
 		}
@@ -322,11 +324,17 @@ class Tile {
 	}
 	
 	drawChildren(pMatrix, vMatrix, modelMatrix, opacity) {
-		let quadrantsToDraw = [true, true, true, true];
+		let quadrantsToDraw = new Set([0, 1, 2, 3]);
 		if (global.order > this.order) {
 			this.getChildren().forEach((child, i) => {
+				if(!child){ //Child deleted, need to refresh child cache
+					this.children.clear();
+					return this.drawChildren(pMatrix, vMatrix, modelMatrix, opacity);
+				}
 				if (child.isInView()) {
-					quadrantsToDraw[i] = !child.draw(pMatrix, vMatrix, modelMatrix, opacity);
+					if(child.draw(pMatrix, vMatrix, modelMatrix, opacity)){
+						quadrantsToDraw.delete(child.ipix - (this.ipix << 2));
+					}
 				}
 			}
 			);
@@ -344,6 +352,8 @@ class Tile {
 		this.getExistingChildren().forEach(child => {
 			child.parentDestructed();
 		});
+
+		this.children = null;
 		
 		this.gl.deleteTexture(this.texture);
 		this.gl.deleteBuffer(this.vertexPositionBuffer);
@@ -357,7 +367,7 @@ class Tile {
 		this.image = null;
 		this.imageLoaded = false;
 		this.textureLoaded = false;
-
+		
 		this.fitsReader = null;
 		this.vertexPosition = null;
 	}

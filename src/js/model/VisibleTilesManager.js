@@ -42,7 +42,7 @@ class VisibleTilesManager {
 	getParentTiles(tiles){
 		let parentTiles = new Map();
 		tiles.forEach((tile)=>{
-			let parent = {order: tile.order - 1, ipix: Math.floor(tile.ipix / 4), key: (tile.order - 1) + "/" + Math.floor(tile.ipix / 4)};
+			let parent = {order: tile.order - 1, ipix: (tile.ipix >> 2), key: (tile.order - 1) + "/" + (tile.ipix >> 2)};
 			parentTiles.set(parent.key, parent);
 		});
 		return parentTiles;
