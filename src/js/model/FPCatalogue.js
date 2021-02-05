@@ -193,8 +193,12 @@ class FPCatalogue{
 	initBuffer () {
 
 		
+		
+		let footprintsInPix256 = new Map();
+		
+		
 		let nFootprints = this._footprints.length;
-//		this._indexes = new Uint16Array(this._totPoints + nFootprints - 1);
+
 		this._indexes = new Uint16Array(this._totPoints + nFootprints);
 		
 		let MAX_UNSIGNED_SHORT = 65535; // this is used to enable and disable GL_PRIMITIVE_RESTART_FIXED_INDEX
@@ -203,18 +207,24 @@ class FPCatalogue{
 			
 		gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexCataloguePositionBuffer);
 		
-
-		// size: total number of points among all footprints + 1 selection for each footprint + 1 line size for each footprint
-//		this._vertexCataloguePosition = new Float32Array( 3 * this._totPoints + 2 * nFootprints );
-//		this._vertexCataloguePosition = new Float32Array( 3 * this._totPoints + nFootprints );
 		this._vertexCataloguePosition = new Float32Array( 3 * this._totPoints);
 		let positionIndex = 0;
 		let vIdx = 0;
 
-		let R = 1.001;
+		let R = 1.0;
 		for(let j = 0; j < nFootprints; j++){
 			
 			let footprint = this._footprints[j].polygons;
+			
+//			footprint.pixels.forEach(function(pix){
+//				if (footprintsInPix256.has(pix)){ 
+//					let newElem = footprintsInPix256.get(pix).push(footprint.identifier);
+//					footprintsInPix256.set(pix, newElem);
+//				}
+//			});
+//			if (pix256ToFootprints.has())
+			
+			
 			for (let polyIdx in footprint){
 				for (let pointIdx in footprint[polyIdx]){
 					this._vertexCataloguePosition[positionIndex] = R * footprint[polyIdx][pointIdx].x;
@@ -243,27 +253,6 @@ class FPCatalogue{
 	
 	
 	
-	
-//	checkSelection (in_mouseCoords) {
-//		var sources = this._sources;
-//		var nSources = sources.length;
-//		var selectionIndexes = [];
-//		
-//		for(var j = 0; j < nSources; j++){
-//			let sourcexyz = [sources[j].point.x , sources[j].point.y , sources[j].point.z];
-//			
-//			let dist = Math.sqrt( (sourcexyz[0] - in_mouseCoords[0] )*(sourcexyz[0] - in_mouseCoords[0] ) + (sourcexyz[1] - in_mouseCoords[1] )*(sourcexyz[1] - in_mouseCoords[1] ) + (sourcexyz[2] - in_mouseCoords[2] )*(sourcexyz[2] - in_mouseCoords[2] ) );
-//			if (dist <= 0.004){
-//				
-//				selectionIndexes.push(j);
-//					
-//			}
-//		}
-//		return selectionIndexes;
-//		
-//	}
-	
-	
 
 	
 	enableShader(in_mMatrix){
@@ -272,9 +261,6 @@ class FPCatalogue{
 		this._shaderProgram.catUniformProjMatrixLoc = this._gl.getUniformLocation(this._shaderProgram, "uPMatrix");
 		
 		this._attribLocations.position  = this._gl.getAttribLocation(this._shaderProgram, 'aCatPosition');
-		
-		// Webgl only supports 1 px size for LINE. TODO check outlines instead https://mattdesl.svbtle.com/drawing-lines-is-hard
-//		this._attribLocations.pointSize = this._gl.getAttribLocation(this._shaderProgram, 'a_pointsize');
 
 		this._attribLocations.color = this._gl.getUniformLocation(this._shaderProgram,'u_fragcolor');
 		
@@ -289,6 +275,8 @@ class FPCatalogue{
 	 * @param in_Matrix: model matrix the current catalogue is associated to (e.g. HiPS matrix)
 	 */
 	draw(in_mMatrix, in_mouseCoords){
+		
+		
 		
 
 		shaderUtility.useProgram(this._shaderProgram);
@@ -305,10 +293,6 @@ class FPCatalogue{
 		this._gl.vertexAttribPointer(this._attribLocations.position, FPCatalogue.ELEM_SIZE, this._gl.FLOAT, false, FPCatalogue.BYTES_X_ELEM * FPCatalogue.ELEM_SIZE, 0);
 		this._gl.enableVertexAttribArray(this._attribLocations.position);
 
-//		// TODO not needed overloading. The size can be set with uniform. setting point size 
-//		this._gl.vertexAttribPointer(this._attribLocations.pointSize, 1, this._gl.FLOAT, false, FPCatalogue.BYTES_X_ELEM * FPCatalogue.ELEM_SIZE, FPCatalogue.BYTES_X_ELEM * 4);
-//		this._gl.enableVertexAttribArray(this._attribLocations.pointSize);
-		
 		
 		// setting source shape color 
 		var rgb = colorHex2RGB(this._descriptor.shapeColor);
@@ -344,11 +328,8 @@ class FPCatalogue{
 		https://www.khronos.org/registry/webgl/specs/latest/2.0/#4.1.4
 		https://github.com/KhronosGroup/glTF/issues/1142
 		*/
-//		this._gl.drawElements (this._gl.LINE_LOOP, this._indexes.length ,this._gl.UNSIGNED_SHORT, 0);
 		this._gl.drawElements (this._gl.LINE_LOOP, this._vertexCataloguePosition.length / 3,this._gl.UNSIGNED_SHORT, 0);
 		
-		
-		//Opengl C: glDrawElements(GL_LINE_STRIP, indices.size(), GL_UNSIGNED_INT, (GLvoid*)0);
 		
 //		this._gl.bindBuffer(this._gl.ARRAY_BUFFER, null);
 		this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, null);
