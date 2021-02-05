@@ -29,12 +29,18 @@ class VisibleTilesManager {
 		if(this.visibleTiles.size > 0 &&  this.visibleTiles.values().next().value.order < 3){
 			return new Map();
 		}
+		if(this.order3TilesCache){
+			return this.order3TilesCache;
+		}
+
 		let orderOfVisibleTiles = this.visibleTiles.size > 0 ? this.visibleTiles.values().next().value.order : this.order; 
 		
 		let tiles = this.visibleTiles;
 		for(let order = orderOfVisibleTiles; order > 3; order--){
 			tiles = this.getParentTiles(tiles);
 		}
+
+		this.order3TilesCache = tiles;
 
 		return tiles;
 	}
@@ -101,6 +107,7 @@ class VisibleTilesManager {
 		});
 
 		if(tilesRemoved.size > 0 || tilesToAddInOrder.size > 0){
+			this.order3TilesCache = null;
 			eventBus.fireEvent(new VisibleTilesChangedEvent(tilesRemoved, tilesToAddInOrder));
 		}
 	}
