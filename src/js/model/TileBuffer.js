@@ -33,9 +33,9 @@ class TileBuffer {
 		this.tiles.delete(tile.key);
 	}
 
-	ageTiles(){
+	ageTiles(){ //Run every ~10 seconds
 		this.tileCache.forEach((value, tileKey) => {
-			if(value.age > 60 * 60 * 2){ // ~2 minutes
+			if(value.age > 12 ){ // ~2 minutes
 				this.removeTile(tileKey);
 			} else {
 				value.age++;

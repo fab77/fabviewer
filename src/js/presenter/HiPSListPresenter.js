@@ -14,6 +14,7 @@ class HiPSListPresenter{
 		this.#view = in_view;
 		this.#model = null;
 		this.hipsPresenters = [];
+		this.timeCounter = 0;
 	}
 	
 	get view(){
@@ -59,7 +60,10 @@ class HiPSListPresenter{
 		this.hipsPresenters.forEach((hipsPresenter) => {
 			hipsPresenter.draw(pMatrix, vMatrix);
 		})
-		tileBufferSingleton.ageTiles();
+		if(this.timeCounter % 600 == 0){ // ~Every 10 seconds
+			tileBufferSingleton.ageTiles();
+		}
+		this.timeCounter++
 	}
 	
 	
