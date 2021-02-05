@@ -14,7 +14,7 @@ class Tile {
 		this.key = order + "/" + ipix + "/" + format + "/" + url;
 		this.url = url;
 		this.radius = 1;
-		this.useMipmap = true;
+		this.useMipmap = false;
 		this.setStep();
 		this.drawsPerTexture = this.step * this.step / 4 * 3 * 2;
 
@@ -110,7 +110,9 @@ class Tile {
 		this.gl.activeTexture(this.gl.TEXTURE0);
 		this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
 		this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.image);
-		this.gl.generateMipmap(this.gl.TEXTURE_2D);
+		if(this.useMipmap){
+			this.gl.generateMipmap(this.gl.TEXTURE_2D);
+		}
 		
 		this.anythingToRender = true;
 		this.textureLoaded = true;
@@ -333,7 +335,6 @@ class Tile {
 		if(this.anythingToRender){
 			let quadrantsToDraw = this.drawChildren(pMatrix, vMatrix, modelMatrix, opacity);
 			healpixShader.useShader(pMatrix, vMatrix, modelMatrix, opacity);
-			this.gl.activeTexture(this.gl.TEXTURE0);
 			this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
 			healpixShader.setPositionTextureBuffer(this.vertexPositionBuffer);
 			quadrantsToDraw.forEach((quadrant) => {
