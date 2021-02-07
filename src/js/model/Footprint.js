@@ -1,4 +1,7 @@
 "use strict";
+/**
+ * @author Fabrizio Giordano (Fab)
+ */
 
 import Point from '../utils/Point';
 import CoordsType from '../utils/CoordsType';

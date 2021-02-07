@@ -6,6 +6,7 @@ import global from '../Global';
 import Point from '../utils/Point';
 import CoordsType from '../utils/CoordsType';
 import Footprint from './Footprint';
+import MouseHelper from '../utils/MouseHelper';
 
 
 class FPCatalogue{
@@ -34,6 +35,7 @@ class FPCatalogue{
 	_descriptor;
 	_totPoints;	// Used to compute item size in the GL buffer
 	_indexes;
+	_footprintsInPix256;
 	
 	
 	constructor(in_datasetName, in_metadata, in_raIdx, in_decIdx, in_uidIdx, in_stcsIdx, in_descriptor){
@@ -67,6 +69,8 @@ class FPCatalogue{
 				pointSize: 2,
 				color: [0.0, 1.0, 0.0, 1.0]
 		};
+		
+		this._footprintsInPix256 = new Map();
 		
 		this.initShaders();
 		
@@ -193,7 +197,7 @@ class FPCatalogue{
 
 		
 		
-		let footprintsInPix256 = new Map();
+//		let footprintsInPix256 = new Map();
 		
 		
 		let nFootprints = this._footprints.length;
@@ -211,6 +215,8 @@ class FPCatalogue{
 		let vIdx = 0;
 
 		let R = 1.0;
+		
+		var footprintsInPix256 = this._footprintsInPix256;
 		for(let j = 0; j < nFootprints; j++){
 			
 			let footprint = this._footprints[j].polygons;
@@ -232,6 +238,8 @@ class FPCatalogue{
 				}
 			});
 
+			this._footprintsInPix256 = footprintsInPix256;
+			
 			for (let polyIdx in footprint){
 				for (let pointIdx in footprint[polyIdx]){
 					this._vertexCataloguePosition[positionIndex] = R * footprint[polyIdx][pointIdx].x;
@@ -258,7 +266,37 @@ class FPCatalogue{
 		
 	}
 	
-	
+	/**
+	 * @param in_mouseHelper MouseHelper
+	 */
+	checkSelection (in_mouseHelper) {
+		
+		let mousePix = in_mouseHelper.computeNpix256();
+		
+		if (mousePix != null){
+			if (this._footprintsInPix256.has(mousePix)){
+				console.log("mouse pix 256: "+mousePix);
+				console.log("footprints: " + this._footprintsInPix256.get(mousePix));
+			}	
+		}
+		
+//		var sources = this.#sources;
+//		var nSources = sources.length;
+//		var selectionIndexes = [];
+//		
+//		for(var j = 0; j < nSources; j++){
+//			let sourcexyz = [sources[j].point.x , sources[j].point.y , sources[j].point.z];
+//			
+//			let dist = Math.sqrt( (sourcexyz[0] - in_mouseCoords[0] )*(sourcexyz[0] - in_mouseCoords[0] ) + (sourcexyz[1] - in_mouseCoords[1] )*(sourcexyz[1] - in_mouseCoords[1] ) + (sourcexyz[2] - in_mouseCoords[2] )*(sourcexyz[2] - in_mouseCoords[2] ) );
+//			if (dist <= 0.004){
+//				
+//				selectionIndexes.push(j);
+//					
+//			}
+//		}
+//		return selectionIndexes;
+		
+	}
 	
 
 	
@@ -281,7 +319,7 @@ class FPCatalogue{
 	/**
 	 * @param in_Matrix: model matrix the current catalogue is associated to (e.g. HiPS matrix)
 	 */
-	draw(in_mMatrix, in_mouseCoords){
+	draw(in_mMatrix, in_mouseHelper){
 		
 		
 		
@@ -311,6 +349,12 @@ class FPCatalogue{
 		this._gl.bufferData(this._gl.ELEMENT_ARRAY_BUFFER, this._indexes, this._gl.STATIC_DRAW);
 		
 		
+		// MOUSE selection
+		if (in_mouseHelper != null && in_mouseHelper.xyz != this._oldMouseCoords){
+			
+			this.checkSelection(in_mouseHelper);
+			
+		}
 		
 		/**
 		 * OPENGL code sample
@@ -340,7 +384,7 @@ class FPCatalogue{
 		
 //		this._gl.bindBuffer(this._gl.ARRAY_BUFFER, null);
 		this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, null);
-		this._oldMouseCoords = in_mouseCoords;
+		this._oldMouseCoords = in_mouseHelper.xyz;
 		
 	}
 
