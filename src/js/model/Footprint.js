@@ -2,6 +2,8 @@
 
 import Point from '../utils/Point';
 import CoordsType from '../utils/CoordsType';
+import Healpix from "healpixjs";
+import {Vec3, Pointing} from "healpixjs";
 
 class Footprint{
 	
@@ -30,9 +32,11 @@ class Footprint{
 		this.#polygons = [];
 		this.#totPoints = 0;
 		
-		this.#npix256 = this.computeNpix256();
+		
 		
 		this.computePoints();
+		
+		this.#npix256 = this.computeNpix256();
 	}
 	
 	/**
@@ -40,7 +44,26 @@ class Footprint{
 	 */
 	computeNpix256(){
 		// TODO call healpix library with query_inclusive
-		return [];
+		// setup healpix object with nside 256
+		let healpix256 = new Healpix(256);
+		
+		let points = [];
+		for (let i = 0; i < this.#polygons.length; i++){
+			let poly = this.#polygons[i];
+			for (let j = 0; j < poly.length; j++){
+				let currPoint = poly[j];
+				let vec3 = new Vec3(currPoint.x, currPoint.y, currPoint.z);
+				let pointing = new Pointing(vec3);
+			
+				points.push(pointing);
+			}
+		}
+		// queryPolygonInclusive(footprint points[], 4)
+		let rangeSet = healpix256.queryPolygonInclusive(points, 4);
+		console.log(rangeSet);
+		
+		
+		return rangeSet.r;
 		
 	};
 	

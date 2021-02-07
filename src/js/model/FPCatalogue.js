@@ -214,16 +214,24 @@ class FPCatalogue{
 		for(let j = 0; j < nFootprints; j++){
 			
 			let footprint = this._footprints[j].polygons;
-			
-//			footprint.pixels.forEach(function(pix){
-//				if (footprintsInPix256.has(pix)){ 
-//					let newElem = footprintsInPix256.get(pix).push(footprint.identifier);
-//					footprintsInPix256.set(pix, newElem);
-//				}
-//			});
-//			if (pix256ToFootprints.has())
-			
-			
+			var identifier = this._footprints[j].identifier;
+			this._footprints[j].pixels.forEach(function(pix){
+				
+				console.log(identifier);
+				if (footprintsInPix256.has(pix)){
+					
+					let currFootprints = footprintsInPix256.get(pix);
+					if (!currFootprints.includes(identifier)){
+
+						currFootprints.push(identifier);
+
+					}
+					
+				}else{
+					footprintsInPix256.set(pix, [identifier]);
+				}
+			});
+
 			for (let polyIdx in footprint){
 				for (let pointIdx in footprint[polyIdx]){
 					this._vertexCataloguePosition[positionIndex] = R * footprint[polyIdx][pointIdx].x;
