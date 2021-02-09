@@ -63,7 +63,7 @@ class Footprint{
 		}
 		// queryPolygonInclusive(footprint points[], 4)
 		let rangeSet = healpix256.queryPolygonInclusive(points, 4);
-		console.log(rangeSet);
+//		console.log(rangeSet);
 		
 		
 		return rangeSet.r;

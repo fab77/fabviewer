@@ -186,8 +186,8 @@ class FPCatalogue{
 			this.addFootprint(footprint);
 			this._totPoints += footprint.totPoints;
 		}
-		console.log("this._totPoints="+this._totPoints);
-		console.log("this._footprints.length="+this._footprints.length);
+//		console.log("this._totPoints="+this._totPoints);
+//		console.log("this._footprints.length="+this._footprints.length);
 		this.initBuffer();
 		
 	}
@@ -223,7 +223,7 @@ class FPCatalogue{
 			var identifier = this._footprints[j].identifier;
 			this._footprints[j].pixels.forEach(function(pix){
 				
-				console.log(identifier);
+//				console.log(identifier);
 				if (footprintsInPix256.has(pix)){
 					
 					let currFootprints = footprintsInPix256.get(pix);
