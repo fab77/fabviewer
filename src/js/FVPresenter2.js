@@ -35,6 +35,8 @@ import HiPSRepo from './repos/HiPSRepo';
 import {mat4, vec3} from 'gl-matrix';
 import {cartesianToSpherical, sphericalToAstroDeg, astroDegToSpherical, sphericalToCartesian, raDegToHMS, decDegToDMS, degToRad} from './utils/Utils';
 import FoVUtils from './utils/FoVUtils';
+import MouseHelper from './utils/MouseHelper';
+
 import global from './Global';
 import {Vec3, Pointing} from 'healpixjs';
 import HiPS from './model/HiPS';
@@ -44,12 +46,15 @@ import {visibleTilesManager} from './model/VisibleTilesManager';
 import HealpixGrid from './model/HealpixGrid';
 
 class FVPresenter2{
+	
 	constructor(in_view, in_gl){
 		this.in_gl = in_gl;
 		if (DEBUG){
 			console.log("[FVPresenter::FVPresenter]");
 		}
 
+		this.mouseHelper = new MouseHelper();
+		
 		this.nearestModel;
 		this.enableCatalogues = true;
 		this.init(in_view);
@@ -267,7 +272,7 @@ class FVPresenter2{
 				 * In the fragment shader, compute if the segment from mouse coords and source point is less than the point radius (gl_PointSize)
 				 * 
 				 */
-				
+				// TODO THIS LOGIC should be moved into MouseHelper class
 				var mousePicker = RayPickingUtils.getIntersectionPointWithSingleModel(newX, newY);
 				var mousePoint = mousePicker.intersectionPoint;
 				var mouseObjectPicked = mousePicker.pickedObject;
@@ -294,11 +299,17 @@ class FVPresenter2{
 						this.view.setPickedSphericalCoordinates(phiThetaDeg);
 						this.view.setPickedAstroCoordinates(raDecDeg, raHMS, decDMS);
 						this.view.setPickedObjectName(mouseObjectPicked.name);
-						this.mouseCoords = mousePoint;
+						
+						this.mouseHelper.xyz = mousePoint;
+						this.mouseHelper.raDecDeg = raDecDeg;
+						this.mouseHelper.phiThetaDeg = phiThetaDeg;
+						
+//						this.mouseCoords = mousePoint;
 						
 					}else{
-						this.mouseCoords = null;
-						// console.log("no intersection");
+						this.mouseHelper.clear();
+//						this.mouseCoords = null;
+						
 					}	
 					
 				}
@@ -546,14 +557,15 @@ class FVPresenter2{
 		catalogue;
 		for (k = 0; k < CatalogueRepo.catalogues.length; k++){
 			catalogue = CatalogueRepo.catalogues[k];
-			catalogue.draw(mMatrix, this.mouseCoords);
+//			catalogue.draw(mMatrix, this.mouseCoords);
+			catalogue.draw(mMatrix, this.mouseHelper.xyz);
 		}
 		
 		var j,
 		footprintSet;
 		for (j = 0; j < FootprintsRepo.footprints.length; j++){
 			footprintSet = FootprintsRepo.footprints[j];
-			footprintSet.draw(mMatrix, this.mouseCoords);
+			footprintSet.draw(mMatrix, this.mouseHelper);
 		}
 		
 //		this.xyzRefSystemObj.draw(this.pMatrix, this.camera.getCameraMatrix());
