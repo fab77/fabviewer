@@ -349,8 +349,8 @@ class Tile {
 	drawChildren(pMatrix, vMatrix, modelMatrix, opacity) {
 		let quadrantsToDraw = new Set([0, 1, 2, 3]);
 		if (global.order > this.order) {
-			this.getChildren().forEach((child, i) => {
-				if(!child){ //Child deleted, need to refresh child cache
+			this.getChildren().forEach((child) => {
+				if(!child || child.isDestructed){ //Child deleted, need to refresh child cache
 					this.children.clear();
 					return this.drawChildren(pMatrix, vMatrix, modelMatrix, opacity);
 				}
@@ -376,6 +376,7 @@ class Tile {
 			child.parentDestructed();
 		});
 
+		this.isDestructed = true;
 		this.children = null;
 		
 		this.gl.deleteTexture(this.texture);
