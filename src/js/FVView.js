@@ -45,6 +45,11 @@ class FVView{
 		this.order3 = document.getElementById('order3');
 		this.order4 = document.getElementById('order4');
 		this.order5 = document.getElementById('order5');
+		this.order6 = document.getElementById('order6');
+		this.order7 = document.getElementById('order7');
+		this.order8 = document.getElementById('order8');
+		this.order9 = document.getElementById('order9');
+
 
 		this.healpixGridCheckbox = document.getElementById('healpix-grid-checkbox');
 //		this.fpsvalue_dom = document.getElementById('fpsvalue');
@@ -177,7 +182,16 @@ class FVView{
 			this.order4.innerHTML = "4/" + ipix;
 		} else if (order == 5){
 			this.order5.innerHTML = "5/" + ipix;
+		} else if (order == 6){
+			this.order6.innerHTML = "6/" + ipix;
+		} else if (order == 7){
+			this.order7.innerHTML = "7/" + ipix;
+		} else if (order == 8){
+			this.order8.innerHTML = "8/" + ipix;
+		} else if (order == 9){
+			this.order9.innerHTML = "9/" + ipix;
 		}
+
 	};
 	
 

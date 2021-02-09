@@ -13,8 +13,6 @@ class AllSky {
 		this.URL = URL;
 		this.radius = radius;
 		this.maxNPix = global.getHealpix(this.norder).getNPix();
-		this.textures = [];
-		this.textures.images = [];
 		this.pixels = [];
 		this.format = format;
 		this.opacity = 1.00 * 100.0/100.0;
@@ -138,9 +136,17 @@ class AllSky {
 			this.gl.activeTexture(this.gl.TEXTURE0);
 			this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
 			healpixShader.setBuffers(this.vertexPositionBuffer, this.vertexIndexBuffer);
-			for (let i = 0; i < this.pixels.length; i++){
-				if(!ipixToSkip[i]){
+
+			//Speed optimization
+			if(ipixToSkip.size == 0){
+				for (let i = 0; i < 768; i++){
 					this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, 12 * i);
+				}
+			} else {
+				for (let i = 0; i < 768; i++){
+					if(!ipixToSkip.has(i)){
+						this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, 12 * i);
+					}
 				}
 			}
 		}

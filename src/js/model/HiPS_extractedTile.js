@@ -17,13 +17,15 @@ import eventBus from '../events/EventBus';
 import VisibleTilesChangedEvent from '../events/VisibleTilesChangedEvent';
 import {visibleTilesManager} from './VisibleTilesManager';
 import AllSky from './AllSky';
+import {shaderUtility} from '../utils/ShaderUtility';
+
 
 
 class HiPS_extractedTile extends AbstractSkyEntity_extractedTile{
 
 	static className = "HiPSEntity";
 	
-	constructor(in_radius, in_position, in_xRad, in_yRad, in_name, url, format, maxOrder){
+	constructor(in_radius, in_position, in_xRad, in_yRad, in_name, url, format, maxOrder, opacity){
 
 		super(in_radius, in_position, in_xRad, in_yRad, in_name);
 
@@ -41,7 +43,7 @@ class HiPS_extractedTile extends AbstractSkyEntity_extractedTile{
 		this.showSphericalGrid = false;
 		this.showXyzRefCoord = false;
 		this.showEquatorialGrid = false;
-		this.opacity = 1.0;
+		this.opacity = opacity ? opacity : 1.0;
 
 		this.sphericalGrid = new SphericalGrid(1.004, this.gl);
 
@@ -68,8 +70,10 @@ class HiPS_extractedTile extends AbstractSkyEntity_extractedTile{
 			}
 		}
 		else if (in_event instanceof VisibleTilesChangedEvent){
-			this.removeTiles(in_event.tilesRemoved)
-			this.addTiles(in_event.tilesToAddInOrder);
+			if(this.isShowing){
+				this.removeTiles(in_event.tilesRemoved)
+				this.addTiles(in_event.tilesToAddInOrder);
+			}
 		}
 	}
 
@@ -83,50 +87,59 @@ class HiPS_extractedTile extends AbstractSkyEntity_extractedTile{
 	}
 
 	show(){
+		this.isShowing = true;
 		this.saturateFovWithTiles();
+	}
+
+	hide(){
+		this.isShowing = false;
+		this.clearAllTiles();
 	}
 
 	saturateFovWithTiles() {
 		this.addOrder0Tiles();
-		let tilesToAdd = [];
-		Object.keys(visibleTilesManager.visibleTilesOfHighestOrder).forEach(tileKey => {
-			tilesToAdd.push(visibleTilesManager.visibleTilesOfHighestOrder[tileKey]);
-		});
-		this.addTiles(tilesToAdd);
+		this.addTiles(visibleTilesManager.visibleTilesOfHighestOrder);
 	}
 
 	addTiles(tilesToAdd){
-		if(tilesToAdd.length > 0 && tilesToAdd[0].order > this.maxOrder){
-			let parents = [];
-			let addedIpix = {};
-			tilesToAdd.forEach(tile => {
-				if(addedIpix[tile.ipix] == undefined){
-					addedIpix[tile.ipix] = true;
-					parents.push({order: tile.order - 1, ipix : tile.ipix >> 2});
-				}
-			});
-			this.addTiles(parents);
+		if(tilesToAdd.size > 0 && tilesToAdd.values().next().value.order > this.maxOrder){
+			this.addTiles(this.getParents(tilesToAdd));
 		} else {
-			tilesToAdd.forEach(tile => {
-				tileBufferSingleton.getTile(tile.order, tile.ipix, this.format, this.URL).addToView();
+			tilesToAdd.forEach(tileInfo => {
+				tileBufferSingleton.getTile(tileInfo.order, tileInfo.ipix, this.format, this.URL).addToView();
 			});
 		}
 	}
 
-	removeTiles(tilesToRemove){
-		if(tilesToRemove.length > 0 && tilesToRemove[0].order > this.maxOrder){
-			let parents = [];
-			let addedIpix = {};
-			Object.keys(tilesToRemove).forEach(tileKey => {
-				if(addedIpix[tileKey] == undefined){
-					addedIpix[tileKey] = True;
-					parents.push({order: tilesToRemove[tileKey].order - 1, ipix : tilesToRemove[tileKey].ipix >> 2});
+	getParents(tileMap){
+		let parents = new Map();
+		tileMap.forEach((tileInfo) => {
+			let key = (tileInfo.order - 1) + "/" + (tileInfo.ipix >> 2);
+			parents.set(key, {order: tileInfo.order - 1, ipix : tileInfo.ipix >> 2, key: key});
+		});
+		return parents;
+	}
+
+	removeTiles(tilesToRemove, allVisibleTilesOfOneOrder){
+		if(tilesToRemove.size > 0 && tilesToRemove.values().next().value.order > this.maxOrder){
+			let parents = this.getParents(tilesToRemove);
+			if(!allVisibleTilesOfOneOrder){
+				allVisibleTilesOfOneOrder = visibleTilesManager.visibleTilesOfHighestOrder;
+			}
+			parents.forEach((tileInfo) => {
+				if(allVisibleTilesOfOneOrder.has((tileInfo.order + 1) + "/" + (tileInfo.ipix * 4))
+				|| allVisibleTilesOfOneOrder.has((tileInfo.order + 1) + "/" + (tileInfo.ipix * 4 + 1))
+				|| allVisibleTilesOfOneOrder.has((tileInfo.order + 1) + "/" + (tileInfo.ipix * 4 + 2))
+				|| allVisibleTilesOfOneOrder.has((tileInfo.order + 1) + "/" + (tileInfo.ipix * 4 + 3))
+				){
+					parents.delete(tileInfo.key, allVisibleTilesOfOneOrder);
 				}
 			});
-			this.removeTiles(parents);
+
+			this.removeTiles(parents, this.getParents(allVisibleTilesOfOneOrder));
 		} else {
-			Object.keys(tilesToRemove).forEach(tileKey => {
-				let tile = tileBufferSingleton.getIfAlreadyExist(tilesToRemove[tileKey].order, tilesToRemove[tileKey].ipix, this.format, this.URL);
+			tilesToRemove.forEach((tileInfo) => {
+				let tile = tileBufferSingleton.getIfAlreadyExist(tileInfo.order, tileInfo.ipix, this.format, this.URL);
 				if(tile){
 					tile.removeFromView();
 				}
@@ -163,7 +176,7 @@ class HiPS_extractedTile extends AbstractSkyEntity_extractedTile{
 			alert("Could not initialise shaders");
 		}
 
-		this.gl.useProgram(this.shaderProgram);
+		shaderUtility.useProgram(this.shaderProgram);
 
 		this.shaderProgram.vertexPositionAttribute = this.gl.getAttribLocation(this.shaderProgram, "aVertexPosition");
 
@@ -220,7 +233,7 @@ class HiPS_extractedTile extends AbstractSkyEntity_extractedTile{
 	}
 
 	enableShader(pMatrix, vMatrix){
-		this.gl.useProgram(this.shaderProgram);
+		shaderUtility.useProgram(this.shaderProgram);
 
 		this.gl.uniform1f(this.shaderProgram.uniformVertexTextureFactor, 1.0);
 		this.gl.uniformMatrix4fv(this.shaderProgram.mMatrixUniform, false, this.modelMatrix);
@@ -251,27 +264,25 @@ class HiPS_extractedTile extends AbstractSkyEntity_extractedTile{
 				
 				let order3TilesDrawnSuccessfully = true;
 				let order3Tiles = visibleTilesManager.getVisibleTilesOfOrder3();
-				let ipixToSkipDuringAllskyDraw = {};
-				let keys = Object.keys(order3Tiles);
-				keys.forEach((key)=>{
-					let successfulDraw = tileBufferSingleton.getTile(order3Tiles[key].order, order3Tiles[key].ipix, this.format, this.URL).draw(pMatrix, vMatrix, this.modelMatrix, this.opacity);
+				let ipixToSkipDuringAllskyDraw = new Set();
+				order3Tiles.forEach((tileInfo)=>{
+					let successfulDraw = tileBufferSingleton.getTile(tileInfo.order, tileInfo.ipix, this.format, this.URL).draw(pMatrix, vMatrix, this.modelMatrix, this.opacity);
 					if(successfulDraw){
-						ipixToSkipDuringAllskyDraw[order3Tiles[key].ipix] = true;
+						ipixToSkipDuringAllskyDraw.add(tileInfo.ipix);
 					}
 					order3TilesDrawnSuccessfully = order3TilesDrawnSuccessfully && successfulDraw;
 				});
-				if (!order3TilesDrawnSuccessfully || keys.length == 0){
+				if (!order3TilesDrawnSuccessfully || order3Tiles.size == 0){
 					this.allsky.draw(pMatrix, vMatrix, this.modelMatrix, this.opacity, ipixToSkipDuringAllskyDraw);
 				} 
 			} else {
-				this.allsky.draw(pMatrix, vMatrix, this.modelMatrix, this.opacity, {});
-				this.lastDrawUsedAllsky = true;
+				this.allsky.draw(pMatrix, vMatrix, this.modelMatrix, this.opacity, new Set());
 			}
 		}
 
 		
-		this.enableShader(pMatrix, vMatrix);
 		if (this.showSphericalGrid) {
+			this.enableShader(pMatrix, vMatrix);
 			this.sphericalGrid.draw(this.shaderProgram);
 	    }
 	    if (this.showEquatorialGrid) {

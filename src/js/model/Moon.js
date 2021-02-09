@@ -26,7 +26,7 @@ function Moon(in_radius, in_gl, in_canvas, in_position, in_xRad, in_yRad, in_nam
 		}
 
 		
-		in_gl.useProgram(currentObj.shaderProgram);
+		shaderUtility.useProgram(currentObj.shaderProgram);
 
 		currentObj.shaderProgram.vertexPositionAttribute = in_gl.getAttribLocation(currentObj.shaderProgram, "aVertexPosition");
 		in_gl.enableVertexAttribArray(currentObj.shaderProgram.vertexPositionAttribute);
@@ -196,7 +196,7 @@ function Moon(in_radius, in_gl, in_canvas, in_position, in_xRad, in_yRad, in_nam
 	
 	this.draw = function(pMatrix, vMatrix){
 
-		in_gl.useProgram(currentObj.shaderProgram);
+		shaderUtility.useProgram(currentObj.shaderProgram);
 		
 		currentObj.shaderProgram.pMatrixUniform = in_gl.getUniformLocation(currentObj.shaderProgram, "uPMatrix");
 		currentObj.shaderProgram.mMatrixUniform = in_gl.getUniformLocation(currentObj.shaderProgram, "uMMatrix");

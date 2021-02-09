@@ -5,12 +5,13 @@ import global from '../Global';
 import {healpixGridTileBufferSingleton} from './HealpixGridTileBuffer';
 import eventBus from '../events/EventBus';
 import VisibleTilesChangedEvent from '../events/VisibleTilesChangedEvent';
+import {shaderUtility} from '../utils/ShaderUtility';
 
 
 class HealpixGrid {
 
 	constructor() {
-		this.tiles = {};
+		this.tiles = new Set();
 		eventBus.registerForEvent(this, VisibleTilesChangedEvent.name);
 		this.init();
 	}
@@ -29,8 +30,8 @@ class HealpixGrid {
 	}
 
 	removeTiles(tilesToRemove){
-		Object.keys(tilesToRemove).forEach(tileKey => {
-			this.remove(healpixGridTileBufferSingleton.getTile(tilesToRemove[tileKey].order, tilesToRemove[tileKey].ipix));
+		tilesToRemove.forEach((tileInfo) => {
+			this.remove(healpixGridTileBufferSingleton.getTile(tileInfo.order, tileInfo.ipix));
 		});
 	}
 
@@ -49,7 +50,7 @@ class HealpixGrid {
 			alert("Could not initialise shaders");
 		}
 
-		this.gl.useProgram(this.gridShaderProgram);
+		shaderUtility.useProgram(this.gridShaderProgram);
 		
 		this.setUniformLocation();
 	}
@@ -105,41 +106,42 @@ class HealpixGrid {
 	}
 
 	add(tile){
-		this.tiles[tile.key] = tile; 
+		this.tiles.add(tile); 
 	}
 
 	remove(tile){
-		delete this.tiles[tile.key];
+		this.tiles.delete(tile);
 		tile.destruct();
 	}
 
 	clear(){
-		Object.keys(this.tiles).forEach(tileKey => {
-			this.tiles[tileKey].destruct();
+		this.tiles.forEach(tile => {
+			tile.destruct();
 		});
-		this.tiles = {};
+		this.tiles.clear();
 	}
 
 	draw(pMatrix, vMatrix, modelMatrix){
-		this.gl.useProgram(this.gridShaderProgram);
 		if(!this.isInitialized){
 			return;
 		}
-
-		this.gl.disableVertexAttribArray(0);
-		this.gl.disableVertexAttribArray(1);
-		this.gl.disableVertexAttribArray(2);
+		if(shaderUtility.lastUsedProgram != this.gridShaderProgram){
+			shaderUtility.useProgram(this.gridShaderProgram);
+			this.gl.disableVertexAttribArray(0);
+			this.gl.disableVertexAttribArray(1);
+			this.gl.disableVertexAttribArray(2);
+			this.gl.enableVertexAttribArray(this.gridShaderProgram.vertexPositionAttribute);
+		}
 		
-		this.gl.enableVertexAttribArray(this.gridShaderProgram.vertexPositionAttribute);
 		this.gl.uniformMatrix4fv(this.gridShaderProgram.mMatrixUniform, false, modelMatrix);
 		this.gl.uniformMatrix4fv(this.gridShaderProgram.pMatrixUniform, false, pMatrix);
 		this.gl.uniformMatrix4fv(this.gridShaderProgram.vMatrixUniform, false, vMatrix);
-
-		Object.keys(this.tiles).forEach(tileKey => {
-			this.drawTile(this.tiles[tileKey]);
+		
+		this.tiles.forEach(tile => {
+			this.drawTile(tile);
 		});
 	}
-
+	
 	drawTile(tile){
 		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, tile.vertexPositionBuffer);
 		this.gl.vertexAttribPointer(this.gridShaderProgram.vertexPositionAttribute, 3, this.gl.FLOAT, false, 0, 0);

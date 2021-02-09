@@ -118,6 +118,7 @@ class FVPresenter2{
 				// 0, "Herschel SPIRE 500 micron", "//skies.esac.esa.int/Herschel/normalized/hips500_pnorm_allsky/", "png", 5);
 				0, "DSS2 color", "//skies.esac.esa.int/DSSColor/", "jpg", 9);
 		}
+		global.currentHips.show();
 		this.view.setPickedObjectName(global.currentHips);
 		
 		this.lastDrawTime = (new Date()).getTime() * 0.001;
@@ -281,7 +282,7 @@ class FVPresenter2{
 						
 						// let currP = new Pointing(new Vec3(mousePoint[0], mousePoint[1], mousePoint[2]));
 
-						// for(let i = 0; i < 6; i++){
+						// for(let i = 0; i < 10; i++){
 						// 	let currPixNo = global.getHealpix(i).ang2pix(currP);
 						// 	this.view.setHoverIpix(i, currPixNo);
 						// }

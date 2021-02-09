@@ -17,7 +17,7 @@ class VisibleTilesManager {
 	constructor(){
 		this.radius = 1;
 		this.order = 0;
-		this.visibleTiles = {};
+		this.visibleTiles = new Map();
 		setInterval(()=> {this.updateVisibleTiles();}, 100);
 	}
 
@@ -26,25 +26,30 @@ class VisibleTilesManager {
 	}
 
 	getVisibleTilesOfOrder3(){
-		let keys = Object.keys(this.visibleTiles);
-		if(keys.length > 0 && this.visibleTiles[keys[0]].order < 3){
-			return {};
+		if(this.visibleTiles.size > 0 &&  this.visibleTiles.values().next().value.order < 3){
+			return new Map();
 		}
-		let orderOfVisibleTiles = keys.length > 0 ? this.visibleTiles[keys[0]].order : this.order; 
-		let tiles = this.visibleTiles;
+		if(this.order3TilesCache){
+			return this.order3TilesCache;
+		}
+
+		let orderOfVisibleTiles = this.visibleTiles.size > 0 ? this.visibleTiles.values().next().value.order : this.order; 
 		
+		let tiles = this.visibleTiles;
 		for(let order = orderOfVisibleTiles; order > 3; order--){
 			tiles = this.getParentTiles(tiles);
 		}
+
+		this.order3TilesCache = tiles;
 
 		return tiles;
 	}
 
 	getParentTiles(tiles){
-		let parentTiles = {}
-		Object.keys(tiles).forEach((key)=>{
-			let parent = {order: tiles[key].order - 1, ipix: Math.floor(tiles[key].ipix / 4), key: (this.order - 1) + "/" + Math.floor(tiles[key].ipix / 4)};
-			parentTiles[parent.key] = parent;
+		let parentTiles = new Map();
+		tiles.forEach((tile)=>{
+			let parent = {order: tile.order - 1, ipix: (tile.ipix >> 2), key: (tile.order - 1) + "/" + (tile.ipix >> 2)};
+			parentTiles.set(parent.key, parent);
 		});
 		return parentTiles;
 	}
@@ -89,19 +94,22 @@ class VisibleTilesManager {
 	updateVisibleTiles (){
 		if(!this.changedModel){return;}
 		this.changedModel = false;
-		let previouslyVisibleKeys = Object.keys(this.visibleTiles);
-		let tilesRemoved = this.visibleTiles;
-		let tilesAdded = {};
-		this.visibleTiles = {};
+		let previouslyVisibleKeys = new Map(this.visibleTiles);
+		let tilesRemoved = new Map(this.visibleTiles);
+		let tilesAdded = new Map();
+		this.visibleTiles = new Map();
 		let tilesToAddInOrder = this.pollCenter(previouslyVisibleKeys, tilesRemoved, tilesAdded);
 
 		this.pollViewAndAddTiles(7, previouslyVisibleKeys, tilesRemoved, tilesAdded, tilesToAddInOrder);
 		
-		Object.keys(this.visibleTiles).forEach(key =>{
-			this.addNeighbours(this.visibleTiles[key].ipix, previouslyVisibleKeys, tilesRemoved, tilesAdded, tilesToAddInOrder);
+		new Map(this.visibleTiles).forEach((tile) =>{
+			this.addNeighbours(tile.ipix, previouslyVisibleKeys, tilesRemoved, tilesAdded, tilesToAddInOrder);
 		});
 
-		eventBus.fireEvent(new VisibleTilesChangedEvent(tilesRemoved, tilesToAddInOrder));
+		if(tilesRemoved.size > 0 || tilesToAddInOrder.size > 0){
+			this.order3TilesCache = null;
+			eventBus.fireEvent(new VisibleTilesChangedEvent(tilesRemoved, tilesToAddInOrder));
+		}
 	}
 
 	pollViewAndAddTiles(xyPollingPoints, previouslyVisibleKeys, tilesRemoved, tilesAdded, tilesToAddInOrder) {
@@ -116,7 +124,7 @@ class VisibleTilesManager {
 	}
 
 	pollCenter(previouslyVisibleKeys, tilesRemoved, tilesAdded) {
-		let tilesToAddInOrder = [];
+		let tilesToAddInOrder = new Map();
 		let maxX = global.gl.canvas.width;
 		let maxY = global.gl.canvas.height;
 		let xyPollingPoints = 3;
@@ -141,14 +149,14 @@ class VisibleTilesManager {
 			let currPixNo = global.getHealpix(this.order).ang2pix(currP);
 			if (currPixNo >= 0) {
 				let tile = {order: this.order, ipix: currPixNo, key: this.order + "/" + currPixNo};
-				this.visibleTiles[tile.key] = tile;
-				if (previouslyVisibleKeys.includes(tile.key)) {
-					delete tilesRemoved[tile.key];
+				this.visibleTiles.set(tile.key, tile);
+				if (previouslyVisibleKeys.has(tile.key)) {
+					tilesRemoved.delete(tile.key);
 				} else {
-					if (tilesAdded[tile.key] !== tile) {
-						tilesToAddInOrder.push(tile);
+					if (tilesAdded.get(tile.key) !== tile) {
+						tilesToAddInOrder.set(tile.key, tile);
 					}
-					tilesAdded[tile.key] = tile;
+					tilesAdded.set(tile.key, tile);
 				}
 			}
 		}
@@ -157,21 +165,20 @@ class VisibleTilesManager {
 	addNeighbours(currPixNo, previouslyVisibleKeys, tilesRemoved, tilesAdded, tilesToAddInOrder) {
 		let neighbours = global.getHealpix(this.order).neighbours(currPixNo);
 		for (let k = 0; k < neighbours.length; k++) {
-			if (neighbours[k] >= 0 && this.visibleTiles[neighbours[k]] == undefined) {
-				let tile = {order: this.order, ipix: neighbours[k], key: this.order + "/" + neighbours[k]};
-				this.visibleTiles[tile.key] = tile;
+			let tile = {order: this.order, ipix: neighbours[k], key: this.order + "/" + neighbours[k]};
+			if (neighbours[k] >= 0 && !this.visibleTiles.has(tile.key)) {
+				this.visibleTiles.set(tile.key, tile);
 
-				if (previouslyVisibleKeys.includes(tile.key)) {
-					delete tilesRemoved[tile.key];
+				if (previouslyVisibleKeys.has(tile.key)) {
+					tilesRemoved.delete(tile.key);
 				} else {
-					if(tilesAdded[tile.key] !== tile){
-						tilesToAddInOrder.push(tile);
+					if(tilesAdded.get(tile.key) !== tile){
+						tilesToAddInOrder.set(tile.key, tile);
 					}
-					tilesAdded[tile.key] = tile;
+					tilesAdded.set(tile.key, tile);
 				}
 			}
 		}
-		return neighbours;
 	}
 
 }
