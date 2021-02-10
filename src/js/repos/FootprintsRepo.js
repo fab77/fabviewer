@@ -149,7 +149,7 @@ class FootprintsRepo{
 	static removeFPCatalogue(in_footprintName){
 		var i;
 		for (i = 0; i < this.footprints.length; i++){
-			if (this.footprints[i].name == in_footprintName){
+			if (this.footprints[i].datasetName == in_footprintName){
 				this.footprints.splice(i,1);
 				break;
 			}

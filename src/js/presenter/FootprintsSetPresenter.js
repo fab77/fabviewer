@@ -30,7 +30,7 @@ class FootprintsSetPresenter{
 				console.log("clicked on FootprintSet "+_self._model.datasetName);
 				FootprintsRepo.retrieveByFoV(global.baseUrl, _self._model, null);	
 			}else{
-				FootprintsRepo.removeFPCatalogue(_self._model.name);
+				FootprintsRepo.removeFPCatalogue(_self._model.datasetName);
 			}
         });
 		
