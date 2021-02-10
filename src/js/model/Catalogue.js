@@ -219,6 +219,8 @@ class Catalogue{
 			positionIndex += Catalogue.ELEM_SIZE;
 			
 		}
+		this.#gl.bufferData(this.#gl.ARRAY_BUFFER, this.#vertexCataloguePosition, this.#gl.STATIC_DRAW);
+
 		
 		/* 
 		 * check https://stackoverflow.com/questions/27714014/3d-point-on-circumference-of-a-circle-with-a-center-radius-and-normal-vector
@@ -315,8 +317,6 @@ class Catalogue{
 				this.#vertexCataloguePosition[ (this.#selectionIndexes[k] * Catalogue.ELEM_SIZE) + 4] = 8.0;
 			}	
 			
-			
-
 			this.#selectionIndexes = this.checkSelection(in_mouseCoords);
 
 			let selectedSources = [];
@@ -336,15 +336,15 @@ class Catalogue{
 				
 			}
 
+			this.#gl.bufferData(this.#gl.ARRAY_BUFFER, this.#vertexCataloguePosition, this.#gl.STATIC_DRAW);
+
 		}
-		this.#gl.bufferData(this.#gl.ARRAY_BUFFER, this.#vertexCataloguePosition, this.#gl.STATIC_DRAW);
 		
 
 		var numItems = this.#vertexCataloguePosition.length/Catalogue.ELEM_SIZE;
 
 		this.#gl.drawArrays(this.#gl.POINTS, 0, numItems);
 
-		this.#gl.bindBuffer(this.#gl.ARRAY_BUFFER, null);
 		this.#oldMouseCoords = in_mouseCoords;
 		
 	}
