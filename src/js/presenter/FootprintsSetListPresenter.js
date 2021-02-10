@@ -24,9 +24,11 @@ class FootprintsSetListPresenter{
 	addFootprintsSet = (fpSetDescriptorJSON) => {
     	
     	for (let [key, fpSet] of Object.entries(fpSetDescriptorJSON.descriptors) ) {
-    		let model = new FPCatalogueDescriptor(fpSet);
-            let fpSetPresenter = new FootprintsSetPresenter(new FootprintView(), model);
-            this.#view.addFPSet(fpSetPresenter.view);
+			if(fpSet.mission !== "INTEGRAL") { // survey mission
+				let model = new FPCatalogueDescriptor(fpSet);
+				let fpSetPresenter = new FootprintsSetPresenter(new FootprintView(), model);
+				this.#view.addFPSet(fpSetPresenter.view);
+			}
     	}
     }
 	
