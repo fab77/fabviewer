@@ -31,6 +31,8 @@ import CatalogueRepo from './repos/CatalogueRepo';
 import FootprintsRepo from './repos/FootprintsRepo';
 import ModelRepo from './repos/ModelRepo';
 import HiPSRepo from './repos/HiPSRepo';
+import global from './Global';
+
 
 import {mat4, vec3} from 'gl-matrix';
 import {cartesianToSpherical, sphericalToAstroDeg, astroDegToSpherical, sphericalToCartesian, raDegToHMS, decDegToDMS, degToRad} from './utils/Utils';
@@ -66,13 +68,13 @@ class FVPresenter{
 		
 		this.initPresenter();
 		
-		this.catalogueRepo = new CatalogueRepo("https://sky.esa.int/esasky-tap/catalogs", this.catalogueListPresenter.addCatalogues);
+		this.catalogueRepo = new CatalogueRepo(global.baseUrl + "catalogs", this.catalogueListPresenter.addCatalogues);
 		
-		this.footprintsRepo = new FootprintsRepo("https://sky.esa.int/esasky-tap/observations", this.footprintsSetListPresenter.addFootprintsSet);
+		this.footprintsRepo = new FootprintsRepo(global.baseUrl + "observations", this.footprintsSetListPresenter.addFootprintsSet);
 		
 		// this.modelRepo = new ModelRepo(this.in_gl, this.view.canvas, this.catalogueListPresenter.addCatalogues); 
 		
-		this.hipsRepo = new HiPSRepo("https://sky.esa.int/esasky-tap/hips-sources", this.hipsListPresenter.addHiPS);
+		this.hipsRepo = new HiPSRepo(global.baseUrl + "hips-sources", this.hipsListPresenter.addHiPS);
 		
 		this.aspectRatio;
 		this.fovDeg = 45;

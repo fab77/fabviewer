@@ -79,7 +79,7 @@ class FootprintsRepo{
 		
 		var fovPolyCartesian = FoVUtils.getFoVPolygon (global.pMatrix, global.camera, global.gl.canvas, global.model, global.rayPicker);
 		var fovPolyAstro = FoVUtils.getAstroFoVPolygon(fovPolyCartesian);
-		var adqlQuery = "select top 10 * " +
+		var adqlQuery = "select top 100 * " +
 			"from "+tapTable+" where " +
 			"1=INTERSECTS(fov, " +
 			"POLYGON('ICRS', "+fovPolyAstro+"))";
@@ -89,7 +89,7 @@ class FootprintsRepo{
 //		var adqlQuery = "select top 2 * " +
 //			"from "+tapTable+" where " +
 //			"observation_id = '0017740401'";
-		var queryString = "/esasky-tap/tap/sync?request=doQuery&lang=ADQL&format=json&query="+encodeURI(adqlQuery);
+		var queryString = "tap/sync?request=doQuery&lang=ADQL&format=json&query="+encodeURI(adqlQuery);
 		console.log(queryString);
 		
 		xhr.open('GET', url+queryString, true);
@@ -128,14 +128,13 @@ class FootprintsRepo{
 						break;
 					}
 				}
-				
+	
 				// TODO change footprint to a more meaningfull name like footprintCatalogue
 				var fpCatalogue = new FPCatalogue(datasetName, metadata, raIdx, decIdx, uidIdx, stcsIdx, descriptor);
 				
 				fpCatalogue.addFootprints(data);
 				FootprintsRepo.addFootprint(fpCatalogue);
-				
-				
+
 				
 			} else {
 				alert('Something went wrong: ' + xhr.response);

@@ -70,11 +70,11 @@ class CatalogueRepo{
 		
 		var fovPolyCartesian = FoVUtils.getFoVPolygon (global.pMatrix, global.camera, global.gl.canvas, global.model, global.rayPicker);
 		var fovPolyAstro = FoVUtils.getAstroFoVPolygon(fovPolyCartesian);
-		var adqlQuery = "select top 1000 * " +
+		var adqlQuery = "select top 1000 *" +
 				"from "+tapTable+" where " +
 				"1=CONTAINS(POINT('ICRS',"+tapRaDeg+", "+tapDecDeg+"), " +
 				"POLYGON('ICRS', "+fovPolyAstro+"))";
-		var queryString = "/esasky-tap/tap/sync?request=doQuery&lang=ADQL&format=json&query="+encodeURI(adqlQuery);
+		var queryString = "tap/sync?request=doQuery&lang=ADQL&format=json&query="+encodeURI(adqlQuery);
 		console.log(queryString);
 		
 		xhr.open('GET', url+queryString, true);
@@ -85,8 +85,8 @@ class CatalogueRepo{
 				var metadata = xhr.response.metadata;
 				var data = xhr.response.data;
 
-				console.log(metadata);
-				console.log(data);
+				// console.log(metadata);
+				console.log(data.length);
 				
 				var i,
 				raIdx = null,
