@@ -58,7 +58,7 @@ class CatalogueRepo{
 		this.#catalogues.push(catalogue);
 	}
 	
-	static retriveByFoV(url, descriptor, callback){
+	static retrieveByFoV(url, descriptor, callback){
 		
 		var xhr = new XMLHttpRequest();
 		

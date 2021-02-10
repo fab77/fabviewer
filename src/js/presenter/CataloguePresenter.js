@@ -18,7 +18,7 @@ class CataloguePresenter{
 			var checkbox = this;
 
 			if (checkbox.checked){
-				CatalogueRepo.retriveByFoV(global.baseUrl, _self._model, null);	
+				CatalogueRepo.retrieveByFoV(global.baseUrl, _self._model, null);	
 			}else{
 				CatalogueRepo.removeCatalogue(_self._model.name);
 			}
