@@ -11,8 +11,8 @@ class CatalogueView{
                 return this.html;
             },
             setModel: (model)=>{
-                this.html.find("input").attr('id', model.name);
-                this.html.find("label").attr('for', model.name);
+                this.html.find("input").attr('id', model.name + "-catalogue-selection");
+                this.html.find("label").attr('for', model.name + "-catalogue-selection");
                 this.html.find("label").html(model.name);
     
             },

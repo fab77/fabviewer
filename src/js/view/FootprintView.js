@@ -11,8 +11,8 @@ class FootprintView{
                 return this.html;
             },
             setModel: (model)=>{
-                this.html.find("input").attr('id', model.datasetName);
-                this.html.find("label").attr('for', model.datasetName);
+                this.html.find("input").attr('id', model.datasetName + "-footprint");
+                this.html.find("label").attr('for', model.datasetName+ "-footprint");
                 this.html.find("label").html(model.datasetName);
     
             },
