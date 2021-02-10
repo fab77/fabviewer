@@ -40,8 +40,6 @@ import MouseHelper from './utils/MouseHelper';
 import global from './Global';
 import {Vec3, Pointing} from 'healpixjs';
 import HiPS from './model/HiPS';
-import {USE_OLD_HIPS_JS} from './presenter/HiPSPresenter';
-import HiPS_extractedTile from './model/HiPS_extractedTile';
 import {visibleTilesManager} from './model/VisibleTilesManager';
 import HealpixGrid from './model/HealpixGrid';
 
@@ -106,18 +104,13 @@ class FVPresenter2{
 		
 		this.nearestVisibleObjectIdx = 0;
 		
-		if(USE_OLD_HIPS_JS){
-			global.currentHips = new HiPS(1, [0.0, 0.0, 0.0], 
-				0, 
-				0, "DSS2 color", "//skies.esac.esa.int/DSSColor/", "jpg", 9);
-		} else {
-			global.currentHips = new HiPS_extractedTile(1, [0.0, 0.0, 0.0], 
-				0, 
-				// 0, "INTEGRAL-IBIS 65-100 keV", "//skies.esac.esa.int/Integral/65-100/", "fits", 3);
-				// 0, "Herschel SPIRE 500 micron", "//skies.esac.esa.int/Herschel/normalized/hips500_pnorm_allsky/", "fits", 5);
-				// 0, "Herschel SPIRE 500 micron", "//skies.esac.esa.int/Herschel/normalized/hips500_pnorm_allsky/", "png", 5);
-				0, "DSS2 color", "//skies.esac.esa.int/DSSColor/", "jpg", 9);
-		}
+
+		global.currentHips = new HiPS(1, [0.0, 0.0, 0.0], 
+			0, 
+			// 0, "INTEGRAL-IBIS 65-100 keV", "//skies.esac.esa.int/Integral/65-100/", "fits", 3);
+			// 0, "Herschel SPIRE 500 micron", "//skies.esac.esa.int/Herschel/normalized/hips500_pnorm_allsky/", "fits", 5);
+			// 0, "Herschel SPIRE 500 micron", "//skies.esac.esa.int/Herschel/normalized/hips500_pnorm_allsky/", "png", 5);
+			0, "DSS2 color", "//skies.esac.esa.int/DSSColor/", "jpg", 9);
 		global.currentHips.show();
 		this.view.setPickedObjectName(global.currentHips);
 		
@@ -454,9 +447,7 @@ class FVPresenter2{
 
 		visibleTilesManager.refreshModel(fov)
 		global.model = global.currentHips;
-		if(USE_OLD_HIPS_JS){
-			global.model.refreshModel(fov, pan);
-		}
+
 	};
 
 	refreshViewAndModel(pan) {
