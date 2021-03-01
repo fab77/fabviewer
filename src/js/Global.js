@@ -11,6 +11,10 @@ class Global{
 	#gl = null;			// GL context
 	#rayPicker = null;	// TODO probably useless here ince all methods are static
 	#hipsStack = [];
+	#baseUrl = "https://sky.esa.int/esasky-tap/";
+	// #baseUrl = "http://skyint.esac.esa.int/esasky-tap/";
+	// #baseUrl = "http://ammiappdev.esac.esa.int/esasky-tap/";
+	// #baseUrl = "http://localhost:8080/esasky-sl/";
 	
 	constructor(){
 		this._pMatrix = null;
@@ -85,6 +89,10 @@ class Global{
 	
 	get order(){
 		return this._order;
+	}
+
+	get baseUrl(){
+		return this.#baseUrl;
 	}
 	
   get hipsStack(){

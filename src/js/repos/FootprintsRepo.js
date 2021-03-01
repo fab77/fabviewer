@@ -84,13 +84,15 @@ class FootprintsRepo{
 			"1=INTERSECTS(fov, " +
 			"POLYGON('ICRS', "+fovPolyAstro+"))";
 		
-		
-		
 //		var adqlQuery = "select top 2 * " +
 //			"from "+tapTable+" where " +
 //			"observation_id = '0851181101'";
+//		"observation_id = '0017740401'";
 		
-		var queryString = "/esasky-tap/tap/sync?request=doQuery&lang=ADQL&format=json&query="+encodeURI(adqlQuery);
+//		var queryString = "/esasky-tap/tap/sync?request=doQuery&lang=ADQL&format=json&query="+encodeURI(adqlQuery);
+
+		var queryString = "tap/sync?request=doQuery&lang=ADQL&format=json&query="+encodeURI(adqlQuery);
+
 		console.log(queryString);
 		
 		xhr.open('GET', url+queryString, true);
@@ -129,14 +131,13 @@ class FootprintsRepo{
 						break;
 					}
 				}
-				
+	
 				// TODO change footprint to a more meaningfull name like footprintCatalogue
 				var fpCatalogue = new FPCatalogue(datasetName, metadata, raIdx, decIdx, uidIdx, stcsIdx, descriptor);
 				
 				fpCatalogue.addFootprints(data);
 				FootprintsRepo.addFootprint(fpCatalogue);
-				
-				
+
 				
 			} else {
 				alert('Something went wrong: ' + xhr.response);
@@ -151,7 +152,7 @@ class FootprintsRepo{
 	static removeFPCatalogue(in_footprintName){
 		var i;
 		for (i = 0; i < this.footprints.length; i++){
-			if (this.footprints[i].name == in_footprintName){
+			if (this.footprints[i].datasetName == in_footprintName){
 				this.footprints.splice(i,1);
 				break;
 			}

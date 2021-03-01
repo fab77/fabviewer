@@ -4,6 +4,7 @@
  */
 
  import FootprintsRepo from '../repos/FootprintsRepo';
+ import global from '../Global';
  
 class FootprintsSetPresenter{
 	
@@ -27,9 +28,9 @@ class FootprintsSetPresenter{
 
 			if (checkbox.checked){
 				console.log("clicked on FootprintSet "+_self._model.datasetName);
-				FootprintsRepo.retrieveByFoV("https://sky.esa.int/", _self._model, null);	
+				FootprintsRepo.retrieveByFoV(global.baseUrl, _self._model, null);	
 			}else{
-				FootprintsRepo.removeFPCatalogue(_self._model.name);
+				FootprintsRepo.removeFPCatalogue(_self._model.datasetName);
 			}
         });
 		

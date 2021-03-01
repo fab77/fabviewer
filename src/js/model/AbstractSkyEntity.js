@@ -2,7 +2,7 @@
  * @author Fabrizio Giordano (Fab)
  * @param in_radius - number
  * @param in_gl - GL context
- * @param in_position - array of double e.g. [0.0, 0.0, -7]
+ * @param in_position - array of double e.g. [0.0, 0.0, 0.0]
  */
 import FoV from './FoV';
 import {vec3, mat4} from 'gl-matrix';
@@ -11,10 +11,9 @@ import global from '../Global';
 
 class AbstractSkyEntity{
 	
-	constructor(in_radius, in_position, in_xRad, in_yRad, in_name, in_fovUtils){
+	constructor(in_radius, in_position, in_xRad, in_yRad, in_name){
 		let in_gl = global.gl;
 		this.fovObj = new FoV(this);
-//		this.fovObj = new FoV(in_gl, in_canvas, this);
 		this.refreshMe = false;
 		this.fovX_deg = 180;
 		this.fovY_deg = 180;
@@ -45,6 +44,8 @@ class AbstractSkyEntity{
 	}
 	
 	
+	
+	
 	translate(in_translation){
 		mat4.translate(this.T, this.T, this.center);
 		this.refreshModelMatrix();
@@ -54,7 +55,7 @@ class AbstractSkyEntity{
 
 	    mat4.rotate(this.R, this.R, rad2, [0, 0, 1]);
 		mat4.rotate(this.R, this.R, rad1, [1, 0, 0]);
-		
+	    
 		this.refreshModelMatrix();
 
 	}
@@ -139,7 +140,7 @@ class AbstractSkyEntity{
 		return this.fovObj.minFoV;
 	}
 	
-	// Method overwritten by sons having hierarchical geometry (e.g. HiPS)
+	// Method overwritten by children having hierarchical geometry (e.g. HiPS)
 	setGeometryNeedsToBeRefreshed (){
 		this.refreshGeometryOnFoVChanged = false;
 	};
@@ -177,6 +178,8 @@ class AbstractSkyEntity{
         
         return m;
 	 }
+	
+	
 }
 
 export default AbstractSkyEntity;

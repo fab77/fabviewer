@@ -15,7 +15,7 @@ class AllSky {
 		this.maxNPix = global.getHealpix(this.norder).getNPix();
 		this.pixels = [];
 		this.format = format;
-		this.opacity = 1.00 * 100.0/100.0;
+		this.opacity = 1.00;
 
 		this.isInitialized = false;
 		this.updateVisiblePixels();

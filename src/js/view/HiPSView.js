@@ -13,8 +13,8 @@ class HiPSView{
                 return this.html;
             },
             setModel: (model, formats)=>{
-                this.html.find("input[type='checkbox']").attr('id', model.surveyName);
-                this.html.find("label").attr('for', model.surveyName);
+                this.html.find("input[type='checkbox']").attr('id', model.surveyName + "-hips-selection");
+                this.html.find("label").attr('for', model.surveyName + "-hips-selection");
                 this.html.find("label").html(model.surveyName);
                 this.html.find("select").append(this.formatOptions(formats));
             },

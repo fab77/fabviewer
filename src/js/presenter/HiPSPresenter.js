@@ -5,10 +5,7 @@
 import eventBus from '../events/EventBus';
 import HiPSFormatSelectedEvent from '../events/HiPSFormatSelectedEvent';
 import HiPS from '../model/HiPS';
-import HiPS_extractedTile from '../model/HiPS_extractedTile';
 import global from '../Global';
-
-const USE_OLD_HIPS_JS = false;
 
 class HiPSPresenter{
 	
@@ -38,23 +35,13 @@ class HiPSPresenter{
 				if(this.hips == undefined){
 					let format = this.view.getSelectedFormat();
 					let opacity = this.view.getSelectedOpacity() / 100;
-					if(USE_OLD_HIPS_JS){
-						this.hips = new HiPS(1, [0.0, 0.0, 0.0], 
-							0, 
-							0, this._model.surveyName, 
-							this._model.url, format,
-							this._maxOrder);
-					} else {
-						this.hips = new HiPS_extractedTile(1, [0.0, 0.0, 0.0], 
-							0, 
-							0, this._model.surveyName, 
-							this._model.url, format,
-							this._maxOrder, opacity);
-						}
+					this.hips = new HiPS(1, [0.0, 0.0, 0.0], 
+						0, 
+						0, this._model.surveyName, 
+						this._model.url, format,
+						this._maxOrder, opacity);
+					}
 					this.hips.show();
-				} else {
-					this.hips.show();
-				}
 				global.currentHips = this.hips;
 				this.hips.refreshModel(this.hips.refreshFoV().minFoV);
 			}
@@ -71,19 +58,11 @@ class HiPSPresenter{
 			if(this.hips && this.isChecked){
 				let format = event.target.value;
 				let opacity = this.view.getSelectedOpacity() / 100;
-				if(USE_OLD_HIPS_JS){
-					this.hips = new HiPS(1, [0.0, 0.0, 0.0], 
-						0, 
-						0, this._model.surveyName, 
-						this._model.url, format,
-						this._maxOrder);
-				} else {
-					this.hips = new HiPS_extractedTile(1, [0.0, 0.0, 0.0], 
-						0, 
-						0, this._model.surveyName, 
-						this._model.url, format,
-						this._maxOrder, opacity);
-				}
+				this.hips = new HiPS(1, [0.0, 0.0, 0.0], 
+					0, 
+					0, this._model.surveyName, 
+					this._model.url, format,
+					this._maxOrder, opacity);
 				global.currentHips = this.hips;
 	
 				eventBus.fireEvent(new HiPSFormatSelectedEvent(format, this._model.surveyName));
@@ -137,4 +116,3 @@ class HiPSPresenter{
 	}
 }
 export default HiPSPresenter;
-export {USE_OLD_HIPS_JS}

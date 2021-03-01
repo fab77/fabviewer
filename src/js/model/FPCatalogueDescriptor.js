@@ -13,7 +13,7 @@ class FPCatalogueDescriptor{
 	
 	constructor(in_fpCatalogueDescriptorJSON){
 		
-		this.#datasetName = in_fpCatalogueDescriptorJSON.guiShortName;
+		this.#datasetName = in_fpCatalogueDescriptorJSON.mission;
 		this.#tapTable = in_fpCatalogueDescriptorJSON.tapTable;
 		this.#raTapColumn = in_fpCatalogueDescriptorJSON.tapRaColumn;
 		this.#decTapColumn = in_fpCatalogueDescriptorJSON.tapDecColumn;

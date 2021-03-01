@@ -31,16 +31,16 @@ import CatalogueRepo from './repos/CatalogueRepo';
 import FootprintsRepo from './repos/FootprintsRepo';
 import ModelRepo from './repos/ModelRepo';
 import HiPSRepo from './repos/HiPSRepo';
+import global from './Global';
+
 
 import {mat4, vec3} from 'gl-matrix';
 import {cartesianToSpherical, sphericalToAstroDeg, astroDegToSpherical, sphericalToCartesian, raDegToHMS, decDegToDMS, degToRad} from './utils/Utils';
 import FoVUtils from './utils/FoVUtils';
 import global from './Global';
 import {Vec3, Pointing} from 'healpixjs';
-import HiPS from './model/HiPS';
-import {USE_OLD_HIPS_JS} from './presenter/HiPSPresenter';
 
-import HiPS_extractedTile from './model/HiPS_extractedTile';
+import HiPS from './model/HiPS';
 
 class FVPresenter{
 	constructor(in_view, in_gl){
@@ -68,13 +68,13 @@ class FVPresenter{
 		
 		this.initPresenter();
 		
-		this.catalogueRepo = new CatalogueRepo("https://sky.esa.int/esasky-tap/catalogs", this.catalogueListPresenter.addCatalogues);
+		this.catalogueRepo = new CatalogueRepo(global.baseUrl + "catalogs", this.catalogueListPresenter.addCatalogues);
 		
-		this.footprintsRepo = new FootprintsRepo("https://sky.esa.int/esasky-tap/observations", this.footprintsSetListPresenter.addFootprintsSet);
+		this.footprintsRepo = new FootprintsRepo(global.baseUrl + "observations", this.footprintsSetListPresenter.addFootprintsSet);
 		
 		// this.modelRepo = new ModelRepo(this.in_gl, this.view.canvas, this.catalogueListPresenter.addCatalogues); 
 		
-		this.hipsRepo = new HiPSRepo("https://sky.esa.int/esasky-tap/hips-sources", this.hipsListPresenter.addHiPS);
+		this.hipsRepo = new HiPSRepo(global.baseUrl + "hips-sources", this.hipsListPresenter.addHiPS);
 		
 		this.aspectRatio;
 		this.fovDeg = 45;
@@ -117,16 +117,10 @@ class FVPresenter{
 //				this.in_gl.canvas,
 //				this.modelRepo);
 
-		if(USE_OLD_HIPS_JS){
-			global.currentHips = new HiPS(1, [0.0, 0.0, 0.0], 
-				Math.PI / 2, 
-				Math.PI / 2, "DSS2 color", "//skies.esac.esa.int/DSSColor/", "jpg");
-		} else {
-			global.currentHips = new HiPS_extractedTile(1, [0.0, 0.0, 0.0], 
-				Math.PI / 2, 
-				Math.PI / 2, "DSS2 color", "//skies.esac.esa.int/DSSColor/", "jpg");
 
-		}
+		global.currentHips = new HiPS(1, [0.0, 0.0, 0.0], 
+			Math.PI / 2, 
+			Math.PI / 2, "DSS2 color", "//skies.esac.esa.int/DSSColor/", "jpg");
 		this.view.setPickedObjectName(global.currentHips);
 		
 		this.lastDrawTime = (new Date()).getTime() * 0.001;
