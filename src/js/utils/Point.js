@@ -65,6 +65,14 @@ class Point{
 		var xyz = sphericalToCartesian(phiThetaDeg.phi, phiThetaDeg.theta, 1);
 		return xyz;
 	}
+	
+	/**
+	 * @return {phi: phideg, theta: thetadeg} 
+	 */
+	computeHealpixPhiTheta(){
+		return astroDegToSpherical(this.#raDeg, this.#decDeg);
+	}
+	
 
 //	constructor(in_xyz){
 //		

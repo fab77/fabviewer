@@ -8,6 +8,7 @@ import CoordsType from '../utils/CoordsType';
 import Footprint from './Footprint';
 import { shaderUtility } from '../utils/ShaderUtility';
 import MouseHelper from '../utils/MouseHelper';
+import GeomUtils from '../utils/GeomUtils';
 
 
 class FPCatalogue{
@@ -220,8 +221,10 @@ class FPCatalogue{
 		var footprintsInPix256 = this._footprintsInPix256;
 		for(let j = 0; j < nFootprints; j++){
 			
-			let footprint = this._footprints[j].polygons;
+			let footprint = this._footprints[j];
+			let footprintPoly = this._footprints[j].polygons;
 			var identifier = this._footprints[j].identifier;
+			
 			this._footprints[j].pixels.forEach(function(pix){
 				
 //				console.log(identifier);
@@ -230,22 +233,24 @@ class FPCatalogue{
 					let currFootprints = footprintsInPix256.get(pix);
 					if (!currFootprints.includes(identifier)){
 
-						currFootprints.push(identifier);
-
+//						currFootprints.push(identifier);
+						currFootprints.push(footprint);
+						
 					}
 					
 				}else{
-					footprintsInPix256.set(pix, [identifier]);
+//					footprintsInPix256.set(pix, [identifier]);
+					footprintsInPix256.set(pix, [footprint]);
 				}
 			});
 
-			this._footprintsInPix256 = footprintsInPix256;
+//			this._footprintsInPix256 = footprintsInPix256;
 			
-			for (let polyIdx in footprint){
-				for (let pointIdx in footprint[polyIdx]){
-					this._vertexCataloguePosition[positionIndex] = R * footprint[polyIdx][pointIdx].x;
-					this._vertexCataloguePosition[positionIndex+1] = R * footprint[polyIdx][pointIdx].y;
-					this._vertexCataloguePosition[positionIndex+2] = R * footprint[polyIdx][pointIdx].z;
+			for (let polyIdx in footprintPoly){
+				for (let pointIdx in footprintPoly[polyIdx]){
+					this._vertexCataloguePosition[positionIndex] = R * footprintPoly[polyIdx][pointIdx].x;
+					this._vertexCataloguePosition[positionIndex+1] = R * footprintPoly[polyIdx][pointIdx].y;
+					this._vertexCataloguePosition[positionIndex+2] = R * footprintPoly[polyIdx][pointIdx].z;
 					
 //					this._indexes[vIdx] = vIdx;
 					this._indexes[vIdx] = Math.floor(positionIndex/3);
@@ -261,6 +266,7 @@ class FPCatalogue{
 			}
 		}
 		
+		this._footprintsInPix256 = footprintsInPix256;
 		console.log("Buffer initialized");
 
 //		glEnable ( GL_PRIMITIVE_RESTART_FIXED_INDEX ); // 65535
@@ -273,11 +279,23 @@ class FPCatalogue{
 	checkSelection (in_mouseHelper) {
 		
 		let mousePix = in_mouseHelper.computeNpix256();
-		
+		let mousePoint = new Point({x: in_mouseHelper.x, y: in_mouseHelper.y, z: in_mouseHelper.z}, CoordsType.CARTESIAN);
 		if (mousePix != null){
 			if (this._footprintsInPix256.has(mousePix)){
 				console.log("mouse pix 256: "+mousePix);
-				console.log("footprints: " + this._footprintsInPix256.get(mousePix));
+				
+				
+				for (let i =0; i < this._footprintsInPix256.get(mousePix).length; i++){
+					
+					let footprint = this._footprintsInPix256.get(mousePix)[i];
+					console.log(footprint.identifier+" pixels: "+ footprint.pixels ) ;
+					if (GeomUtils.pointInsidePolygons(footprint.polygons, mousePoint) ){
+						console.log("INSIDE!");
+						console.log(footprint.identifier);
+					}
+					
+				}
+				
 			}	
 		}
 		
