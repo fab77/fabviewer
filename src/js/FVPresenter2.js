@@ -273,12 +273,12 @@ class FVPresenter2{
 					
 					if (mousePoint.length > 0){
 						
-						// let currP = new Pointing(new Vec3(mousePoint[0], mousePoint[1], mousePoint[2]));
-
-						// for(let i = 0; i < 10; i++){
-						// 	let currPixNo = global.getHealpix(i).ang2pix(currP);
-						// 	this.view.setHoverIpix(i, currPixNo);
-						// }
+//						 let currP = new Pointing(new Vec3(mousePoint[0], mousePoint[1], mousePoint[2]));
+//
+//						 for(let i = 0; i < 10; i++){
+//						 	let currPixNo = global.getHealpix(i).ang2pix(currP);
+//						 	this.view.setHoverIpix(i, currPixNo);
+//						 }
 
 						var phiThetaDeg = cartesianToSpherical(mousePoint);
 						//TODO to be reviewed. cartesianToSpherical seems to convert already Dec into [-90, 90]

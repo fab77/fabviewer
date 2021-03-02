@@ -7,6 +7,7 @@ import Point from '../utils/Point';
 import CoordsType from '../utils/CoordsType';
 import Healpix from "healpixjs";
 import {Vec3, Pointing} from "healpixjs";
+import {degToRad} from '../utils/Utils';
 
 class Footprint{
 	
@@ -18,6 +19,8 @@ class Footprint{
 	#center;
 	#totPoints;
 	#npix256;
+	
+	 
 
 	/**
 	 * 
@@ -55,6 +58,10 @@ class Footprint{
 			let poly = this.#polygons[i];
 			for (let j = 0; j < poly.length; j++){
 				let currPoint = poly[j];
+				
+				let phiTheta = currPoint.computeHealpixPhiTheta();
+				let phiRad = degToRad(phiTheta.phi);
+				let thetaRad = degToRad(phiTheta.theta);
 				let vec3 = new Vec3(currPoint.x, currPoint.y, currPoint.z);
 				let pointing = new Pointing(vec3);
 			

@@ -84,12 +84,15 @@ class FootprintsRepo{
 			"1=INTERSECTS(fov, " +
 			"POLYGON('ICRS', "+fovPolyAstro+"))";
 		
-		
-		
 //		var adqlQuery = "select top 2 * " +
 //			"from "+tapTable+" where " +
-//			"observation_id = '0017740401'";
+//			"observation_id = '0851181101'";
+//		"observation_id = '0017740401'";
+		
+//		var queryString = "/esasky-tap/tap/sync?request=doQuery&lang=ADQL&format=json&query="+encodeURI(adqlQuery);
+
 		var queryString = "tap/sync?request=doQuery&lang=ADQL&format=json&query="+encodeURI(adqlQuery);
+
 		console.log(queryString);
 		
 		xhr.open('GET', url+queryString, true);
