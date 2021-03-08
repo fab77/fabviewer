@@ -6,6 +6,7 @@ import FVView from './FVView';
 //import FVPresenter from './FVPresenter';
 import FVPresenter2 from './FVPresenter2';
 import global from './Global';
+import { textHelper } from './utils/TextHelper';
 
 
 class FVApp{
@@ -56,6 +57,7 @@ class FVApp{
 		this.view = new FVView(canvas);
 		
 		global.gl = this.gl;
+		textHelper.init(this.gl);
 		this.presenter = new FVPresenter2(this.view, this.gl);
 		
 		this.fabVReqID = '';

@@ -6,12 +6,14 @@ import {healpixGridTileBufferSingleton} from './HealpixGridTileBuffer';
 import eventBus from '../events/EventBus';
 import VisibleTilesChangedEvent from '../events/VisibleTilesChangedEvent';
 import {shaderUtility} from '../utils/ShaderUtility';
+import TileNumber from './TileNumber';
 
 
 class HealpixGrid {
 
 	constructor() {
 		this.tiles = new Set();
+		this.tileNumbers = new Map();
 		eventBus.registerForEvent(this, VisibleTilesChangedEvent.name);
 		this.init();
 	}
@@ -26,12 +28,16 @@ class HealpixGrid {
 	addTiles(tilesToAdd){
 		tilesToAdd.forEach(tile => {
 			this.add(healpixGridTileBufferSingleton.getTile(tile.order, tile.ipix));
+			this.tileNumbers.set(tile.key, new TileNumber(tile.order, tile.ipix)); 
 		});
 	}
-
+	
 	removeTiles(tilesToRemove){
 		tilesToRemove.forEach((tileInfo) => {
 			this.remove(healpixGridTileBufferSingleton.getTile(tileInfo.order, tileInfo.ipix));
+			let tile = this.tileNumbers.get(tileInfo.key);
+			tile.destruct();
+			this.tileNumbers.delete(tileInfo.key);
 		});
 	}
 
@@ -138,14 +144,12 @@ class HealpixGrid {
 		this.gl.uniformMatrix4fv(this.gridShaderProgram.vMatrixUniform, false, vMatrix);
 		
 		this.tiles.forEach(tile => {
-			this.drawTile(tile);
+			tile.draw(pMatrix, vMatrix, modelMatrix, this.gridShaderProgram.vertexPositionAttribute);
 		});
+		for(let tile of this.tileNumbers.values()) {
+			tile.draw(pMatrix, vMatrix, modelMatrix);
+		}
 	}
 	
-	drawTile(tile){
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, tile.vertexPositionBuffer);
-		this.gl.vertexAttribPointer(this.gridShaderProgram.vertexPositionAttribute, 3, this.gl.FLOAT, false, 0, 0);
-		this.gl.drawArrays(this.gl.LINE_LOOP, 0, tile.vertexPosition.length / 3);
-	}
 }
 export default HealpixGrid;

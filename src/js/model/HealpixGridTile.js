@@ -53,6 +53,12 @@ class HealpixGridTile {
 		this.vertexPosition[this.vertexPositionIndex++] = position.z;
 	}
 
+	draw(vertexPositionAttribute){
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexPositionBuffer);
+		this.gl.vertexAttribPointer(vertexPositionAttribute, 3, this.gl.FLOAT, false, 0, 0);
+		this.gl.drawArrays(this.gl.LINE_LOOP, 0, this.vertexPosition.length / 3);
+	}
+
 	destruct(){
 		this.vertexPosition = null;
 		this.gl.deleteBuffer(this.vertexPositionBuffer);
