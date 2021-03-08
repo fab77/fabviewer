@@ -6,6 +6,8 @@ import {healpixGridTileBufferSingleton} from './HealpixGridTileBuffer';
 import eventBus from '../events/EventBus';
 import VisibleTilesChangedEvent from '../events/VisibleTilesChangedEvent';
 import {shaderUtility} from '../utils/ShaderUtility';
+import InsideSphereSelectionChangedEvent from '../events/InsideSphereSelectionChangedEvent';
+import { visibleTilesManager } from './VisibleTilesManager';
 import TileNumber from './TileNumber';
 
 
@@ -15,6 +17,7 @@ class HealpixGrid {
 		this.tiles = new Set();
 		this.tileNumbers = new Map();
 		eventBus.registerForEvent(this, VisibleTilesChangedEvent.name);
+		eventBus.registerForEvent(this, InsideSphereSelectionChangedEvent.name);
 		this.init();
 	}
 	
@@ -22,6 +25,10 @@ class HealpixGrid {
 		if (in_event instanceof VisibleTilesChangedEvent){
 			this.removeTiles(in_event.tilesRemoved)
 			this.addTiles(in_event.tilesToAddInOrder);
+		}
+		if (in_event instanceof InsideSphereSelectionChangedEvent){
+			this.clear();
+			this.addTiles(visibleTilesManager.visibleTilesOfHighestOrder);
 		}
 	}
 

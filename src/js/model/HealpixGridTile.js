@@ -38,7 +38,7 @@ class HealpixGridTile {
 	initBuffer () {
 		this.vertexPosition = new Float32Array(4 * this.step * 3);
 
-		global.getHealpix(this.order).getBoundariesWithStep(this.ipix, this.step).forEach(position => {
+		global.getHealpix(this.order).getBoundariesWithStep(this.ipix, this.step, !global.insideSphere).forEach(position => {
 			this.addVertexPosition(position);
 		});
 

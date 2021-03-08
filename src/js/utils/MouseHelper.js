@@ -37,7 +37,7 @@ class MouseHelper {
 			let healpix256 = new Healpix(256);
 			let vec3 = new Vec3(this.x, this.y, this.z);
 			let pointing = new Pointing(vec3);
-			let res = healpix256.ang2pix(pointing);
+			let res = healpix256.ang2pix(pointing, !global.insideSphere);
 //			console.log(res);
 			return res;
 		}

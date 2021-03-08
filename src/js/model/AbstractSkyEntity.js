@@ -119,10 +119,10 @@ class AbstractSkyEntity{
 		this.setMatricesUniform(projectionMatrix, cameraMatrix);
 	}
 	
-	refreshFoV(){
+	refreshFoV(insideSphere){
 //		refreshFoV(in_pMatrix, in_camera, in_raypicker){
 		
-		var fovObj = this.fovObj.getFoV();
+		var fovObj = this.fovObj.getFoV(insideSphere);
 //		var fovObj = this.fovObj.getFoV(in_pMatrix, in_camera, in_raypicker);
 		return fovObj;
 		

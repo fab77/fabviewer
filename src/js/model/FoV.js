@@ -6,6 +6,7 @@ import RayPickingUtils from '../utils/RayPickingUtils';
 import {radToDeg} from '../utils/Utils';
 import {vec3, mat4} from 'gl-matrix';
 import global from '../Global';
+
 class FoV{
 	#minFoV = 180;
 	constructor(in_model){
@@ -15,15 +16,15 @@ class FoV{
 		this.model = in_model;
 	}
 	
-	getFoV(){
+	getFoV(insideSphere){
 		var gl = global.gl;
 		
 		this.prevMinFoV = this.minFoV;
 		
 		// horizontal FoV 
-		this.fovXDeg = this.computeAngle(0, gl.canvas.height / 2);
+		this.fovXDeg = this.computeAngle(0, gl.canvas.height / 2, insideSphere);
 		// vertical FoV 
-		this.fovYDeg = this.computeAngle(gl.canvas.width / 2, 0);
+		this.fovYDeg = this.computeAngle(gl.canvas.width / 2, 0, insideSphere);
 
 		this.#minFoV = this.minFoV;
 		
@@ -31,11 +32,9 @@ class FoV{
 	}
 	
 
-	computeAngle(canvasX, canvasY){
+	computeAngle(canvasX, canvasY, insideSphere){
 		
-		var pMatrix = global.pMatrix;
 		var camera = global.camera;
-		var gl = global.gl;
 		
 		var rayWorld = RayPickingUtils.getRayFromMouse(canvasX, canvasY);
 		
@@ -87,7 +86,12 @@ class FoV{
 		}else{
 			angle_deg = 180;
 		}
-		return angle_deg;
+		insideSphere = insideSphere ? insideSphere : global.insideSphere;
+		if(insideSphere){
+			return 360 - angle_deg;
+		} else {
+			return angle_deg;
+		}
 	}
 	
 	get minFoV(){

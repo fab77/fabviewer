@@ -5,16 +5,16 @@
 import $ from "jquery";
 class FVView{
 	
-	constructor(in_canvas){
+	constructor(in_canvas, insideSphere){
 		if (DEBUG){
 			console.log("[FVView::FVView]");
 		}
 		this.webglFactor = 1;
 		this.controlFactor = 0.30;
-		this.init(in_canvas);
+		this.init(in_canvas, insideSphere);
 	}
 	
-	init(in_canvas){
+	init(in_canvas, insideSphere){
 		if (DEBUG){
 			console.log("[FVView::init]");
 		}
@@ -52,6 +52,8 @@ class FVView{
 
 
 		this.healpixGridCheckbox = document.getElementById('healpix-grid-checkbox');
+		this.insideSphereCheckbox = document.getElementById('inside-sphere-checkbox');
+		this.insideSphereCheckbox.checked = insideSphere;
 //		this.fpsvalue_dom = document.getElementById('fpsvalue');
 //		this.avgfpsvalue_dom = document.getElementById('avgfpsvalue');
 		
@@ -80,7 +82,10 @@ class FVView{
 	addHealpixGridCheckboxHandler(handler){
 		this.healpixGridCheckbox.onclick = handler;
 	}
-	
+
+	addInsideSphereCheckboxHandler(handler){
+		this.insideSphereCheckbox.onclick = handler;
+	}
 	
 	fillCataloguesDiv(cataloguesDescriptor){
 		console.log("[FVView::fillCataloguesDiv ]");

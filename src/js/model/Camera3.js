@@ -6,11 +6,12 @@ import {vec3, mat4} from 'gl-matrix';
 import {degToRad, astroDegToSpherical, cartesianToSpherical, sphericalToCartesian} from '../utils/Utils';
 
 class Camera3{
-	constructor(in_position){
-		this.init(in_position);
+	constructor(in_position, in_sphere){
+		this.init(in_position, in_sphere);
 	}
 	
-	init(in_position){
+	init(in_position, in_sphere){
+		this.insideSphere = in_sphere;
 		this.cam_pos = vec3.clone(in_position); // initial camera position
 		this.cam_speed = 1.0;
 		
@@ -45,8 +46,8 @@ class Camera3{
 //		this.refreshViewMatrix();
 
 		
-		let raDeg = 277.0;
-		let decDeg = -0.2;
+		let raDeg = 0.0;
+		let decDeg = 0;
 		
 		this.goTo(raDeg, decDeg);
 		
@@ -108,11 +109,12 @@ class Camera3{
 
 	
 	goTo(raDeg, decDeg){
-		
-		let ptDeg = astroDegToSpherical(raDeg, decDeg);
-		
-		let xyz = sphericalToCartesian(ptDeg.phi, ptDeg.theta, 3);
-		
+		this.goToPhiTheta(astroDegToSpherical(raDeg, decDeg));
+	};
+
+	goToPhiTheta(ptDeg){
+		let xyz = sphericalToCartesian(ptDeg.phi, ptDeg.theta, this.cam_pos[2]);
+
 		let cameraMatrix = mat4.create();
 		
 		cameraMatrix = mat4.translate(cameraMatrix, cameraMatrix, xyz);
@@ -136,30 +138,61 @@ class Camera3{
 		
 		
 		let viewMatrix = mat4.create();
-		viewMatrix = mat4.invert(viewMatrix, cameraMatrix);
+		if(this.cam_pos[2] != 0){
+			mat4.invert(viewMatrix, cameraMatrix);
+		}
 		this.vMatrix = viewMatrix;
 		
-		console.log(this.getCameraAngle());
 	};
-	
+
+	setInsideSphere(inside){
+		if(inside != this.insideSphere){
+			this.insideSphere = inside;
+			// this.rotateYRadian(Math.PI);
+			if(this.insideSphere){
+				if(this.cam_pos[2] <= 2 ){
+					this.cam_pos[2] = -2 + this.cam_pos[2];
+				} else {
+					this.cam_pos[2] = -0.005;
+				}
+			} else{
+				this.cam_pos[2] = 2.0 + this.cam_pos[2];
+			}
+			mat4.translate(this.T, mat4.create(), this.cam_pos);
+			
+			this.refreshViewMatrix();
+		}
+	}
 	
 	zoom(inertia){
 		this.move = vec3.clone([0, 0, 0]);
 		this.move[2] += this.cam_speed * inertia;
 
-		if(this.cam_pos[2] < 1.005){
-			this.move[2] *= this.cam_pos[2] / 100;
-		} else if(this.cam_pos[2] < 1.05){
-			this.move[2] *= this.cam_pos[2] / 30;
-		} else if(this.cam_pos[2] < 1.3){
-			this.move[2] *= this.cam_pos[2] / 5;
+		if(this.insideSphere){
+			if(this.cam_pos[2] + this.move[2] >= -0.005 && inertia > 0){
+				this.cam_pos[2] = -0.005;
+				inertia = 0;
+			} else if(this.cam_pos[2] + this.move[2] <= -0.9885 && inertia < 0){
+				this.cam_pos[2] = -0.9885;
+				inertia = 0;
+			} else {
+				this.cam_pos[2] += this.move[2];
+			}
+		} else {
+			if(this.cam_pos[2] < 1.005){
+				this.move[2] *= this.cam_pos[2] / 100;
+			} else if(this.cam_pos[2] < 1.05){
+				this.move[2] *= this.cam_pos[2] / 30;
+			} else if(this.cam_pos[2] < 1.3){
+				this.move[2] *= this.cam_pos[2] / 5;
+			}
+			if(this.cam_pos[2] + this.move[2] <= 1.0015 && inertia < 0){
+				this.cam_pos[2] = 1.0015;
+			} else {
+				this.cam_pos[2] += this.move[2];
+			}
 		}
 		
-		if(this.cam_pos[2] + this.move[2] <= 1.001 && inertia < 0){
-			this.cam_pos[2] = 1.001;
-		} else {
-			this.cam_pos[2] += this.move[2];
-		}
 		
 		var identity = mat4.create();
 		mat4.translate(this.T, identity, this.cam_pos);
@@ -169,12 +202,10 @@ class Camera3{
 	
 	
 	
-	
 	rotateZ(sign){
 		let factorRad = sign * 0.01;
 		this.phi += factorRad;
 		
-		var identity = mat4.create();
 		mat4.rotate(this.R, this.R, factorRad, [0, 0, 1]);
 		
 
@@ -196,6 +227,13 @@ class Camera3{
 		this.refreshViewMatrix();
 		
 	};
+
+
+	rotateYRadian(radian){
+		this.phi += radian;
+		mat4.rotate(this.R, this.R, radian, [0, 1, 0]);
+		this.refreshViewMatrix();
+	};
 	
 	rotateX(sign){
 //		factorRad = sign * 0.01;
@@ -216,7 +254,6 @@ class Camera3{
 		
 	};
 
-	
 	
 //	rotate(phi, theta){
 //		
@@ -246,9 +283,6 @@ class Camera3{
 
 
 	rotate(phi, theta){
-	
-		
-		
 		var totRot = Math.sqrt(phi*phi + theta*theta);
 		if(totRot == 0) {return;}
 

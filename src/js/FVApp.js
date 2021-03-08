@@ -54,7 +54,7 @@ class FVApp{
 			alert("Could not initialise WebGL, sorry :-(");
 		}
 		
-		this.view = new FVView(canvas);
+		this.view = new FVView(canvas, global.insideSphere);
 		
 		global.gl = this.gl;
 		textHelper.init(this.gl);

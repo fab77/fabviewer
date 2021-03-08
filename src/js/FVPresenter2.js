@@ -3,7 +3,6 @@
  * @author Fabrizio Giordano (Fab)
  */
 
-//import Camera2 from './model/Camera2';
 import Camera3 from './model/Camera3';
 
 import RayPickingUtils from './utils/RayPickingUtils';
@@ -21,15 +20,12 @@ import FootprintsSetListPresenter from './presenter/FootprintsSetListPresenter';
 import HiPSListView from './view/HiPSListView';
 import HiPSListPresenter from './presenter/HiPSListPresenter';
 
-import FITSView from './view/FITSView';
-import FITSPresenter from './presenter/FITSPresenter';
 
 import SourceSelectionView from './view/SourceSelectionView';
 import SourceSelectionPresenter from './presenter/SourceSelectionPresenter';
 
 import CatalogueRepo from './repos/CatalogueRepo';
 import FootprintsRepo from './repos/FootprintsRepo';
-import ModelRepo from './repos/ModelRepo';
 import HiPSRepo from './repos/HiPSRepo';
 import global from './Global';
 
@@ -42,6 +38,7 @@ import MouseHelper from './utils/MouseHelper';
 import HiPS from './model/HiPS';
 import {visibleTilesManager} from './model/VisibleTilesManager';
 import HealpixGrid from './model/HealpixGrid';
+import { tileBufferSingleton } from './model/TileBuffer';
 
 class FVPresenter2{
 	
@@ -65,7 +62,11 @@ class FVPresenter2{
 		this.view = in_view;
 		this.enableCatalogues = true;
 		this.then = 0;
-		this.camera = new Camera3([0.0, 0.0, 3.0]);
+		if(global.insideSphere){
+			this.camera = new Camera3([0.0, 0.0, -0.005], global.insideSphere);
+		} else {
+			this.camera = new Camera3([0.0, 0.0, 3.0], global.insideSphere);
+		}
 		global.camera = this.camera;
 		this.raypicker = new RayPickingUtils();
 		global.rayPicker = this.raypicker; 
@@ -106,6 +107,7 @@ class FVPresenter2{
 		
 
 		global.currentHips = new HiPS(1, [0.0, 0.0, 0.0], 
+			// Math.PI / 2, 
 			0, 
 			// 0, "INTEGRAL-IBIS 65-100 keV", "//skies.esac.esa.int/Integral/65-100/", "fits", 3);
 			// 0, "Herschel SPIRE 500 micron", "//skies.esac.esa.int/Herschel/normalized/hips500_pnorm_allsky/", "fits", 5);
@@ -136,6 +138,16 @@ class FVPresenter2{
 
 		this.view.addHealpixGridCheckboxHandler((event)=>{
 			this.showHealpixGrid = event.target.checked;
+		});
+
+		this.view.addInsideSphereCheckboxHandler((event)=>{
+			this.camera.setInsideSphere(event.target.checked);
+			this.refreshViewAndModel(false, event.target.checked);
+			global.insideSphere = event.target.checked;
+			tileBufferSingleton.mirrorExistingTiles();
+			
+			visibleTilesManager.refreshModel(this.refreshFov(global.insideSphere).minFoV)
+
 		});
 	};
 	
@@ -219,7 +231,7 @@ class FVPresenter2{
 			}
 			if (intersectionWithModel.intersectionPoint.intersectionPoint.length > 0){
 				
-				var phiThetaDeg = cartesianToSpherical(intersectionWithModel.intersectionPoint.intersectionPoint);
+				var phiThetaDeg = cartesianToSpherical(intersectionWithModel.intersectionPoint.intersectionPoint, !global.insideSphere);
 				//TODO to be reviewed. cartesianToSpherical seems to convert already Dec into [-90, 90]
 				var raDecDeg = sphericalToAstroDeg(phiThetaDeg.phi, phiThetaDeg.theta);
 //				var raDecDeg = {
@@ -280,7 +292,7 @@ class FVPresenter2{
 //						 	this.view.setHoverIpix(i, currPixNo);
 //						 }
 
-						var phiThetaDeg = cartesianToSpherical(mousePoint);
+						var phiThetaDeg = cartesianToSpherical(mousePoint, !global.insideSphere);
 						//TODO to be reviewed. cartesianToSpherical seems to convert already Dec into [-90, 90]
 						var raDecDeg = sphericalToAstroDeg(phiThetaDeg.phi, phiThetaDeg.theta);
 //						var raDecDeg = {
@@ -302,6 +314,12 @@ class FVPresenter2{
 					}else{
 						this.mouseHelper.clear();
 //						this.mouseCoords = null;
+						let phiThetaDeg = this.getPhiThetaDeg()
+						let raDecDeg = sphericalToAstroDeg(phiThetaDeg.phi, phiThetaDeg.theta)
+						let raHMS = raDegToHMS(raDecDeg.ra);
+						let decDMS = decDegToDMS(raDecDeg.dec);
+						this.view.setPickedSphericalCoordinates(phiThetaDeg);
+						this.view.setPickedAstroCoordinates(raDecDeg, raHMS, decDMS);
 						
 					}	
 					
@@ -414,7 +432,7 @@ class FVPresenter2{
 		}
 		if (intersectionWithModel.intersectionPoint.intersectionPoint.length > 0){
 			
-			let phiThetaDeg = cartesianToSpherical(intersectionWithModel.intersectionPoint.intersectionPoint);
+			let phiThetaDeg = cartesianToSpherical(intersectionWithModel.intersectionPoint.intersectionPoint, !global.insideSphere);
 			let raDecDeg = sphericalToAstroDeg(phiThetaDeg.phi, phiThetaDeg.theta);
 			let raHMS = raDegToHMS(raDecDeg.ra);
 			let decDMS = decDegToDMS(raDecDeg.dec);
@@ -430,12 +448,12 @@ class FVPresenter2{
 		return this.nearestVisibleObjectIdx;
 	}
 	
-	refreshFov(nearestModelIdx){
+	refreshFov(insideSphere){
 		if (DEBUG){
 			console.log("[FVPresenter::refreshFov]");
 		}
 
-		var fovXY =  global.currentHips.refreshFoV();
+		var fovXY =  global.currentHips.refreshFoV(insideSphere);
 		return fovXY;
 		
 	};
@@ -450,9 +468,9 @@ class FVPresenter2{
 
 	};
 
-	refreshViewAndModel(pan) {
+	refreshViewAndModel(pan, insideSphere) {
 		this.nearestModel = RayPickingUtils.getNearestObjectOnRay(this.view.canvas.width / 2, this.view.canvas.height / 2, [global.currentHips]);
-		this.fovObj = this.refreshFov(this.nearestModel.idx);
+		this.fovObj = this.refreshFov(insideSphere);
 
 		if(this.updateFovTimer == null){
 			this.updateFovTimer = setTimeout(()=>this.updateFov(), 100);
@@ -463,6 +481,16 @@ class FVPresenter2{
 	updateFov(){
 		this.view.updateFoV(this.fovObj);
 		this.updateFovTimer = null;
+	}
+
+	getPhiThetaDeg(inside){
+		let maxX = global.gl.canvas.width;
+		let maxY = global.gl.canvas.height;
+		let model = {center: vec3.clone([0.0, 0.0, 0.0]), radius: 1, getModelMatrixInverse: ()=>{return global.currentHips.getModelMatrixInverse()}};
+
+		let point = RayPickingUtils.getIntersectionPointWithSingleModel(maxX / 2, maxY / 2, model).intersectionPoint;
+		inside = inside !== undefined ? inside : global.insideSphere;
+		return cartesianToSpherical(point, !inside);
 	}
 
 	draw(){

@@ -138,15 +138,15 @@ class VisibleTilesManager {
 	}
 
 	pollPoint(x, y, previouslyVisibleKeys, tilesRemoved, tilesAdded, tilesToAddInOrder) {
-		let model = {center: vec3.clone([0.0, 0.0, 0.0]), radius: this.radius, getModelMatrixInverse: ()=>{return mat4.create()}};
+		let model = {center: vec3.clone([0.0, 0.0, 0.0]), radius: this.radius, getModelMatrixInverse: ()=>{return global.currentHips.getModelMatrixInverse()}};
 
 		let intersectionWithModel = RayPickingUtils.getIntersectionPointWithSingleModel(x, y, model);
 		let intersectionPoint = intersectionWithModel.intersectionPoint;
 		// TODO probably it would be better to use query_disc_inclusive from HEALPix
 		// against a polygon. Check my FHIPSWebGL2 project (BufferManager.js -> updateVisiblePixels)
-		if (intersectionPoint.length > 0) {
+		if (intersectionPoint.length > 0) { 
 			let currP = new Pointing(new Vec3(intersectionPoint[0], intersectionPoint[1], intersectionPoint[2]));
-			let currPixNo = global.getHealpix(this.order).ang2pix(currP);
+			let currPixNo = global.getHealpix(this.order).ang2pix(currP, !global.insideSphere);
 			if (currPixNo >= 0) {
 				let tile = {order: this.order, ipix: currPixNo, key: this.order + "/" + currPixNo};
 				this.visibleTiles.set(tile.key, tile);

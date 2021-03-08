@@ -34,11 +34,11 @@ class TileBuffer {
 	}
 
 	ageTiles(){ //Run every ~10 seconds
-		this.tileCache.forEach((value, tileKey) => {
-			if(value.age > 12 ){ // ~2 minutes
+		this.tileCache.forEach((tile, tileKey) => {
+			if(tile.age > 12 ){ // ~2 minutes
 				this.removeTile(tileKey);
 			} else {
-				value.age++;
+				tile.age++;
 			}
 		})
 	}
@@ -46,6 +46,15 @@ class TileBuffer {
 	removeTile(tileKey){
 		this.tileCache.get(tileKey).destruct();
 		this.tileCache.delete(tileKey);
+	}
+
+	mirrorExistingTiles(){
+		this.tileCache.forEach((tile, tileKey) => {
+			tile.mirror();
+		});
+		this.tiles.forEach((tile, tileKey) => {
+			tile.mirror();
+		});
 	}
 }
 export const tileBufferSingleton = new TileBuffer();

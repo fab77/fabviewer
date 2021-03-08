@@ -1,6 +1,8 @@
 "use strict";
 
 import Healpix from "healpixjs";
+import InsideSphereSelectionChangedEvent from './events/InsideSphereSelectionChangedEvent';
+import eventBus from './events/EventBus';
 
 class Global{
 	
@@ -11,8 +13,8 @@ class Global{
 	#gl = null;			// GL context
 	#rayPicker = null;	// TODO probably useless here ince all methods are static
 	#hipsStack = [];
-	#baseUrl = "https://sky.esa.int/esasky-tap/";
-	// #baseUrl = "http://skyint.esac.esa.int/esasky-tap/";
+	// #baseUrl = "https://sky.esa.int/esasky-tap/";
+	#baseUrl = "http://skyint.esac.esa.int/esasky-tap/";
 	// #baseUrl = "http://ammiappdev.esac.esa.int/esasky-tap/";
 	// #baseUrl = "http://localhost:8080/esasky-sl/";
 	
@@ -25,6 +27,7 @@ class Global{
 		this._rayPicker = null;
 		this._healpix = [];
 		this._order = 3;
+		this._insideSphere = false;
 	}
 
 	getHealpix (order){
@@ -89,6 +92,15 @@ class Global{
 	
 	get order(){
 		return this._order;
+	}
+
+	set insideSphere(in_insideSphere){
+		this._insideSphere = in_insideSphere;
+		eventBus.fireEvent(new InsideSphereSelectionChangedEvent(in_insideSphere));
+	}
+	
+	get insideSphere(){
+		return this._insideSphere;
 	}
 
 	get baseUrl(){

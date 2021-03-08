@@ -63,13 +63,13 @@ class Footprint{
 				let phiRad = degToRad(phiTheta.phi);
 				let thetaRad = degToRad(phiTheta.theta);
 				let vec3 = new Vec3(currPoint.x, currPoint.y, currPoint.z);
-				let pointing = new Pointing(vec3);
+				let pointing = new Pointing(vec3, !global.insideSphere);
 			
 				points.push(pointing);
 			}
 		}
 		// queryPolygonInclusive(footprint points[], 4)
-		let rangeSet = healpix256.queryPolygonInclusive(points, 4);
+		let rangeSet = healpix256.queryPolygonInclusive(points, 4, !global.insideSphere);
 //		console.log(rangeSet);
 		
 		
