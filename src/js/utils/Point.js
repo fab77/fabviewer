@@ -5,6 +5,7 @@
 
 import {cartesianToSpherical, sphericalToCartesian, sphericalToAstroDeg, astroDegToSpherical} from './Utils';
 import CoordsType from './CoordsType';
+import global from '../Global';
 
 class Point{
 	
@@ -55,13 +56,13 @@ class Point{
 
 	computeAstroCoords(){
     	var phiThetaDeg = cartesianToSpherical([this.#xyz[0], this.#xyz[1], this.#xyz[2]]);
-		var raDecDeg = sphericalToAstroDeg(phiThetaDeg.phi, phiThetaDeg.theta);
+		var raDecDeg = sphericalToAstroDeg(phiThetaDeg.phi, phiThetaDeg.theta, global.insideSphere);
 		var raDecDeg = [raDecDeg.ra, raDecDeg.dec];
 		return raDecDeg;
     }
 	
 	computeCartesianCoords(){
-		var phiThetaDeg = astroDegToSpherical(this.#raDeg, this.#decDeg);
+		var phiThetaDeg = astroDegToSpherical(this.#raDeg, this.#decDeg, global.insideSphere);
 		var xyz = sphericalToCartesian(phiThetaDeg.phi, phiThetaDeg.theta, 1);
 		return xyz;
 	}
@@ -73,6 +74,12 @@ class Point{
 		return astroDegToSpherical(this.#raDeg, this.#decDeg);
 	}
 	
+	recomputeXYZ(){
+		this.#xyz = this.computeCartesianCoords();
+		this.#x = this.#xyz[0];
+		this.#y = this.#xyz[1];
+		this.#z = this.#xyz[2];
+	}
 
 //	constructor(in_xyz){
 //		

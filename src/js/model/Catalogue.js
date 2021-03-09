@@ -178,7 +178,13 @@ class Catalogue{
 		this.initBuffer();
 	}
 	
-	
+	mirror(){
+		this.#sources.forEach(source => {
+			source.point.recomputeXYZ();
+		});
+
+		this.initBuffer();
+	}
 	
 	
 	initBuffer () {

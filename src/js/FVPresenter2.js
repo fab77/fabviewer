@@ -146,8 +146,11 @@ class FVPresenter2{
 			global.insideSphere = event.target.checked;
 			tileBufferSingleton.mirrorExistingTiles();
 			
-			visibleTilesManager.refreshModel(this.refreshFov(global.insideSphere).minFoV)
+			visibleTilesManager.refreshModel(this.refreshFov(global.insideSphere).minFoV);
 
+			CatalogueRepo.catalogues.forEach(catalog => {
+				catalog.mirror();
+			});
 		});
 	};
 	

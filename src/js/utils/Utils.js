@@ -54,8 +54,11 @@ export function radToDeg(radians) {
 	return radians * 180 / Math.PI;
 }
 
-export function sphericalToAstroDeg(phiDeg, thetaDeg){
+export function sphericalToAstroDeg(phiDeg, thetaDeg, mirror){
 	var raDeg, decDeg;
+	if(mirror){
+		phiDeg = -phiDeg;
+	}
 	raDeg = phiDeg;
 	if (raDeg < 0){
 		raDeg += 360;
@@ -80,11 +83,14 @@ export function sphericalToCartesian(phiDeg, thetaDeg, r){
 };
 
 
-export function astroDegToSpherical(raDeg, decDeg){
+export function astroDegToSpherical(raDeg, decDeg, mirror){
 	
 	var phiDeg, thetaDeg;
 //	phiDeg = 90 - raDeg;
 	phiDeg = raDeg;
+	if(mirror){
+		phiDeg = -phiDeg;
+	}
 	if (phiDeg < 0){
 		phiDeg += 360;
 	}
