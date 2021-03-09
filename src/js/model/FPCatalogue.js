@@ -318,6 +318,13 @@ class FPCatalogue{
 	}
 	
 
+	mirror(){
+		this._footprints.forEach(footprint => {
+			footprint.mirror();
+		});
+
+		this.initBuffer();
+	}
 	
 	enableShader(in_mMatrix){
 

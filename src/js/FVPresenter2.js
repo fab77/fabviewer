@@ -151,6 +151,10 @@ class FVPresenter2{
 			CatalogueRepo.catalogues.forEach(catalog => {
 				catalog.mirror();
 			});
+
+			FootprintsRepo.footprints.forEach(footprintCatalog => {
+				footprintCatalog.mirror();
+			});
 		});
 	};
 	
