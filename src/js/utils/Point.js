@@ -56,13 +56,13 @@ class Point{
 
 	computeAstroCoords(){
     	var phiThetaDeg = cartesianToSpherical([this.#xyz[0], this.#xyz[1], this.#xyz[2]]);
-		var raDecDeg = sphericalToAstroDeg(phiThetaDeg.phi, phiThetaDeg.theta, global.insideSphere);
+		var raDecDeg = sphericalToAstroDeg(phiThetaDeg.phi, phiThetaDeg.theta, !global.insideSphere);
 		var raDecDeg = [raDecDeg.ra, raDecDeg.dec];
 		return raDecDeg;
     }
 	
 	computeCartesianCoords(){
-		var phiThetaDeg = astroDegToSpherical(this.#raDeg, this.#decDeg, global.insideSphere);
+		var phiThetaDeg = astroDegToSpherical(this.#raDeg, this.#decDeg, !global.insideSphere);
 		var xyz = sphericalToCartesian(phiThetaDeg.phi, phiThetaDeg.theta, 1);
 		return xyz;
 	}
