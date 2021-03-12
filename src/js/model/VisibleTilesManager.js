@@ -77,10 +77,14 @@ class VisibleTilesManager {
 			this.order = 9;
 		}else if (in_fov >= 0.12){
 			this.order = 10;
-		}else if (in_fov >= 0.08){
+		}else if (in_fov >= 0.06){
 			this.order = 11;
-		}else{
+		}else if (in_fov >= 0.03){
 			this.order = 12;
+		}else if (in_fov >= 0.015){
+			this.order = 13;
+		}else {
+			this.order = 14;
 		}
 		
 		if ( global.order != this.order && DEBUG){
@@ -146,7 +150,7 @@ class VisibleTilesManager {
 		// against a polygon. Check my FHIPSWebGL2 project (BufferManager.js -> updateVisiblePixels)
 		if (intersectionPoint.length > 0) { 
 			let currP = new Pointing(new Vec3(intersectionPoint[0], intersectionPoint[1], intersectionPoint[2]));
-			let currPixNo = global.getHealpix(this.order).ang2pix(currP, !global.insideSphere);
+			let currPixNo = global.getHealpix(this.order).ang2pix(currP);
 			if (currPixNo >= 0) {
 				let tile = {order: this.order, ipix: currPixNo, key: this.order + "/" + currPixNo};
 				this.visibleTiles.set(tile.key, tile);

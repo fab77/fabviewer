@@ -7,7 +7,7 @@ function Utils(){
 	
 }
 
-export function cartesianToSpherical(xyz, mirror){
+export function cartesianToSpherical(xyz){
 	var dotXYZ = vec3.dot(xyz, xyz);
 	var r = Math.sqrt(dotXYZ);	
 	var theta = Math.acos(xyz[2]/r);
@@ -15,9 +15,7 @@ export function cartesianToSpherical(xyz, mirror){
 	// NB: in atan(y/x) is written with params switched atan2(x, y)
 	var phi = Math.atan2(xyz[1],xyz[0]);
 	phi = radToDeg(phi);
-	if(mirror){
-		phi = -phi;
-	}
+
 	if (phi < 0){
 		phi += 360;
 	}
@@ -54,11 +52,9 @@ export function radToDeg(radians) {
 	return radians * 180 / Math.PI;
 }
 
-export function sphericalToAstroDeg(phiDeg, thetaDeg, mirror){
+export function sphericalToAstroDeg(phiDeg, thetaDeg){
 	var raDeg, decDeg;
-	if(mirror){
-		phiDeg = -phiDeg;
-	}
+
 	raDeg = phiDeg;
 	if (raDeg < 0){
 		raDeg += 360;
@@ -85,14 +81,11 @@ export function sphericalToCartesian(phiDeg, thetaDeg, r){
 };
 
 
-export function astroDegToSpherical(raDeg, decDeg, mirror){
+export function astroDegToSpherical(raDeg, decDeg){
 	
 	var phiDeg, thetaDeg;
 //	phiDeg = 90 - raDeg;
 	phiDeg = raDeg;
-	if(mirror){
-		phiDeg = -phiDeg;
-	}
 	if (phiDeg < 0){
 		phiDeg += 360;
 	}

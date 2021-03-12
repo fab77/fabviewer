@@ -83,7 +83,7 @@ class FVPresenter2{
 		
 		this.aspectRatio;
 		this.fovDeg = 45;
-		this.nearPlane = 0.001;
+		this.nearPlane = 0.00001;
 		this.farPlane = 2.5;
 		
 		// projection matrix
@@ -238,7 +238,7 @@ class FVPresenter2{
 			}
 			if (intersectionWithModel.intersectionPoint.intersectionPoint.length > 0){
 				
-				var phiThetaDeg = cartesianToSpherical(intersectionWithModel.intersectionPoint.intersectionPoint, !global.insideSphere);
+				var phiThetaDeg = cartesianToSpherical(intersectionWithModel.intersectionPoint.intersectionPoint);
 				//TODO to be reviewed. cartesianToSpherical seems to convert already Dec into [-90, 90]
 				var raDecDeg = sphericalToAstroDeg(phiThetaDeg.phi, phiThetaDeg.theta);
 //				var raDecDeg = {
@@ -299,7 +299,7 @@ class FVPresenter2{
 //						 	this.view.setHoverIpix(i, currPixNo);
 //						 }
 
-						var phiThetaDeg = cartesianToSpherical(mousePoint, !global.insideSphere);
+						var phiThetaDeg = cartesianToSpherical(mousePoint);
 						//TODO to be reviewed. cartesianToSpherical seems to convert already Dec into [-90, 90]
 						var raDecDeg = sphericalToAstroDeg(phiThetaDeg.phi, phiThetaDeg.theta);
 //						var raDecDeg = {
@@ -439,7 +439,7 @@ class FVPresenter2{
 		}
 		if (intersectionWithModel.intersectionPoint.intersectionPoint.length > 0){
 			
-			let phiThetaDeg = cartesianToSpherical(intersectionWithModel.intersectionPoint.intersectionPoint, !global.insideSphere);
+			let phiThetaDeg = cartesianToSpherical(intersectionWithModel.intersectionPoint.intersectionPoint);
 			let raDecDeg = sphericalToAstroDeg(phiThetaDeg.phi, phiThetaDeg.theta);
 			let raHMS = raDegToHMS(raDecDeg.ra);
 			let decDMS = decDegToDMS(raDecDeg.dec);
