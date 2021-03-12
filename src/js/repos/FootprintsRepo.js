@@ -84,6 +84,7 @@ class FootprintsRepo{
 			"1=INTERSECTS(fov, " +
 			"POLYGON('ICRS', "+fovPolyAstro+"))";
 		
+		console.log(tapTable);
 //		var adqlQuery = "select top 2 * " +
 //			"from "+tapTable+" where " +
 //			"observation_id = '0851181101'";

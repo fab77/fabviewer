@@ -76,8 +76,10 @@ export function sphericalToAstroDeg(phiDeg, thetaDeg, mirror){
 export function sphericalToCartesian(phiDeg, thetaDeg, r){
 	r = (r == undefined) ? 1 : r;
 	var x = r * Math.sin(degToRad(thetaDeg)) * Math.cos(degToRad(phiDeg));
-	var y = r * Math.sin(degToRad(phiDeg)) * Math.sin(degToRad(thetaDeg));
+	var y = r * Math.sin(degToRad(thetaDeg)) * Math.sin(degToRad(phiDeg));
 	var z = r * Math.cos(degToRad(thetaDeg));
+
+	
 //	var z = r * Math.cos(degToRad(thetaDeg)).toFixed(4);
 	return [x, y, z];
 };
