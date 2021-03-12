@@ -109,7 +109,7 @@ class TileNumber {
 	}
 
 	getPointsForXyf(x, y){
-		return global.getHealpix(this.order).getPointsForXyf(x + this.xyf.ix, y + this.xyf.iy, 1, this.xyf.face, !global.insideSphere);
+		return global.getHealpix(this.order).getPointsForXyf(x + this.xyf.ix, y + this.xyf.iy, 1, this.xyf.face);
 	}
 
 	addVertexPosition(position, u , v, index) {

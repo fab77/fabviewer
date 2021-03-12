@@ -45,7 +45,7 @@ class AllSky {
 		let vindex = 0;
 
 		for (let i=0; i < nPixels; i++){			
-			let positionArray = global.getHealpix(this.norder).getBoundaries(this.pixels[i], !global.insideSphere);
+			let positionArray = global.getHealpix(this.norder).getBoundaries(this.pixels[i]);
 			for(let j = 0; j < 4; j++){
 				let uBase = j < 2;
 				let vBase = j % 3 == 0;
