@@ -11,14 +11,14 @@ import {degToRad} from '../utils/Utils';
 
 class Footprint{
 	
-	#polygons; // array of polygons (-> array of points)
-//	#points = [];	// array of Points.js
-	#stcs; // STC-S Space-Time Coordinate Metadata Linear String Implementation 
-	#identifier;
-	#details;
-	#center;
-	#totPoints;
-	#npix256;
+	_polygons; // array of polygons (-> array of points)
+//	_points = [];	// array of Points.js
+	_stcs; // STC-S Space-Time Coordinate Metadata Linear String Implementation 
+	_identifier;
+	_details;
+	_center;
+	_totPoints;
+	_npix256;
 	
 	 
 
@@ -31,18 +31,18 @@ class Footprint{
 	 */
 	constructor(in_point, in_identifier, in_stcs, in_details=[]){
 		
-		this.#center = in_point;
-		this.#stcs = in_stcs.toUpperCase();
-		this.#identifier = in_identifier;
-		this.#details = in_details;
-		this.#polygons = [];
-		this.#totPoints = 0;
+		this._center = in_point;
+		this._stcs = in_stcs.toUpperCase();
+		this._identifier = in_identifier;
+		this._details = in_details;
+		this._polygons = [];
+		this._totPoints = 0;
 		
 		
 		
 		this.computePoints();
 		
-		this.#npix256 = this.computeNpix256();
+		this._npix256 = this.computeNpix256();
 	}
 	
 	/**
@@ -54,8 +54,8 @@ class Footprint{
 		let healpix256 = new Healpix(256);
 		
 		let points = [];
-		for (let i = 0; i < this.#polygons.length; i++){
-			let poly = this.#polygons[i];
+		for (let i = 0; i < this._polygons.length; i++){
+			let poly = this._polygons[i];
 			for (let j = 0; j < poly.length; j++){
 				let currPoint = poly[j];
 				
@@ -76,12 +76,13 @@ class Footprint{
 		return rangeSet.r;
 		
 	};
+
 	
 	computePoints(){
 		
 		
 		// TODO STCS parser: it should be a separated class or utility class following the standard
-		let stcsParsed = this.#stcs.replaceAll("ICRS", "").replaceAll("J2000", "").replaceAll("UNION", "").replaceAll("TOPOCENTER", "").trim().replace(/  +/g, ' ');
+		let stcsParsed = this._stcs.replaceAll("ICRS", "").replaceAll("J2000", "").replaceAll("UNION", "").replaceAll("TOPOCENTER", "").trim().replace(/  +/g, ' ');
 		
 		if (stcsParsed.includes("POLYGON")){
 			
@@ -97,9 +98,9 @@ class Footprint{
 							"decDeg": points[p+1]
 						}, CoordsType.ASTRO);
 						currPoly.push(point);
-						this.#totPoints+=1;
+						this._totPoints+=1;
 					}
-					this.#polygons.push(currPoly);	
+					this._polygons.push(currPoly);	
 				}
 				
 			}
@@ -114,23 +115,23 @@ class Footprint{
 	}
 	
 	get totPoints(){
-		return this.#totPoints;
+		return this._totPoints;
 	}
 
 	get polygons(){
-		return this.#polygons;
+		return this._polygons;
 	}
 
 	get identifier () {
-		return this.#identifier;
+		return this._identifier;
 	}
 	
 	get center(){
-		return this.#center;
+		return this._center;
 	}
 	
 	get pixels(){
-		return this.#npix256;
+		return this._npix256;
 	}
 	
 }

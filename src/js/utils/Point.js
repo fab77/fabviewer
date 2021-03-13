@@ -9,13 +9,13 @@ import global from '../Global';
 
 class Point{
 	
-	#x;
-	#y;
-	#z;
-	#xyz = [];
-	#raDeg;
-	#decDeg;
-	#raDecDeg = [];
+	_x;
+	_y;
+	_z;
+	_xyz = [];
+	_raDeg;
+	_decDeg;
+	_raDecDeg = [];
 	
 	/**
 	 * @param in_options: 
@@ -28,23 +28,23 @@ class Point{
 		
 		if (in_type == CoordsType.CARTESIAN){
 			
-			this.#x = in_options.x;
-			this.#y = in_options.y;
-			this.#z = in_options.z;
-			this.#xyz = [this.#x, this.#y, this.#z];
-			this.#raDecDeg = this.computeAstroCoords();
-			this.#raDeg = this.#raDecDeg[0];
-			this.#decDeg = this.#raDecDeg[1];
+			this._x = in_options.x;
+			this._y = in_options.y;
+			this._z = in_options.z;
+			this._xyz = [this._x, this._y, this._z];
+			this._raDecDeg = this.computeAstroCoords();
+			this._raDeg = this._raDecDeg[0];
+			this._decDeg = this._raDecDeg[1];
 			
 		}else if (in_type == CoordsType.ASTRO){
 			
-			this.#raDeg = in_options.raDeg;
-			this.#decDeg = in_options.decDeg;
-			this.#raDecDeg = [this.#raDeg, this.#decDeg];
-			this.#xyz = this.computeCartesianCoords();
-			this.#x = this.#xyz[0];
-			this.#y = this.#xyz[1];
-			this.#z = this.#xyz[2];
+			this._raDeg = in_options.raDeg;
+			this._decDeg = in_options.decDeg;
+			this._raDecDeg = [this._raDeg, this._decDeg];
+			this._xyz = this.computeCartesianCoords();
+			this._x = this._xyz[0];
+			this._y = this._xyz[1];
+			this._z = this._xyz[2];
 			
 		}else if (in_type == CoordsType.SPHERICAL){
 			// TODO still not implemented
@@ -55,14 +55,15 @@ class Point{
 	}
 
 	computeAstroCoords(){
-    	var phiThetaDeg = cartesianToSpherical([this.#xyz[0], this.#xyz[1], this.#xyz[2]]);
+
+    	var phiThetaDeg = cartesianToSpherical([this._xyz[0], this._xyz[1], this._xyz[2]]);
 		var raDecDeg = sphericalToAstroDeg(phiThetaDeg.phi, phiThetaDeg.theta);
 		var raDecDeg = [raDecDeg.ra, raDecDeg.dec];
 		return raDecDeg;
     }
 	
 	computeCartesianCoords(){
-		var phiThetaDeg = astroDegToSpherical(this.#raDeg, this.#decDeg);
+		var phiThetaDeg = astroDegToSpherical(this._raDeg, this._decDeg);
 		var xyz = sphericalToCartesian(phiThetaDeg.phi, phiThetaDeg.theta, 1);
 		return xyz;
 	}
@@ -71,14 +72,14 @@ class Point{
 	 * @return {phi: phideg, theta: thetadeg} 
 	 */
 	computeHealpixPhiTheta(){
-		return astroDegToSpherical(this.#raDeg, this.#decDeg);
+		return astroDegToSpherical(this._raDeg, this._decDeg);
 	}
 	
 	recomputeXYZ(){
-		this.#xyz = this.computeCartesianCoords();
-		this.#x = this.#xyz[0];
-		this.#y = this.#xyz[1];
-		this.#z = this.#xyz[2];
+		this._xyz = this.computeCartesianCoords();
+		this._x = this._xyz[0];
+		this._y = this._xyz[1];
+		this._z = this._xyz[2];
 	}
 
 //	constructor(in_xyz){
@@ -98,39 +99,39 @@ class Point{
 //    }
 	
 	get x(){
-		return this.#x;
+		return this._x;
 	}
 	
 	get y(){
-		return this.#y;
+		return this._y;
 	}
 	
 	get z(){
-		return this.#z;
+		return this._z;
 	}
 	
 	get xyz(){
-        return this.#xyz;
+        return this._xyz;
     }
 	
     get raDeg(){
-        return this.#raDeg;
+        return this._raDeg;
     }
     
     get decDeg(){
-        return this.#decDeg;
+        return this._decDeg;
     }
     
     get raDecDeg(){
-        return this.#raDecDeg;
+        return this._raDecDeg;
     }
     
     toADQL(){
-    	return this.#raDecDeg[0]+","+this.#raDecDeg[1];
+    	return this._raDecDeg[0]+","+this._raDecDeg[1];
     }
     
     toString(){
-    	return "(raDeg, decDeg) => ("+this.#raDecDeg[0]+","+this.#raDecDeg[1]+") (x, y,z) => ("+this.#xyz[0]+","+this.#xyz[1]+","+this.#xyz[2]+")";
+    	return "(raDeg, decDeg) => ("+this._raDecDeg[0]+","+this._raDecDeg[1]+") (x, y,z) => ("+this._xyz[0]+","+this._xyz[1]+","+this._xyz[2]+")";
     }
 }
 
