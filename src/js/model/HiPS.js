@@ -25,9 +25,9 @@ class HiPS extends AbstractSkyEntity{
 
 	static className = "HiPSEntity";
 	
-	constructor(in_radius, in_position, in_xRad, in_yRad, in_name, url, format, maxOrder, opacity){
+	constructor(in_radius, in_position, in_xRad, in_yRad, in_name, url, format, maxOrder, opacity, isGalacticHips){
 
-		super(in_radius, in_position, in_xRad, in_yRad, in_name);
+		super(in_radius, in_position, in_xRad, in_yRad, in_name, isGalacticHips);
 
 		this.radius = in_radius;
 		this.gl = global.gl;
@@ -51,14 +51,14 @@ class HiPS extends AbstractSkyEntity{
 
 		healpixShader.init();
 		this.initShaders();
-
+		
+		visibleTilesManager.registerModel(this);
 		this.registerForEvents();
 		this.saturateFovWithTiles();
 	}
 	
 	registerForEvents(){
 		eventBus.registerForEvent(this, HiPSFormatSelectedEvent.name);
-		eventBus.registerForEvent(this, VisibleTilesChangedEvent.name);
 	}
 	
 	notify(in_event){
@@ -69,11 +69,12 @@ class HiPS extends AbstractSkyEntity{
 				this.saturateFovWithTiles();
 			}
 		}
-		else if (in_event instanceof VisibleTilesChangedEvent){
-			if(this.isShowing){
-				this.removeTiles(in_event.tilesRemoved)
-				this.addTiles(in_event.tilesToAddInOrder);
-			}
+	}
+	
+	visibleTilesChanged(tilesRemoved, tilesToAddInOrder){
+		this.removeTiles(tilesRemoved);
+		if(this.isShowing){
+			this.addTiles(tilesToAddInOrder);
 		}
 	}
 
@@ -82,7 +83,7 @@ class HiPS extends AbstractSkyEntity{
 	}
 
 	clearAllTiles(){
-		this.removeTiles(visibleTilesManager.visibleTilesOfHighestOrder)
+		this.removeTiles(visibleTilesManager.getVisibleTilesOfHighestOrder(this.isGalacticHips));
 		this.removeOrder0Tiles();
 	}
 
@@ -98,7 +99,7 @@ class HiPS extends AbstractSkyEntity{
 
 	saturateFovWithTiles() {
 		this.addOrder0Tiles();
-		this.addTiles(visibleTilesManager.visibleTilesOfHighestOrder);
+		this.addTiles(visibleTilesManager.getVisibleTilesOfHighestOrder(this.isGalacticHips));
 	}
 
 	addTiles(tilesToAdd){
@@ -124,7 +125,7 @@ class HiPS extends AbstractSkyEntity{
 		if(tilesToRemove.size > 0 && tilesToRemove.values().next().value.order > this.maxOrder){
 			let parents = this.getParents(tilesToRemove);
 			if(!allVisibleTilesOfOneOrder){
-				allVisibleTilesOfOneOrder = visibleTilesManager.visibleTilesOfHighestOrder;
+				allVisibleTilesOfOneOrder = visibleTilesManager.getVisibleTilesOfHighestOrder(this.isGalacticHips);
 			}
 			parents.forEach((tileInfo) => {
 				if(allVisibleTilesOfOneOrder.has((tileInfo.order + 1) + "/" + (tileInfo.ipix * 4))

@@ -6,7 +6,6 @@
 import global from '../Global';
 import RayPickingUtils from '../utils/RayPickingUtils';
 import {Vec3, Pointing} from 'healpixjs';
-import {vec3, mat4} from 'gl-matrix';
 import eventBus from '../events/EventBus';
 import VisibleTilesChangedEvent from '../events/VisibleTilesChangedEvent';
 
@@ -15,32 +14,62 @@ import VisibleTilesChangedEvent from '../events/VisibleTilesChangedEvent';
 class VisibleTilesManager {
 
 	constructor(){
+		this.j2000Models = [];
+		this.galacticModels = [];
 		this.radius = 1;
 		this.order = 0;
 		this.visibleTiles = new Map();
+		this.visibleTilesGalactic = new Map();
 		setInterval(()=> {this.updateVisibleTiles();}, 100);
 	}
 
-	get visibleTilesOfHighestOrder(){
+	registerModel(model){
+		if(model.isGalacticHips){
+			this.galacticModels.push(model);
+			if(this.galacticModels.length == 1 && this.changedModel != undefined){
+				this.updateVisibleTilesForFrame(model.isGalacticHips);
+			}
+		} else {
+			this.j2000Models.push(model);
+			if(this.j2000Models.length == 1 && this.changedModel != undefined){
+				this.updateVisibleTilesForFrame(model.isGalacticHips);
+			}
+		}
+	}
+
+	getVisibleTilesOfHighestOrder(galactic){
+		if(galactic){
+			return this.visibleTilesGalactic
+		}
 		return this.visibleTiles;
 	}
 
-	getVisibleTilesOfOrder3(){
-		if(this.visibleTiles.size > 0 &&  this.visibleTiles.values().next().value.order < 3){
+	getVisibleTilesOfOrder3(galactic){
+		let visibleTiles = this.visibleTiles;
+		let cache = this.order3TilesCache;
+		if(galactic){
+			visibleTiles = this.visibleTilesGalactic;
+			cache = this.order3TilesCacheGalactic;
+		}
+		if(visibleTiles.size > 0 &&  visibleTiles.values().next().value.order < 3){
 			return new Map();
 		}
-		if(this.order3TilesCache){
-			return this.order3TilesCache;
+		if(cache){
+			return cache;
 		}
 
-		let orderOfVisibleTiles = this.visibleTiles.size > 0 ? this.visibleTiles.values().next().value.order : this.order; 
+		let orderOfVisibleTiles = visibleTiles.size > 0 ? is.visibleTiles.values().next().value.order : this.order; 
 		
-		let tiles = this.visibleTiles;
+		let tiles = visibleTiles;
 		for(let order = orderOfVisibleTiles; order > 3; order--){
 			tiles = this.getParentTiles(tiles);
 		}
 
-		this.order3TilesCache = tiles;
+		if(galactic){
+			this.order3TilesCacheGalactic = tiles;
+		} else {
+			this.order3TilesCache = tiles;
+		}
 
 		return tiles;
 	}
@@ -98,52 +127,77 @@ class VisibleTilesManager {
 	updateVisibleTiles (){
 		if(!this.changedModel){return;}
 		this.changedModel = false;
-		let previouslyVisibleKeys = new Map(this.visibleTiles);
-		let tilesRemoved = new Map(this.visibleTiles);
-		let tilesAdded = new Map();
-		this.visibleTiles = new Map();
-		let tilesToAddInOrder = this.pollCenter(previouslyVisibleKeys, tilesRemoved, tilesAdded);
+		this.updateVisibleTilesForFrame(false);
+		this.updateVisibleTilesForFrame(true);
+	}
 
-		this.pollViewAndAddTiles(7, previouslyVisibleKeys, tilesRemoved, tilesAdded, tilesToAddInOrder);
+	updateVisibleTilesForFrame(galacticFrame){
+		let visibleTiles = galacticFrame ? this.visibleTilesGalactic : this.visibleTiles;
+		let previouslyVisibleKeys = new Map(visibleTiles);
+		let tilesRemoved = new Map(visibleTiles);
+		let tilesAdded = new Map();
+		visibleTiles.clear();
+		let tilesToAddInOrder = this.pollCenter(previouslyVisibleKeys, tilesRemoved, tilesAdded, galacticFrame);
+
+		this.pollViewAndAddTiles(7, previouslyVisibleKeys, tilesRemoved, tilesAdded, tilesToAddInOrder, galacticFrame);
 		
-		new Map(this.visibleTiles).forEach((tile) =>{
-			this.addNeighbours(tile.ipix, previouslyVisibleKeys, tilesRemoved, tilesAdded, tilesToAddInOrder);
+		new Map(visibleTiles).forEach((tile) =>{
+			this.addNeighbours(tile.ipix, previouslyVisibleKeys, tilesRemoved, tilesAdded, tilesToAddInOrder, visibleTiles);
 		});
 
 		if(tilesRemoved.size > 0 || tilesToAddInOrder.size > 0){
-			this.order3TilesCache = null;
-			eventBus.fireEvent(new VisibleTilesChangedEvent(tilesRemoved, tilesToAddInOrder));
+			if(galacticFrame){
+				this.order3TilesCacheGalactic = null;
+			} else {
+				this.order3TilesCache = null;
+			}
+			if(galacticFrame){
+				this.galacticModels.forEach(model => {
+					model.visibleTilesChanged(tilesRemoved, tilesToAddInOrder);
+				});
+			} else {
+				this.j2000Models.forEach(model => {
+					model.visibleTilesChanged(tilesRemoved, tilesToAddInOrder);
+				});
+			}
+			eventBus.fireEvent(new VisibleTilesChangedEvent(tilesRemoved, tilesToAddInOrder, galacticFrame));
 		}
 	}
 
-	pollViewAndAddTiles(xyPollingPoints, previouslyVisibleKeys, tilesRemoved, tilesAdded, tilesToAddInOrder) {
+	pollViewAndAddTiles(xyPollingPoints, previouslyVisibleKeys, tilesRemoved, tilesAdded, tilesToAddInOrder, galactic) {
 		let maxX = global.gl.canvas.width;
 		let maxY = global.gl.canvas.height;
 
 		for (let i = 0; i <= maxX; i += maxX / xyPollingPoints) {
 			for (let j = 0; j <= maxY; j += maxY / xyPollingPoints) {
-				this.pollPoint(i, j, previouslyVisibleKeys, tilesRemoved, tilesAdded, tilesToAddInOrder);
+				this.pollPoint(i, j, previouslyVisibleKeys, tilesRemoved, tilesAdded, tilesToAddInOrder, galactic);
 			}
 		}
 	}
 
-	pollCenter(previouslyVisibleKeys, tilesRemoved, tilesAdded) {
+	pollCenter(previouslyVisibleKeys, tilesRemoved, tilesAdded, galactic) {
 		let tilesToAddInOrder = new Map();
 		let maxX = global.gl.canvas.width;
 		let maxY = global.gl.canvas.height;
 		let xyPollingPoints = 3;
-		this.pollPoint(maxX / 2, maxY / 2, previouslyVisibleKeys, tilesRemoved, tilesAdded, tilesToAddInOrder);
+		this.pollPoint(maxX / 2, maxY / 2, previouslyVisibleKeys, tilesRemoved, tilesAdded, tilesToAddInOrder, galactic);
 		for (let i = maxX / xyPollingPoints; i <= maxX * 2 / xyPollingPoints; i += maxX / xyPollingPoints) {
 			for (let j = maxY / xyPollingPoints; j <= maxY * 2 / xyPollingPoints; j += maxY / xyPollingPoints) {
-				this.pollPoint(i, j, previouslyVisibleKeys, tilesRemoved, tilesAdded, tilesToAddInOrder);
+				this.pollPoint(i, j, previouslyVisibleKeys, tilesRemoved, tilesAdded, tilesToAddInOrder, galactic);
 			}
 		}
 		return tilesToAddInOrder;
 	}
 
-	pollPoint(x, y, previouslyVisibleKeys, tilesRemoved, tilesAdded, tilesToAddInOrder) {
-		let model = {center: vec3.clone([0.0, 0.0, 0.0]), radius: this.radius, getModelMatrixInverse: ()=>{return global.currentHips.getModelMatrixInverse()}};
-
+	pollPoint(x, y, previouslyVisibleKeys, tilesRemoved, tilesAdded, tilesToAddInOrder, galactic) {
+		let model = undefined;
+		if(galactic && this.galacticModels.length > 0){
+			model = this.galacticModels[0];
+		} else  if (!galactic && this.j2000Models.length > 0){
+			model = this.j2000Models[0];
+		} else {
+			return;
+		}
 		let intersectionWithModel = RayPickingUtils.getIntersectionPointWithSingleModel(x, y, model);
 		let intersectionPoint = intersectionWithModel.intersectionPoint;
 		// TODO probably it would be better to use query_disc_inclusive from HEALPix
@@ -153,7 +207,11 @@ class VisibleTilesManager {
 			let currPixNo = global.getHealpix(this.order).ang2pix(currP);
 			if (currPixNo >= 0) {
 				let tile = {order: this.order, ipix: currPixNo, key: this.order + "/" + currPixNo};
-				this.visibleTiles.set(tile.key, tile);
+				if(galactic){
+					this.visibleTilesGalactic.set(tile.key, tile);
+				} else {
+					this.visibleTiles.set(tile.key, tile);
+				}
 				if (previouslyVisibleKeys.has(tile.key)) {
 					tilesRemoved.delete(tile.key);
 				} else {
@@ -166,12 +224,12 @@ class VisibleTilesManager {
 		}
 	}
 
-	addNeighbours(currPixNo, previouslyVisibleKeys, tilesRemoved, tilesAdded, tilesToAddInOrder) {
+	addNeighbours(currPixNo, previouslyVisibleKeys, tilesRemoved, tilesAdded, tilesToAddInOrder, visibleTiles) {
 		let neighbours = global.getHealpix(this.order).neighbours(currPixNo);
 		for (let k = 0; k < neighbours.length; k++) {
 			let tile = {order: this.order, ipix: neighbours[k], key: this.order + "/" + neighbours[k]};
-			if (neighbours[k] >= 0 && !this.visibleTiles.has(tile.key)) {
-				this.visibleTiles.set(tile.key, tile);
+			if (neighbours[k] >= 0 && !visibleTiles.has(tile.key)) {
+				visibleTiles.set(tile.key, tile);
 
 				if (previouslyVisibleKeys.has(tile.key)) {
 					tilesRemoved.delete(tile.key);

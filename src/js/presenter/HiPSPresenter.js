@@ -19,17 +19,17 @@ class HiPSPresenter{
 		this._formats = [];
 		this._model = in_model;
 		this.retrieveHiPSProperties();
-		if(global.currentHips.name === this._model.surveyName){
-			this.hips = global.currentHips;
+		if(global.defaultHips.name === this._model.surveyName){
+			this.hips = global.defaultHips;
 			this._view.setChecked(true);
-			this.isChecked = true;
+			this.isShowing = true;
 		}
 		
 		this._view.addCheckedHandler((event)=>{
 
 			var checkbox = event.currentTarget;
-			this.isChecked = checkbox.checked;
-			if(!this.isChecked){
+			this.isShowing = checkbox.checked;
+			if(!this.isShowing){
 				this.hips.hide();
 			} else {
 				if(this.hips == undefined){
@@ -39,10 +39,9 @@ class HiPSPresenter{
 						0, 
 						0, this._model.surveyName, 
 						this._model.url, format,
-						this._maxOrder, opacity);
+						this._maxOrder, opacity, this._isGalacticFrame);
 					}
 					this.hips.show();
-				global.currentHips = this.hips;
 				this.hips.refreshModel(this.hips.refreshFoV().minFoV);
 			}
         });
@@ -55,15 +54,14 @@ class HiPSPresenter{
 		// });
 
 		in_view.addFormatChangedHandler((event) => {
-			if(this.hips && this.isChecked){
+			if(this.hips && this.isShowing){
 				let format = event.target.value;
 				let opacity = this.view.getSelectedOpacity() / 100;
 				this.hips = new HiPS(1, [0.0, 0.0, 0.0], 
 					0, 
 					0, this._model.surveyName, 
 					this._model.url, format,
-					this._maxOrder, opacity);
-				global.currentHips = this.hips;
+					this._maxOrder, opacity, this._isGalacticFrame);
 	
 				eventBus.fireEvent(new HiPSFormatSelectedEvent(format, this._model.surveyName));
 			}
@@ -97,6 +95,11 @@ class HiPSPresenter{
 						this._view.setModel(this._model, formats);
 					} else if (lines[i].includes("hips_order") && !lines[i].includes("hips_order_")){
 						this._maxOrder = parseInt(lines[i].split("=")[1].trim());
+					} else if(lines[i].includes("hips_frame")){
+						this._isGalacticFrame = "galactic" == lines[i].toLowerCase().split("=")[1].trim();
+						if(this.hips){
+							this.hips.setIsGalacticFrame(this._isGalacticFrame);
+						}
 					}
 				}
 
@@ -107,10 +110,16 @@ class HiPSPresenter{
 		xhr.send();
     	
     }
+
+	setInsideSphere(insideSphere){
+		if(this.hips){
+			this.hips.refreshModelMatrix(insideSphere);
+		}
+	}
 	
 	
 	draw(pMatrix, vMatrix){
-		if(this.hips && this.isChecked){
+		if(this.hips && this.isShowing){
 			this.hips.draw(pMatrix, vMatrix);
 		}
 	}

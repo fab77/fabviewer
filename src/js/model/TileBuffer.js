@@ -48,13 +48,5 @@ class TileBuffer {
 		this.tileCache.delete(tileKey);
 	}
 
-	mirrorExistingTiles(){
-		this.tileCache.forEach((tile, tileKey) => {
-			tile.mirror();
-		});
-		this.tiles.forEach((tile, tileKey) => {
-			tile.mirror();
-		});
-	}
 }
 export const tileBufferSingleton = new TileBuffer();

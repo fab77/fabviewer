@@ -71,14 +71,10 @@ class RayPickingUtils{
 	/*
 	 * antongerdelan.net/opengl/raycasting.html
 	 */
-	static raySphere (rayOrigWorld, rayDirectionWorld, in_model = null){
+	static raySphere (rayOrigWorld, rayDirectionWorld, in_model){
 //		static raySphere (rayOrigWorld, rayDirectionWorld, model){
 		
 //		console.log(rayOrigWorld);
-		
-		if (in_model == null){
-			in_model = global.model;
-		} 
 		
 		var intersectionDistance = -1;
 		var distToMoldel = vec3.create();
@@ -139,7 +135,7 @@ class RayPickingUtils{
 		var camera = global.camera;
 		
 		if (in_modelObj == null){
-			in_modelObj = global.model;
+			in_modelObj = global.defaultHips;
 		}
 		
 		// TODO it has been already computed in getIntersectionPointWithModel
@@ -150,7 +146,6 @@ class RayPickingUtils{
 		var intersectionPoint = [],
 		intersectionModelPoint = [];
 		var intersectionPoint4d;
-		var pickedObject = in_modelObj; //TODO check if this is needed
 		
 		if (intersectionDistance >= 0){
 			
@@ -166,7 +161,7 @@ class RayPickingUtils{
 		
 		return {
 			"intersectionPoint": intersectionModelPoint,
-			"pickedObject": pickedObject
+			"pickedObject": in_modelObj
 		};
 		
 	}

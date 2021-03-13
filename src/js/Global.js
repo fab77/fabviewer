@@ -106,18 +106,7 @@ class Global{
 	get baseUrl(){
 		return this.#baseUrl;
 	}
-	
-  get hipsStack(){
-		return this.#hipsStack;
-	}
-  
-  set hipsStack(in_hipsStack){
-		this.#hipsStack = in_hipsStack;
-	}
-  
-  pushHips(in_hips){
-		this.#hipsStack.push(in_hips);
-	}
+
 }
 
 var global = new Global();

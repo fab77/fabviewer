@@ -46,10 +46,11 @@ class Camera3{
 //		this.refreshViewMatrix();
 
 		
-		let raDeg = 0.0;
-		let decDeg = 0;
+		let raDeg = 268.0;
+		let decDeg = -26;
 		
 		this.goTo(raDeg, decDeg);
+		this.rotateZRadian(Math.PI)
 		
 //		let ptDeg = astroDegToSpherical(raDeg, decDeg);
 //		/* 
@@ -182,15 +183,17 @@ class Camera3{
 			if(this.cam_pos[2] < 1.005){
 				this.move[2] *= this.cam_pos[2] / 100;
 			} else if(this.cam_pos[2] < 1.05){
-				this.move[2] *= this.cam_pos[2] / 30;
+				this.move[2] *= this.cam_pos[2] / 20;
 			} else if(this.cam_pos[2] < 1.3){
-				this.move[2] *= this.cam_pos[2] / 5;
+				this.move[2] *= this.cam_pos[2] / 3;
 			}
-			if(this.cam_pos[2] + this.move[2] <= 1.0015 && inertia < 0){
-				this.cam_pos[2] = 1.0015;
+			if(this.cam_pos[2] + this.move[2] <= 1.000001 && inertia < 0){
+				this.cam_pos[2] = 1.000001;
 			} else {
 				this.cam_pos[2] += this.move[2];
 			}
+			this.cam_pos[2] += this.move[2];
+
 		}
 		
 		
@@ -228,10 +231,19 @@ class Camera3{
 		
 	};
 
-
+	rotateXRadian(radian){
+		// this.phi += radian;
+		mat4.rotate(this.R, this.R, radian, [1, 0, 0]);
+		this.refreshViewMatrix();
+	};
 	rotateYRadian(radian){
 		this.phi += radian;
 		mat4.rotate(this.R, this.R, radian, [0, 1, 0]);
+		this.refreshViewMatrix();
+	};
+	rotateZRadian(radian){
+		// this.phi += radian;
+		mat4.rotate(this.R, this.R, radian, [0, 0, 1]);
 		this.refreshViewMatrix();
 	};
 	

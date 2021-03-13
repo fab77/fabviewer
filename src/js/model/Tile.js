@@ -4,6 +4,7 @@ import global from '../Global';
 import {tileBufferSingleton} from './TileBuffer';
 import {healpixShader} from './HealpixShader';
 import FITSOnTheWeb from 'fitsontheweb';
+import { mat4 } from 'gl-matrix';
 
 class Tile {
 
@@ -126,11 +127,6 @@ class Tile {
 		this.gl.bufferData(this.gl.ARRAY_BUFFER, this.vertexPosition, this.gl.STATIC_DRAW);
 	}
 
-	mirror(){
-		this.gl.deleteBuffer(this.vertexPositionBuffer);
-		this.setupVertexPositionBuffer();
-	}
-
 	setupIndexBufferForQuadrant(x, y){
 		let index = 0;
 		let indexArray = new Uint16Array(3 * this.step * this.step / 2);
@@ -203,7 +199,7 @@ class Tile {
 	}
 
 	getPointsForXyf(x, y, step){
-		return global.getHealpix(this.order).getPointsForXyf(x + this.xyf.ix * step, y + this.xyf.iy * step, step, this.xyf.face, !global.insideSphere);
+		return global.getHealpix(this.order).getPointsForXyf(x + this.xyf.ix * step, y + this.xyf.iy * step, step, this.xyf.face);
 	}
 
 	addVertexPosition(position, u , v, index) {

@@ -36,11 +36,6 @@ class TileNumber {
 		this.gl.bufferData(this.gl.ARRAY_BUFFER, this.vertexPosition, this.gl.STATIC_DRAW);
 	}
 
-	mirror(){
-		this.gl.deleteBuffer(this.vertexPositionBuffer);
-		this.setupVertexPositionBuffer();
-	}
-
 	setupIndexBuffer(){
 		let index = 0;
 		let indexArray = new Uint16Array(3 * 2 * this.numberOfLetters);

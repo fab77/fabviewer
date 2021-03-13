@@ -76,15 +76,6 @@ class Footprint{
 		return rangeSet.r;
 		
 	};
-
-	mirror(){
-		this.#center.recomputeXYZ();
-		this.#polygons.forEach(points => {
-			points.forEach(point => {
-				point.recomputeXYZ();
-			});
-		});
-	}
 	
 	computePoints(){
 		

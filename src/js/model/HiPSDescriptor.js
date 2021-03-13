@@ -7,7 +7,7 @@ class HiPSDescriptor {
 	#url;
 	#maxOrder;
 	#imgFormat;
-	#fits;
+	#hipsFrame;
 	
 	constructor(hipslist_JSON){
 		
@@ -24,7 +24,7 @@ class HiPSDescriptor {
 		this.#url = urlFromJson;
 		this.#maxOrder = hipslist_JSON.maximumNorder;
 		this.#imgFormat = hipslist_JSON.imgFormat;
-		this.#fits = true;
+		this.#hipsFrame = hipslist_JSON.hipsFrame;
 
 	}
 
@@ -48,8 +48,8 @@ class HiPSDescriptor {
 		return this.#imgFormat;
 	}
 	
-	get fits(){
-		return this.#fits;
+	get hipsFrame(){
+		return this.#hipsFrame;
 	}
 	
 }

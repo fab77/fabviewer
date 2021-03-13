@@ -13,8 +13,9 @@ import TileNumber from './TileNumber';
 
 class HealpixGrid {
 
-	constructor() {
-		this.tiles = new Set();
+	constructor(isGalactic) {
+		this.tileKeys = new Set();
+		this.isGalactic = isGalactic == undefined ? false : isGalactic;
 		this.tileNumbers = new Map();
 		eventBus.registerForEvent(this, VisibleTilesChangedEvent.name);
 		eventBus.registerForEvent(this, InsideSphereSelectionChangedEvent.name);
@@ -23,27 +24,27 @@ class HealpixGrid {
 	
 	notify(in_event){
 		if (in_event instanceof VisibleTilesChangedEvent){
-			this.removeTiles(in_event.tilesRemoved)
-			this.addTiles(in_event.tilesToAddInOrder);
+			if(this.isGalactic == in_event.isGalactic){
+				this.removeTiles(in_event.tilesRemoved)
+				this.addTiles(in_event.tilesToAddInOrder);
+			}
 		}
 		if (in_event instanceof InsideSphereSelectionChangedEvent){
 			this.clear();
-			this.addTiles(visibleTilesManager.visibleTilesOfHighestOrder);
+			this.addTiles(visibleTilesManager.getVisibleTilesOfHighestOrder(this.isGalactic));
 		}
 	}
 
 	addTiles(tilesToAdd){
 		tilesToAdd.forEach(tile => {
-			this.add(healpixGridTileBufferSingleton.getTile(tile.order, tile.ipix));
+			this.add(tile.key);
 			this.tileNumbers.set(tile.key, new TileNumber(tile.order, tile.ipix)); 
 		});
 	}
 	
 	removeTiles(tilesToRemove){
 		tilesToRemove.forEach((tileInfo) => {
-			this.remove(healpixGridTileBufferSingleton.getTile(tileInfo.order, tileInfo.ipix));
-			let tile = this.tileNumbers.get(tileInfo.key);
-			tile.destruct();
+			this.remove(tileInfo.key);
 			this.tileNumbers.delete(tileInfo.key);
 		});
 	}
@@ -119,19 +120,15 @@ class HealpixGrid {
 	}
 
 	add(tile){
-		this.tiles.add(tile); 
+		this.tileKeys.add(tile); 
 	}
 
 	remove(tile){
-		this.tiles.delete(tile);
-		tile.destruct();
+		this.tileKeys.delete(tile);
 	}
 
 	clear(){
-		this.tiles.forEach(tile => {
-			tile.destruct();
-		});
-		this.tiles.clear();
+		this.tileKeys.clear();
 	}
 
 	draw(pMatrix, vMatrix, modelMatrix){
@@ -150,8 +147,8 @@ class HealpixGrid {
 		this.gl.uniformMatrix4fv(this.gridShaderProgram.pMatrixUniform, false, pMatrix);
 		this.gl.uniformMatrix4fv(this.gridShaderProgram.vMatrixUniform, false, vMatrix);
 		
-		this.tiles.forEach(tile => {
-			tile.draw(pMatrix, vMatrix, modelMatrix, this.gridShaderProgram.vertexPositionAttribute);
+		this.tileKeys.forEach(tileKey => {
+			healpixGridTileBufferSingleton.getTile(tileKey).draw(pMatrix, vMatrix, modelMatrix, this.gridShaderProgram.vertexPositionAttribute);
 		});
 		for(let tile of this.tileNumbers.values()) {
 			tile.draw(pMatrix, vMatrix, modelMatrix);

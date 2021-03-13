@@ -62,7 +62,6 @@ class HealpixGridTile {
 	destruct(){
 		this.vertexPosition = null;
 		this.gl.deleteBuffer(this.vertexPositionBuffer);
-		healpixGridTileBufferSingleton.removeTile(this.order, this.ipix);
 	}
 }
 export default HealpixGridTile;

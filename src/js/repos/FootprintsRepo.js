@@ -77,7 +77,7 @@ class FootprintsRepo{
 	    var stcs = descriptor.stcs;
 	    
 		
-		var fovPolyCartesian = FoVUtils.getFoVPolygon (global.pMatrix, global.camera, global.gl.canvas, global.model, global.rayPicker);
+		var fovPolyCartesian = FoVUtils.getFoVPolygon (global.pMatrix, global.camera, global.gl.canvas, global.defaultHips, global.rayPicker);
 		var fovPolyAstro = FoVUtils.getAstroFoVPolygon(fovPolyCartesian);
 		var adqlQuery = "select top 100 * " +
 			"from "+tapTable+" where " +
