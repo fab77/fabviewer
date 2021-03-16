@@ -319,15 +319,6 @@ class FPCatalogue{
 		
 	}
 	
-
-	mirror(){
-		this._footprints.forEach(footprint => {
-			footprint.mirror();
-		});
-
-		this.initBuffer();
-	}
-	
 	enableShader(in_mMatrix){
 
 		this._shaderProgram.catUniformMVMatrixLoc = this._gl.getUniformLocation(this._shaderProgram, "uMVMatrix");

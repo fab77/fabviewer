@@ -4,6 +4,9 @@ import HiPSDescriptor from '../model/HiPSDescriptor';
 import HiPSPresenter from './HiPSPresenter';
 import HiPSView from '../view/HiPSView';
 import { tileBufferSingleton } from '../model/TileBuffer';
+import InsideSphereSelectionChangedEvent from '../events/InsideSphereSelectionChangedEvent';
+import eventBus from '../events/EventBus';
+import { healpixGridTileBufferSingleton } from '../model/HealpixGridTileBuffer';
 
 class HiPSListPresenter{
 	
@@ -15,6 +18,15 @@ class HiPSListPresenter{
 		this.#model = null;
 		this.hipsPresenters = [];
 		this.timeCounter = 0;
+		eventBus.registerForEvent(this, InsideSphereSelectionChangedEvent.name);
+	}
+		
+	notify(in_event){
+		if (in_event instanceof InsideSphereSelectionChangedEvent){
+			this.hipsPresenters.forEach(hipsPresenter => {
+				hipsPresenter.setInsideSphere(in_event.insideSphere);
+			});
+		}
 	}
 	
 	get view(){
@@ -52,6 +64,16 @@ class HiPSListPresenter{
 //    	}
 	}
 
+	getVisibleModels(){
+		let models = [];
+		this.hipsPresenters.forEach(hipsPresenter => {
+			if (hipsPresenter.isShowing) {
+				models.push(hipsPresenter.hips);
+			}
+		});
+		return models;
+	}
+
 	toggle(){
 		this.#view.toggle();
 	}
@@ -62,6 +84,7 @@ class HiPSListPresenter{
 		})
 		if(this.timeCounter % 600 == 0){ // ~Every 10 seconds
 			tileBufferSingleton.ageTiles();
+			healpixGridTileBufferSingleton.ageTiles();
 		}
 		this.timeCounter++
 	}

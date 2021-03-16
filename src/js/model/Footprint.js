@@ -78,14 +78,6 @@ class Footprint{
 		
 	};
 
-	mirror(){
-		this._center.recomputeXYZ();
-		this._polygons.forEach(points => {
-			points.forEach(point => {
-				point.recomputeXYZ();
-			});
-		});
-	}
 	
 	computePoints(){
 		

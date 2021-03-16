@@ -13,7 +13,7 @@ class InsideSphereSelectionChangedEvent{
 		return InsideSphereSelectionChangedEvent.name;
 	}
 	
-	get in_insideSphere(){
+	get insideSphere(){
 		return this._insideSphere;
 	}
 

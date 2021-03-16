@@ -106,15 +106,16 @@ class FVPresenter2{
 		this.nearestVisibleObjectIdx = 0;
 		
 
-		global.currentHips = new HiPS(1, [0.0, 0.0, 0.0], 
+		let hips = new HiPS(1, [0.0, 0.0, 0.0], 
 			// Math.PI / 2, 
 			0, 
 			// 0, "INTEGRAL-IBIS 65-100 keV", "//skies.esac.esa.int/Integral/65-100/", "fits", 3);
 			// 0, "Herschel SPIRE 500 micron", "//skies.esac.esa.int/Herschel/normalized/hips500_pnorm_allsky/", "fits", 5);
 			// 0, "Herschel SPIRE 500 micron", "//skies.esac.esa.int/Herschel/normalized/hips500_pnorm_allsky/", "png", 5);
 			0, "DSS2 color", "//skies.esac.esa.int/DSSColor/", "jpg", 9);
-		global.currentHips.show();
-		this.view.setPickedObjectName(global.currentHips);
+		hips.show();
+		this.view.setPickedObjectName(hips);
+		global.defaultHips = hips;
 		
 		this.lastDrawTime = (new Date()).getTime() * 0.001;
 
@@ -135,6 +136,7 @@ class FVPresenter2{
 		});
 
 		this.healpixGrid = new HealpixGrid();
+		this.healpixGridGalactic = new HealpixGrid(true);
 
 		this.view.addHealpixGridCheckboxHandler((event)=>{
 			this.showHealpixGrid = event.target.checked;
@@ -144,17 +146,7 @@ class FVPresenter2{
 			this.camera.setInsideSphere(event.target.checked);
 			this.refreshViewAndModel(false, event.target.checked);
 			global.insideSphere = event.target.checked;
-			tileBufferSingleton.mirrorExistingTiles();
-			
 			visibleTilesManager.refreshModel(this.refreshFov(global.insideSphere).minFoV);
-
-			CatalogueRepo.catalogues.forEach(catalog => {
-				catalog.mirror();
-			});
-
-			FootprintsRepo.footprints.forEach(footprintCatalog => {
-				footprintCatalog.mirror();
-			});
 		});
 	};
 	
@@ -197,7 +189,7 @@ class FVPresenter2{
 				this.pMatrix,
 				this.camera,
 				this.in_gl.canvas,
-				(global.currentHips)
+				global.defaultHips
 				);
 
 		console.log(raDecDeg);
@@ -232,7 +224,7 @@ class FVPresenter2{
 			this.lastMouseY = event.clientY;
 			
 			
-			var intersectionWithModel = RayPickingUtils.getIntersectionPointWithModel(this.lastMouseX, this.lastMouseY, [global.currentHips]);
+			var intersectionWithModel = RayPickingUtils.getIntersectionPointWithModel(this.lastMouseX, this.lastMouseY, this.hipsListPresenter.getVisibleModels());
 			if (intersectionWithModel.intersectionPoint.intersectionPoint === undefined){
 				return;
 			}
@@ -433,7 +425,7 @@ class FVPresenter2{
 		let centralCanvasX = (rect.left + this.view.canvas.width)/2;
 		let centralCanvasY = (rect.top + this.view.canvas.height)/2;
 		
-		var intersectionWithModel = RayPickingUtils.getIntersectionPointWithModel(centralCanvasX, centralCanvasY, [global.currentHips]);
+		var intersectionWithModel = RayPickingUtils.getIntersectionPointWithModel(centralCanvasX, centralCanvasY, this.getVisibleModels());
 		if (intersectionWithModel.intersectionPoint.intersectionPoint === undefined){
 			return;
 		}
@@ -460,7 +452,7 @@ class FVPresenter2{
 			console.log("[FVPresenter::refreshFov]");
 		}
 
-		var fovXY =  global.currentHips.refreshFoV(insideSphere);
+		var fovXY =  global.defaultHips.refreshFoV(insideSphere);
 		return fovXY;
 		
 	};
@@ -471,12 +463,11 @@ class FVPresenter2{
 		}
 
 		visibleTilesManager.refreshModel(fov)
-		global.model = global.currentHips;
 
 	};
 
 	refreshViewAndModel(pan, insideSphere) {
-		this.nearestModel = RayPickingUtils.getNearestObjectOnRay(this.view.canvas.width / 2, this.view.canvas.height / 2, [global.currentHips]);
+		this.nearestModel = RayPickingUtils.getNearestObjectOnRay(this.view.canvas.width / 2, this.view.canvas.height / 2, this.hipsListPresenter.getVisibleModels());
 		this.fovObj = this.refreshFov(insideSphere);
 
 		if(this.updateFovTimer == null){
@@ -493,9 +484,8 @@ class FVPresenter2{
 	getPhiThetaDeg(inside){
 		let maxX = global.gl.canvas.width;
 		let maxY = global.gl.canvas.height;
-		let model = {center: vec3.clone([0.0, 0.0, 0.0]), radius: 1, getModelMatrixInverse: ()=>{return global.currentHips.getModelMatrixInverse()}};
 
-		let point = RayPickingUtils.getIntersectionPointWithSingleModel(maxX / 2, maxY / 2, model).intersectionPoint;
+		let point = RayPickingUtils.getIntersectionPointWithSingleModel(maxX / 2, maxY / 2).intersectionPoint;
 		inside = inside !== undefined ? inside : global.insideSphere;
 		return cartesianToSpherical(point, !inside);
 	}
@@ -572,26 +562,37 @@ class FVPresenter2{
 		}
 		
 		this.hipsListPresenter.draw(this.pMatrix, this.camera.getCameraMatrix());
-		let mMatrix = global.currentHips.getModelMatrix();
+		let j2000ModelMatrix = global.defaultHips.getModelMatrix();
+		let activeHips = this.hipsListPresenter.getVisibleModels();
+		let galacticModel = undefined;
+		activeHips.forEach(hips => {
+			if(hips.isGalacticHips){
+				galacticModel = hips.getModelMatrix();
+			} else {
+				j2000ModelMatrix = hips.getModelMatrix();
+			}
+		});
 		if(this.showHealpixGrid){
-			this.healpixGrid.draw(this.pMatrix, this.camera.getCameraMatrix(), mMatrix);
+			if(j2000ModelMatrix != undefined){
+				this.healpixGrid.draw(this.pMatrix, this.camera.getCameraMatrix(), j2000ModelMatrix);
+			}
+			if(galacticModel != undefined){
+				this.healpixGridGalactic.draw(this.pMatrix, this.camera.getCameraMatrix(), galacticModel);
+			}
 		}
 
-		// var mMatrix = this.modelRepo.objModels[0].getModelMatrix();
-		
 		var k,
 		catalogue;
 		for (k = 0; k < CatalogueRepo.catalogues.length; k++){
 			catalogue = CatalogueRepo.catalogues[k];
-//			catalogue.draw(mMatrix, this.mouseCoords);
-			catalogue.draw(mMatrix, this.mouseHelper.xyz);
+			catalogue.draw(j2000ModelMatrix, this.mouseHelper.xyz);
 		}
 		
 		var j,
 		footprintSet;
 		for (j = 0; j < FootprintsRepo.footprints.length; j++){
 			footprintSet = FootprintsRepo.footprints[j];
-			footprintSet.draw(mMatrix, this.mouseHelper);
+			footprintSet.draw(j2000ModelMatrix, this.mouseHelper);
 		}
 		
 //		this.xyzRefSystemObj.draw(this.pMatrix, this.camera.getCameraMatrix());

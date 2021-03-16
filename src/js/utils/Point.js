@@ -75,12 +75,6 @@ class Point{
 		return astroDegToSpherical(this._raDeg, this._decDeg);
 	}
 	
-	recomputeXYZ(){
-		this._xyz = this.computeCartesianCoords();
-		this._x = this._xyz[0];
-		this._y = this._xyz[1];
-		this._z = this._xyz[2];
-	}
 
 //	constructor(in_xyz){
 //		

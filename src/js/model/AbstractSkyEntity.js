@@ -11,7 +11,7 @@ import global from '../Global';
 
 class AbstractSkyEntity{
 	
-	constructor(in_radius, in_position, in_xRad, in_yRad, in_name){
+	constructor(in_radius, in_position, in_xRad, in_yRad, in_name, isGalacticHips){
 		let in_gl = global.gl;
 		this.fovObj = new FoV(this);
 		this.refreshMe = false;
@@ -21,7 +21,7 @@ class AbstractSkyEntity{
 		this.name = in_name;
 		this.center = vec3.clone(in_position);
 		this.radius = in_radius;
-		
+		this.isGalacticHips = isGalacticHips != undefined ? isGalacticHips : false;
 		
 		// GL related
 		this.vertexTextureCoordBuffer = in_gl.createBuffer();
@@ -38,12 +38,22 @@ class AbstractSkyEntity{
 		
 		this.inverseModelMatrix = mat4.create();
 		
+		this.galacticMatrixInverted = mat4.create();
+		mat4.set(this.galacticMatrixInverted, 
+			-0.054875582456588745, -0.8734370470046997,-0.48383501172065735, 0,
+			0.49410945177078247, -0.4448296129703522, 0.7469822764396667, -0,
+			-0.8676661849021912, -0.19807636737823486, 0.4559837877750397, 0,
+			0, 0, 0, 1);
+
 		// Initial position
 		this.translate(this.center);
 		this.rotate(in_xRad, in_yRad);
 	}
 	
-	
+	setIsGalacticFrame(isGalacticHips){
+		this.isGalacticHips = isGalacticHips;
+		this.refreshModelMatrix();
+	}
 	
 	
 	translate(in_translation){
@@ -68,21 +78,27 @@ class AbstractSkyEntity{
 	    this.refreshModelMatrix();
 
 	}
-	
+
 	refreshModelMatrix(){
-		
 		var R_inverse = mat4.create();
 		mat4.invert(R_inverse, this.R);
 		mat4.multiply(this.modelMatrix, this.T, R_inverse);
-		
+		if(!global.insideSphere){
+			this.modelMatrix[1] = - this.modelMatrix[1];
+			this.modelMatrix[5] = - this.modelMatrix[5];
+			this.modelMatrix[9] = - this.modelMatrix[9];
+			this.modelMatrix[13] = - this.modelMatrix[13];
+		}
+
+		if(this.isGalacticHips){
+			mat4.multiply(this.modelMatrix, this.modelMatrix, this.galacticMatrixInverted);
+		}
 	}
 	
 	getModelMatrixInverse(){
-		
 		mat4.identity(this.inverseModelMatrix);
 		mat4.invert(this.inverseModelMatrix, this.modelMatrix);
 		return this.inverseModelMatrix;
-		
 	}
 	
 	
@@ -97,7 +113,7 @@ class AbstractSkyEntity{
 		in_gl.uniformMatrix4fv(this.shaderProgram.vMatrixUniform, false, cameraMatrix);
 		
 	}
-	
+
 	initShaders (){
 		// Abstract
 	}

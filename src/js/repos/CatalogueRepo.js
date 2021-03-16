@@ -68,9 +68,9 @@ class CatalogueRepo{
 	    var tapName = descriptor.nameTapColumn;
 	    var name = descriptor.name;
 		
-		var fovPolyCartesian = FoVUtils.getFoVPolygon (global.pMatrix, global.camera, global.gl.canvas, global.model, global.rayPicker);
+		var fovPolyCartesian = FoVUtils.getFoVPolygon (global.pMatrix, global.camera, global.gl.canvas, global.defaultHips, global.rayPicker);
 		var fovPolyAstro = FoVUtils.getAstroFoVPolygon(fovPolyCartesian);
-		var adqlQuery = "select top 1000 *" +
+		var adqlQuery = "select top 1000 * " +
 				"from "+tapTable+" where " +
 				"1=CONTAINS(POINT('ICRS',"+tapRaDeg+", "+tapDecDeg+"), " +
 				"POLYGON('ICRS', "+fovPolyAstro+"))";
