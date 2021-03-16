@@ -279,20 +279,20 @@ class FPCatalogue{
 	checkSelection (in_mouseHelper) {
 		
 		let mousePix = in_mouseHelper.computeNpix256();
-		console.log(mousePix);
+//		console.log(mousePix);
 		let mousePoint = new Point({x: in_mouseHelper.x, y: in_mouseHelper.y, z: in_mouseHelper.z}, CoordsType.CARTESIAN);
 		if (mousePix != null){
 			if (this._footprintsInPix256.has(mousePix)){
-				console.log("mouse pixel (n=8): "+mousePix+ " "+this._footprintsInPix256.get(mousePix).length+" possible x-matches");
+//				console.log("mouse pixel (n=8): "+mousePix+ " "+this._footprintsInPix256.get(mousePix).length+" possible x-matches");
 				
 				
 				for (let i =0; i < this._footprintsInPix256.get(mousePix).length; i++){
 						
 					let footprint = this._footprintsInPix256.get(mousePix)[i];
-					console.log(footprint.identifier+" pixels (n=8): "+ footprint.pixels ) ;
+//					console.log(footprint.identifier+" pixels (n=8): "+ footprint.pixels ) ;
 					
 					if (GeomUtils.pointInsidePolygons(footprint.polygons, mousePoint) ){
-						console.log("INSIDE "+footprint.identifier);
+						console.log("INSIDE "+footprint.identifier+ " pixel "+mousePix);
 //						console.log(footprint.identifier);
 					}
 					

@@ -62,8 +62,9 @@ class Footprint{
 				let phiTheta = currPoint.computeHealpixPhiTheta();
 				let phiRad = degToRad(phiTheta.phi);
 				let thetaRad = degToRad(phiTheta.theta);
-				let vec3 = new Vec3(currPoint.x, currPoint.y, currPoint.z);
-				let pointing = new Pointing(vec3);
+//				let vec3 = new Vec3(currPoint.x, currPoint.y, currPoint.z);
+//				let pointing = new Pointing(vec3);
+				let pointing = new Pointing(null, false, thetaRad, phiRad);
 			
 				points.push(pointing);
 			}

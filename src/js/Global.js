@@ -27,7 +27,7 @@ class Global{
 		this._rayPicker = null;
 		this._healpix = [];
 		this._order = 3;
-		this._insideSphere = true;
+		this._insideSphere = false;
 	}
 
 	getHealpix (order){
