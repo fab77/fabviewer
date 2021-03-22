@@ -2,6 +2,7 @@
  * @author Fabrizio Giordano (Fab)
  */
 import {vec3, mat4} from 'gl-matrix';
+import global from '../Global';
 
 import {degToRad, astroDegToSpherical, cartesianToSpherical, sphericalToCartesian} from '../utils/Utils';
 
@@ -109,7 +110,9 @@ class Camera3{
 
 	
 	goTo(raDeg, decDeg){
-		raDeg = 360 - raDeg;
+		if(!global.insideSphere){
+			raDeg = 360 - raDeg;
+		}
 		this.goToPhiTheta(astroDegToSpherical(raDeg, decDeg));
 	};
 
