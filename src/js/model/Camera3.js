@@ -46,11 +46,10 @@ class Camera3{
 //		this.refreshViewMatrix();
 
 		
-		let raDeg = 268.0;
-		let decDeg = -26;
+		let raDeg = 0;
+		let decDeg = 0;
 		
 		this.goTo(raDeg, decDeg);
-		this.rotateZRadian(Math.PI)
 		
 //		let ptDeg = astroDegToSpherical(raDeg, decDeg);
 //		/* 
@@ -110,6 +109,7 @@ class Camera3{
 
 	
 	goTo(raDeg, decDeg){
+		raDeg = 360 - raDeg;
 		this.goToPhiTheta(astroDegToSpherical(raDeg, decDeg));
 	};
 
