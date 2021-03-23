@@ -9,7 +9,7 @@ class HealpixGridTileBuffer {
 	}
 	getTile(tileKey){
 		if(!this.tiles.has(tileKey)){
-			this.tiles.set(tileKey, new HealpixGridTile(tileKey.split("/")[0], tileKey.split("/")[1]));
+			this.tiles.set(tileKey, new HealpixGridTile(parseInt(tileKey.split("/")[0]), parseInt(tileKey.split("/")[1])));
 		}
 		let tile = this.tiles.get(tileKey);
 		tile.age = 0;

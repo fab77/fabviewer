@@ -2,6 +2,7 @@
  * @author Fabrizio Giordano (Fab)
  */
 import {vec3, mat4} from 'gl-matrix';
+import global from '../Global';
 
 import {degToRad, astroDegToSpherical, cartesianToSpherical, sphericalToCartesian} from '../utils/Utils';
 
@@ -46,11 +47,10 @@ class Camera3{
 //		this.refreshViewMatrix();
 
 		
-		let raDeg = 268.0;
-		let decDeg = -26;
+		let raDeg = 0;
+		let decDeg = 0;
 		
 		this.goTo(raDeg, decDeg);
-		this.rotateZRadian(Math.PI)
 		
 //		let ptDeg = astroDegToSpherical(raDeg, decDeg);
 //		/* 
@@ -110,6 +110,9 @@ class Camera3{
 
 	
 	goTo(raDeg, decDeg){
+		if(!global.insideSphere){
+			raDeg = 360 - raDeg;
+		}
 		this.goToPhiTheta(astroDegToSpherical(raDeg, decDeg));
 	};
 
