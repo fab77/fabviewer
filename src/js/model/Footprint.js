@@ -8,11 +8,14 @@ import CoordsType from '../utils/CoordsType';
 import Healpix from "healpixjs";
 import {Vec3, Pointing} from "healpixjs";
 import {degToRad} from '../utils/Utils';
+import GeomUtils from '../utils/GeomUtils';
+import global from '../Global';
+
 
 class Footprint{
 	
 	_polygons; // array of polygons (-> array of points)
-//	_points = [];	// array of Points.js
+	_convexPolygons; // array of convex polygons (-> array of points) 
 	_stcs; // STC-S Space-Time Coordinate Metadata Linear String Implementation 
 	_identifier;
 	_details;
@@ -48,29 +51,34 @@ class Footprint{
 	/**
 	 * return: array of int representing the HEALPix pixels covering the footprint 
 	 */
+	// TODO wrong method name. No more fixed nside=256. nside is now defined into Global.js
 	computeNpix256(){
-		// TODO call healpix library with query_inclusive
-		// setup healpix object with nside 256
-		let healpix256 = new Healpix(256);
+
+		this._convexPolygons = GeomUtils.computeConvexPolygons(this._polygons);
 		
+		let healpix256 = new Healpix(global.nsideForSelection);
+
 		let points = [];
-		for (let i = 0; i < this._polygons.length; i++){
-			let poly = this._polygons[i];
+		for (let i = 0; i < this._convexPolygons.length; i++){
+			let poly = this._convexPolygons[i];
 			for (let j = 0; j < poly.length; j++){
+
 				let currPoint = poly[j];
-				
+
 				let phiTheta = currPoint.computeHealpixPhiTheta();
 				let phiRad = degToRad(phiTheta.phi);
 				let thetaRad = degToRad(phiTheta.theta);
-//				let vec3 = new Vec3(currPoint.x, currPoint.y, currPoint.z);
-//				let pointing = new Pointing(vec3);
+				
 				let pointing = new Pointing(null, false, thetaRad, phiRad);
-			
+
 				points.push(pointing);
 			}
 		}
-		// queryPolygonInclusive(footprint points[], 4)
-		let rangeSet = healpix256.queryPolygonInclusive(points, 4);
+		
+		
+		
+		
+		let rangeSet = healpix256.queryPolygonInclusive(points, 32);
 //		console.log(rangeSet);
 		
 		
@@ -89,7 +97,7 @@ class Footprint{
 			
 			let polys = stcsParsed.split("POLYGON ");
 			
-			for (let i = 0; i < polys.length; i++){
+			for (let i = 1; i < polys.length; i++){
 				let currPoly = [];
 				let points = polys[i].trim().split(" ");
 				if (points.length >= 2){
@@ -121,6 +129,10 @@ class Footprint{
 
 	get polygons(){
 		return this._polygons;
+	}
+	
+	get convexPolygons(){
+		return this._convexPolygons;
 	}
 
 	get identifier () {

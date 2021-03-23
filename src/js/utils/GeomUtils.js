@@ -1,10 +1,134 @@
 import Point from './Point';
+import {Vec3, Pointing} from "healpixjs";
 
 /**
  * @author Fabrizio Giordano (Fab77)
  */
 class GeomUtils{
 	// constructor(){}
+	
+	
+	
+	
+	/**
+	 * @param polygons: array of convex spherical polygons having points in clockwise order
+	 * @param point2Check: point to check
+	 * @return true if the point is inside one polygon, false otherwise
+	 */
+	static pointInsidePolygons2(polygons, point2Check){
+		
+		let inside = false;
+		for (let k =0; k < polygons.length; k++){
+			
+//			let insideThisPoly = false;
+			let currPoly = polygons[k];
+			inside = true;
+			
+			for (let i =0; i < currPoly.length; i++){
+				
+				
+				let v1 = (i == currPoly.length - 1) ? currPoly[currPoly.length - 1] : currPoly[i];
+				let v2 = (i == currPoly.length - 1) ? currPoly[0] : currPoly[i+1];
+				
+//				if (i == currPoly.length){
+//					let v1 = currPoly[currPoly.length - 1];
+//					let v2 = currPoly[0];
+//				}else{
+//					let v1 = currPoly[i];
+//					let v2 = currPoly[i+1];	
+//				}
+				
+
+				let normal = v1.cross(v2);
+				let scalar = normal.dot(point2Check);
+				if (scalar < 0){ // because of the clockwise order
+					continue;
+				}else{
+					inside = false;
+					break;
+				}
+				
+				/** pesudo code
+				 * vv = v1 (X) v2;
+				 * scal = point2Check (dot) vv;
+				 * if scal > 0
+				 * 		continue;
+				 * else 
+				 * 		inside = false;
+				 * 		break;
+				 *
+				 */
+			}
+			if (inside){
+				break;
+			}
+			
+		}
+		return inside;
+	}
+	
+	
+	/**
+	 * @param polygons: array of convex polygons having with points in clockwise order
+	 * @return an array of convex polygons
+	 */
+	static computeConvexPolygons(polygons){
+		
+		
+		for (let i = 0; i < polygons.length; i++){
+			
+			let flip = 0;
+	        let index = 0;
+	        let back = false;
+	        let currPoly = polygons[i];
+	        
+			while (index < currPoly.length){
+	        	
+				
+	        	let first = currPoly[index];
+	            let medium = null;
+	            let last = null;
+	            
+				if (index == currPoly.length - 1) {
+					last = currPoly[1];
+					medium = currPoly[0];
+				} else if (index == currPoly.length - 2) {
+					last = currPoly[0];
+					medium = currPoly[index + 1];
+				} else {
+					medium = currPoly[index + 1];
+					last = currPoly[index + 2];
+				}
+				
+				let normal = first.cross(medium).norm();
+				let hnd = normal.dot(last);
+	        	
+	        	if (index == 0) {
+
+	        		flip = (hnd < 0.) ? -1 : 1;
+					back = false;
+
+	        	} else {
+
+	        		let flipThnd = flip * hnd;
+					if (flipThnd < 0) {
+						currPoly.splice(index + 1, 1);
+						back = true;
+						index -= 1;
+						continue;
+					} else {
+						back = false;
+					}
+
+				}
+
+				index += 1;
+	        	
+	        }
+		}
+		return polygons;
+		
+	}
 	
 	
 	/**

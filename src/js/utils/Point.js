@@ -75,22 +75,27 @@ class Point{
 		return astroDegToSpherical(this._raDeg, this._decDeg);
 	}
 	
-
-//	constructor(in_xyz){
-//		
-//		this._x = in_xyz[0];
-//		this._y = in_xyz[1];
-//		this._z = in_xyz[2];
-//		this._raDecDeg = this.computeAstroCoords(in_xyz);
-//		
-//	}
-//	
-//	computeAstroCoords(in_xyz){
-//    	var phiThetaDeg = Utils.cartesianToSpherical([in_xyz[0], in_xyz[1], in_xyz[2]]);
-//		var raDecDeg = Utils.sphericalToAstroDeg(phiThetaDeg.phi, phiThetaDeg.theta);
-//		var raDecDeg = [raDecDeg.ra, raDecDeg.dec];
-//		return raDecDeg;
-//    }
+	// taken from Healpixjs->Vec3. //TODO Point and Vec3 should be unified 
+	dot(v){ 
+		return this.x*v.x + this.y*v.y + this.z*v.z; 
+	};
+	// taken from Healpixjs->Vec3. //TODO Point and Vec3 should be unified
+	cross(v){ 
+		return new Point({x: this.y*v.z - v.y*this.z, y: this.z*v.x - v.z*this.x, z: this.x*v.y - v.x*this.y}, CoordsType.CARTESIAN);
+	};
+	// taken from Healpixjs->Vec3. //TODO Point and Vec3 should be unified
+	norm() {
+		let d = 1./this.length();
+		return new Point({x: this.x*d, y: this.y*d, z: this.z*d}, CoordsType.CARTESIAN);
+	};
+	// taken from Healpixjs->Vec3. //TODO Point and Vec3 should be unified
+	length(){ 
+		return Math.sqrt(this.lengthSquared()); 
+	};
+	// taken from Healpixjs->Vec3. //TODO Point and Vec3 should be unified
+	lengthSquared(){ 
+		return this.x*this.x + this.y*this.y + this.z*this.z; 
+  	};
 	
 	get x(){
 		return this._x;

@@ -281,41 +281,39 @@ class FPCatalogue{
 		let mousePix = in_mouseHelper.computeNpix256();
 //		console.log(mousePix);
 		let mousePoint = new Point({x: in_mouseHelper.x, y: in_mouseHelper.y, z: in_mouseHelper.z}, CoordsType.CARTESIAN);
+//		if (mousePix != null){
+//			if (this._footprintsInPix256.has(mousePix)){
+////				console.log("mouse pixel (n=8): "+mousePix+ " "+this._footprintsInPix256.get(mousePix).length+" possible x-matches");
+//				
+//				
+//				for (let i =0; i < this._footprintsInPix256.get(mousePix).length; i++){
+//						
+//					let footprint = this._footprintsInPix256.get(mousePix)[i];
+////					console.log(footprint.identifier+" pixels (n=8): "+ footprint.pixels ) ;
+//					
+//					if (GeomUtils.pointInsidePolygons2(footprint.convexPolygons, mousePoint) ){
+//						console.log("INSIDE "+footprint.identifier+ " pixel "+mousePix);
+//					}
+//					
+//				}
+//				
+//			}	
+//		}
+		
 		if (mousePix != null){
-			if (this._footprintsInPix256.has(mousePix)){
-//				console.log("mouse pixel (n=8): "+mousePix+ " "+this._footprintsInPix256.get(mousePix).length+" possible x-matches");
-				
-				
-				for (let i =0; i < this._footprintsInPix256.get(mousePix).length; i++){
-						
-					let footprint = this._footprintsInPix256.get(mousePix)[i];
-//					console.log(footprint.identifier+" pixels (n=8): "+ footprint.pixels ) ;
-					
-					if (GeomUtils.pointInsidePolygons(footprint.polygons, mousePoint) ){
-						console.log("INSIDE "+footprint.identifier+ " pixel "+mousePix);
-//						console.log(footprint.identifier);
-					}
-					
+			for (let i =0; i < this._footprints.length; i++){
+			
+				let footprint = this._footprints[i];
+
+		
+				if (GeomUtils.pointInsidePolygons2(footprint.convexPolygons, mousePoint) ){
+					console.log("INSIDE "+footprint.identifier+ " pixel "+mousePix);
 				}
 				
-			}	
+			}
 		}
 		
-//		var sources = this.#sources;
-//		var nSources = sources.length;
-//		var selectionIndexes = [];
-//		
-//		for(var j = 0; j < nSources; j++){
-//			let sourcexyz = [sources[j].point.x , sources[j].point.y , sources[j].point.z];
-//			
-//			let dist = Math.sqrt( (sourcexyz[0] - in_mouseCoords[0] )*(sourcexyz[0] - in_mouseCoords[0] ) + (sourcexyz[1] - in_mouseCoords[1] )*(sourcexyz[1] - in_mouseCoords[1] ) + (sourcexyz[2] - in_mouseCoords[2] )*(sourcexyz[2] - in_mouseCoords[2] ) );
-//			if (dist <= 0.004){
-//				
-//				selectionIndexes.push(j);
-//					
-//			}
-//		}
-//		return selectionIndexes;
+		
 		
 	}
 	

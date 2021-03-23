@@ -17,6 +17,7 @@ class Global{
 	#baseUrl = "http://skyint.esac.esa.int/esasky-tap/";
 	// #baseUrl = "http://ammiappdev.esac.esa.int/esasky-tap/";
 	// #baseUrl = "http://localhost:8080/esasky-sl/";
+	_refnside;
 	
 	constructor(){
 		this._pMatrix = null;
@@ -28,6 +29,7 @@ class Global{
 		this._healpix = [];
 		this._order = 3;
 		this._insideSphere = false;
+		this._refnside = 32;
 	}
 
 	getHealpix (order){
@@ -105,6 +107,10 @@ class Global{
 
 	get baseUrl(){
 		return this.#baseUrl;
+	}
+	
+	get nsideForSelection(){
+		return this._refnside;
 	}
 
 }
