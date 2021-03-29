@@ -13,7 +13,7 @@ import GeomUtils from '../utils/GeomUtils';
 
 class FPCatalogue{
 	
-	//static ELEM_SIZE = 5;
+	// static ELEM_SIZE = 5;
 	static ELEM_SIZE = 3;
 	static BYTES_X_ELEM = new Float32Array().BYTES_PER_ELEMENT;
 	
@@ -27,6 +27,7 @@ class FPCatalogue{
 	_shaderProgram;
 	_gl;
 	_vertexCataloguePositionBuffer;
+	_indexes;
 	_indexBuffer;
 	_vertexSelectionCataloguePositionBuffer;
 	_footprints = [];
@@ -38,7 +39,13 @@ class FPCatalogue{
 	_totPoints;	// Used to compute item size in the GL buffer
 	_indexes;
 	_footprintsInPix256;
+	_nPrimitiveFlags = 0;
 	
+	_totConvexPoints;
+	_convexIndexes;
+	_convexIndexBuffer;
+	_vertexConvexPolyPosition;
+	_vertexConvexPolyPositionBuffer;
 	
 	constructor(in_datasetName, in_metadata, in_raIdx, in_decIdx, in_uidIdx, in_stcsIdx, in_descriptor){
 
@@ -74,6 +81,16 @@ class FPCatalogue{
 		
 		this._footprintsInPix256 = new Map();
 		
+		this.showConvexPolygons = global.showConvexPolygons;
+		if (this.showConvexPolygons){
+			this._totConvexPoints = 0;
+			this._convexIndexBuffer = this._gl.createBuffer();
+			this._vertexConvexPolyPosition = [];
+			this._vertexConvexPolyPositionBuffer = this._gl.createBuffer();
+		}
+		
+		
+		
 		this.initShaders();
 		
 	}
@@ -85,7 +102,7 @@ class FPCatalogue{
 		
 		var _self = this;
 		var gl = this._gl;
-//		var shaderProgram = this._shaderProgram;
+// var shaderProgram = this._shaderProgram;
 		
 		var fragmentShader = this.loadShaderFromDOM("fpcat-shader-fs");
 		var vertexShader = this.loadShaderFromDOM("fpcat-shader-vs");
@@ -112,7 +129,7 @@ class FPCatalogue{
 	    var shaderScript = document.getElementById(shaderId);
 	    
 	    // If we don't find an element with the specified id
-	    // we do an early exit 
+	    // we do an early exit
 	    if (!shaderScript) {
 	    	return null;
 	    }
@@ -152,7 +169,6 @@ class FPCatalogue{
 	setUniformLocation(){
 		
 		var gl = this._gl;
-//		var shaderProgram = this._shaderProgram;
 
 		this._shaderProgram.pMatrixUniform = gl.getUniformLocation(this._shaderProgram, "uPMatrix");
 		this._shaderProgram.mvMatrixUniform = gl.getUniformLocation(this._shaderProgram, "uMVMatrix");
@@ -187,9 +203,8 @@ class FPCatalogue{
 			footprint = new Footprint(point,in_data[j][this._uidIdx], in_data[j][this._stcsIdx], in_data[j]);
 			this.addFootprint(footprint);
 			this._totPoints += footprint.totPoints;
+			this._totConvexPoints += footprint.totConvexPoints;
 		}
-//		console.log("this._totPoints="+this._totPoints);
-//		console.log("this._footprints.length="+this._footprints.length);
 		this.initBuffer();
 		
 	}
@@ -198,15 +213,13 @@ class FPCatalogue{
 	initBuffer () {
 
 		
-		
-//		let footprintsInPix256 = new Map();
-		
-		
 		let nFootprints = this._footprints.length;
 
 		this._indexes = new Uint16Array(this._totPoints + nFootprints);
+//		this._indexes = [];
 		
-		let MAX_UNSIGNED_SHORT = 65535; // this is used to enable and disable GL_PRIMITIVE_RESTART_FIXED_INDEX
+		let MAX_UNSIGNED_SHORT = 65535; // this is used to enable and disable
+										// GL_PRIMITIVE_RESTART_FIXED_INDEX
 		
 		let gl = this._gl;
 			
@@ -225,91 +238,142 @@ class FPCatalogue{
 			let footprintPoly = this._footprints[j].polygons;
 			var identifier = this._footprints[j].identifier;
 			
-			this._footprints[j].pixels.forEach(function(pix){
-				
-//				console.log(identifier);
-				if (footprintsInPix256.has(pix)){
-					
-					let currFootprints = footprintsInPix256.get(pix);
-					if (!currFootprints.includes(identifier)){
-
-//						currFootprints.push(identifier);
-						currFootprints.push(footprint);
-						
-					}
-					
-				}else{
-//					footprintsInPix256.set(pix, [identifier]);
-					footprintsInPix256.set(pix, [footprint]);
-				}
-			});
-
-//			this._footprintsInPix256 = footprintsInPix256;
 			
+			if (global.healpix4footprints){
+				this._footprints[j].pixels.forEach(function(pix){
+					
+					if (footprintsInPix256.has(pix)){
+						
+						let currFootprints = footprintsInPix256.get(pix);
+						if (!currFootprints.includes(identifier)){
+							currFootprints.push(footprint);
+						}
+						
+					}else{
+						footprintsInPix256.set(pix, [footprint]);
+					}
+				});	
+			}
+						
 			for (let polyIdx in footprintPoly){
 				for (let pointIdx in footprintPoly[polyIdx]){
 					this._vertexCataloguePosition[positionIndex] = R * footprintPoly[polyIdx][pointIdx].x;
 					this._vertexCataloguePosition[positionIndex+1] = R * footprintPoly[polyIdx][pointIdx].y;
 					this._vertexCataloguePosition[positionIndex+2] = R * footprintPoly[polyIdx][pointIdx].z;
 					
-//					this._indexes[vIdx] = vIdx;
 					this._indexes[vIdx] = Math.floor(positionIndex/3);
 					
 					vIdx += 1;
 					positionIndex += 3;
 				}
-//				if (polyIdx < nFootprints){
-					this._indexes[vIdx] = MAX_UNSIGNED_SHORT; // TODO last one shouldn't be added?
-					vIdx += 1;
-//				}
-				
+
+				this._indexes[vIdx] = MAX_UNSIGNED_SHORT;
+				this._nPrimitiveFlags += 1;
+				vIdx += 1;
+
 			}
 		}
 		
 		this._footprintsInPix256 = footprintsInPix256;
 		console.log("Buffer initialized");
 
-//		glEnable ( GL_PRIMITIVE_RESTART_FIXED_INDEX ); // 65535
+		if (this.showConvexPolygons){
+			this.initConvexPolyBuffer();
+		}
+		
+// glEnable ( GL_PRIMITIVE_RESTART_FIXED_INDEX ); // 65535
 		
 	}
 	
+	
+	
+	initConvexPolyBuffer(){
+		let nFootprints = this._footprints.length;
+
+		this._convexIndexes = new Uint16Array(this._totConvexPoints + nFootprints);
+//		this._indexes = [];
+		
+		let MAX_UNSIGNED_SHORT = 65535; // this is used to enable and disable
+										// GL_PRIMITIVE_RESTART_FIXED_INDEX
+		
+		let gl = this._gl;
+			
+		gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexConvexPolyPositionBuffer);
+		
+		this._vertexConvexPolyPosition = new Float32Array( 3 * this._totConvexPoints);
+		let positionIndex = 0;
+		let vIdx = 0;
+
+		let R = 1.0;
+		
+		for(let j = 0; j < nFootprints; j++){
+			
+			let footprint = this._footprints[j];
+			let footprintPoly = this._footprints[j].convexPolygons;
+			var identifier = this._footprints[j].identifier;
+			
+						
+			for (let polyIdx in footprintPoly){
+				for (let pointIdx in footprintPoly[polyIdx]){
+					this._vertexConvexPolyPosition[positionIndex] = R * footprintPoly[polyIdx][pointIdx].x;
+					this._vertexConvexPolyPosition[positionIndex+1] = R * footprintPoly[polyIdx][pointIdx].y;
+					this._vertexConvexPolyPosition[positionIndex+2] = R * footprintPoly[polyIdx][pointIdx].z;
+					
+					this._convexIndexes[vIdx] = Math.floor(positionIndex/3);
+					
+					vIdx += 1;
+					positionIndex += 3;
+				}
+
+				this._convexIndexes[vIdx] = MAX_UNSIGNED_SHORT;
+				vIdx += 1;
+
+			}
+		}
+		
+		console.log("Buffer for convex polygons initialized");
+	}
+	
 	/**
-	 * @param in_mouseHelper MouseHelper
+	 * @param in_mouseHelper
+	 *            MouseHelper
 	 */
 	checkSelection (in_mouseHelper) {
 		
 		let mousePix = in_mouseHelper.computeNpix256();
-//		console.log(mousePix);
+
 		let mousePoint = new Point({x: in_mouseHelper.x, y: in_mouseHelper.y, z: in_mouseHelper.z}, CoordsType.CARTESIAN);
-//		if (mousePix != null){
-//			if (this._footprintsInPix256.has(mousePix)){
-////				console.log("mouse pixel (n=8): "+mousePix+ " "+this._footprintsInPix256.get(mousePix).length+" possible x-matches");
-//				
-//				
-//				for (let i =0; i < this._footprintsInPix256.get(mousePix).length; i++){
-//						
-//					let footprint = this._footprintsInPix256.get(mousePix)[i];
-////					console.log(footprint.identifier+" pixels (n=8): "+ footprint.pixels ) ;
-//					
-//					if (GeomUtils.pointInsidePolygons2(footprint.convexPolygons, mousePoint) ){
-//						console.log("INSIDE "+footprint.identifier+ " pixel "+mousePix);
-//					}
-//					
-//				}
-//				
-//			}	
-//		}
 		
 		if (mousePix != null){
-			for (let i =0; i < this._footprints.length; i++){
-			
-				let footprint = this._footprints[i];
+			if (global.healpix4footprints){
+				if (this._footprintsInPix256.has(mousePix)){
+					// console.log("mouse pixel (n=8): "+mousePix+ "
+					// "+this._footprintsInPix256.get(mousePix).length+" possible x-matches");
+	
+					for (let i =0; i < this._footprintsInPix256.get(mousePix).length; i++){
+							
+						let footprint = this._footprintsInPix256.get(mousePix)[i];
+						// console.log(footprint.identifier+" pixels (n=8): "+ footprint.pixels ) ;
+						
+						if (GeomUtils.pointInsidePolygons2(footprint.convexPolygons, mousePoint) ){
+							console.log("INSIDE "+footprint.identifier+ " pixel "+mousePix);
+						}
+	
+					}
+	
+				}	
+	
+			} else {
+				for (let i =0; i < this._footprints.length; i++){
+					
+					let footprint = this._footprints[i];
 
-		
-				if (GeomUtils.pointInsidePolygons2(footprint.convexPolygons, mousePoint) ){
-					console.log("INSIDE "+footprint.identifier+ " pixel "+mousePix);
+					if (GeomUtils.pointInsidePolygons2(footprint.convexPolygons, mousePoint) ){
+						console.log("INSIDE "+footprint.identifier+ " pixel "+mousePix);
+					}
+					
 				}
-				
+	
 			}
 		}
 		
@@ -334,7 +398,9 @@ class FPCatalogue{
 	}
 	
 	/**
-	 * @param in_Matrix: model matrix the current catalogue is associated to (e.g. HiPS matrix)
+	 * @param in_Matrix:
+	 *            model matrix the current catalogue is associated to (e.g. HiPS
+	 *            matrix)
 	 */
 	draw(in_mMatrix, in_mouseHelper){
 		
@@ -356,14 +422,16 @@ class FPCatalogue{
 		this._gl.enableVertexAttribArray(this._attribLocations.position);
 
 		
-		// setting source shape color 
+		this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer);
+		this._gl.bufferData(this._gl.ELEMENT_ARRAY_BUFFER, this._indexes, this._gl.STATIC_DRAW);
+		
+		
+		// setting source shape color
 		var rgb = colorHex2RGB(this._descriptor.shapeColor);
 		var alpha = 1.0;
 		rgb[3] = alpha;
 		this._gl.uniform4f(this._attribLocations.color, rgb[0], rgb[1], rgb[2], rgb[3]);
 		
-		this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, this._indexBuffer);
-		this._gl.bufferData(this._gl.ELEMENT_ARRAY_BUFFER, this._indexes, this._gl.STATIC_DRAW);
 		
 		
 		// MOUSE selection
@@ -374,32 +442,46 @@ class FPCatalogue{
 		}
 		
 		/**
-		 * OPENGL code sample
-		**  polygons = [ 
-  		**		0,0,   10,0,  10,5, 5,10,      // polygon 1
-  		**		20,20, 30,20, 30,30            // polygon 2
-		**	]
-		**	glEnable(GL_PRIMITIVE_RESTART);
-		**	glPrimitiveRestartIndex(65535);
-		**	index = [0,1,2,3,65535,4,5,6,65535,...]
-
-		**	//bind and fill GL_ELEMENT_ARRAY_BUFFER
-		**	glDrawElements(GL_LINE_LOOP, index.size, GL_UNSIGNED_INT, 0);
-		**	//will draw lines `0,1 1,2 2,3 3,0 4,5 5,6 6,4`
-		**/
+		 * OPENGL code sample * polygons = [ * 0,0, 10,0, 10,5, 5,10, // polygon
+		 * 1 * 20,20, 30,20, 30,30 // polygon 2 * ] *
+		 * glEnable(GL_PRIMITIVE_RESTART); * glPrimitiveRestartIndex(65535); *
+		 * index = [0,1,2,3,65535,4,5,6,65535,...] * //bind and fill
+		 * GL_ELEMENT_ARRAY_BUFFER * glDrawElements(GL_LINE_LOOP, index.size,
+		 * GL_UNSIGNED_INT, 0); * //will draw lines `0,1 1,2 2,3 3,0 4,5 5,6
+		 * 6,4`
+		 */
 		
 		
 		 
-		/* 
-		 * this is not needed in WebGL since it's enabled by default 
-		this._gl.glEnable ( GL_PRIMITIVE_RESTART_FIXED_INDEX ); // 65535
-		https://www.khronos.org/registry/webgl/specs/latest/2.0/#4.1.4
-		https://github.com/KhronosGroup/glTF/issues/1142
-		*/
-		this._gl.drawElements (this._gl.LINE_LOOP, this._vertexCataloguePosition.length / 3,this._gl.UNSIGNED_SHORT, 0);
+		/*
+		 * this is not needed in WebGL since it's enabled by default
+		 * this._gl.glEnable ( GL_PRIMITIVE_RESTART_FIXED_INDEX ); // 65535
+		 * https://www.khronos.org/registry/webgl/specs/latest/2.0/#4.1.4
+		 * https://github.com/KhronosGroup/glTF/issues/1142
+		 */
+		this._gl.drawElements (this._gl.LINE_LOOP, this._vertexCataloguePosition.length / 3 + 1,this._gl.UNSIGNED_SHORT, 0);
+		this._gl.drawElements (this._gl.POINT, this._vertexCataloguePosition.length / 3 + 1,this._gl.UNSIGNED_SHORT, 0);
+		
+		if (this.showConvexPolygons){
+			
+			rgb = colorHex2RGB(this._descriptor.shapeColor);
+			var alpha = 0.5;
+			rgb[3] = alpha;
+			this._gl.uniform4f(this._attribLocations.color, 1., 0., 0., rgb[3]);
+			
+			this._gl.bindBuffer(this._gl.ARRAY_BUFFER, this._vertexConvexPolyPositionBuffer);
+			this._gl.bufferData(this._gl.ARRAY_BUFFER, this._vertexConvexPolyPosition, this._gl.STATIC_DRAW);
+			this._gl.vertexAttribPointer(this._attribLocations.position, FPCatalogue.ELEM_SIZE, this._gl.FLOAT, false, FPCatalogue.BYTES_X_ELEM * FPCatalogue.ELEM_SIZE, 0);
+			this._gl.enableVertexAttribArray(this._attribLocations.position);			
+			this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, this._convexIndexBuffer);
+			this._gl.bufferData(this._gl.ELEMENT_ARRAY_BUFFER, this._convexIndexes, this._gl.STATIC_DRAW);
+			this._gl.drawElements (this._gl.LINE_LOOP, this._vertexConvexPolyPosition.length / 3 + 1,this._gl.UNSIGNED_SHORT, 0);
+			
+		}
 		
 		
-//		this._gl.bindBuffer(this._gl.ARRAY_BUFFER, null);
+		
+// this._gl.bindBuffer(this._gl.ARRAY_BUFFER, null);
 		this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, null);
 		this._oldMouseCoords = in_mouseHelper.xyz;
 		

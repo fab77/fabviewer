@@ -18,6 +18,8 @@ class Global{
 	// #baseUrl = "http://ammiappdev.esac.esa.int/esasky-tap/";
 	// #baseUrl = "http://localhost:8080/esasky-sl/";
 	_refnside;
+	_healpix4footprints = false;
+	_showConvexPolygons = true; // used in FPCatalogue to drawing convex polygons together with the original footprints (for debug)
 	
 	constructor(){
 		this._pMatrix = null;
@@ -113,6 +115,16 @@ class Global{
 		return this._refnside;
 	}
 
+	get healpix4footprints(){
+		return this._healpix4footprints;
+	}
+	
+	get showConvexPolygons(){
+		return this._showConvexPolygons;
+	}
+	
+	
+	
 }
 
 var global = new Global();

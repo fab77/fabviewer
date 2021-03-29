@@ -67,6 +67,85 @@ class GeomUtils{
 		return inside;
 	}
 	
+	/**
+	 * @param polygons: array of convex polygons having with points in clockwise order
+	 * @return an array of convex polygons
+	 */
+	static computeConvexPolygons2(polygons){
+		
+		// deep clone
+//		let clonedpolygons = polygons.map(a => Object.assign({}, a));
+		
+		let clonedpolygons = [polygons.length];
+		
+//		let clonedpolygons = [...polygons];
+		
+		
+		
+		
+		
+		for (let i = 0; i < polygons.length; i++){
+			
+			let flip = 0;
+	        let index = 0;
+//	        let currPoly = clonedpolygons[i];
+	        let currPoly = [...polygons[i]];
+	        clonedpolygons[i] = currPoly;
+	        
+	        while (index < currPoly.length){
+//	        while (index < Object.values(currPoly).length){
+				
+				
+	        	let first = currPoly[index];
+	            let medium = null;
+	            let last = null;
+	            
+				if (index == currPoly.length - 1) {
+					last = currPoly[1];
+					medium = currPoly[0];
+				} else if (index == currPoly.length - 2) {
+					last = currPoly[0];
+					medium = currPoly[index + 1];
+				} else {
+					medium = currPoly[index + 1];
+					last = currPoly[index + 2];
+				}
+				
+				let normal = first.cross(medium).norm();
+				let hnd = normal.dot(last);
+	        	
+				
+//				if (hnd >= 0){
+//					console.log("removed index "+index + 1);
+//					currPoly.splice(index + 1, 1);
+//					index -= 1;
+//					continue;
+//				}
+				
+	        	if (index == 0) {
+
+	        		flip = (hnd < 0.) ? -1 : 1;
+
+	        	} else {
+
+	        		let flipThnd = flip * hnd;
+					if (flipThnd < 0) {
+						currPoly.splice(index + 1, 1);
+						index -= 1;
+						continue;
+					} 
+
+				}
+
+				index += 1;
+	        	
+	        }
+			
+		}
+//		return Object.values(clonedpolygons);
+		return clonedpolygons;
+		
+	}
 	
 	/**
 	 * @param polygons: array of convex polygons having with points in clockwise order
@@ -74,14 +153,17 @@ class GeomUtils{
 	 */
 	static computeConvexPolygons(polygons){
 		
+		// deep clone
+		let clonedpolygons = polygons.map(a => Object.assign({}, a));
+
 		
 		for (let i = 0; i < polygons.length; i++){
 			
 			let flip = 0;
 	        let index = 0;
-	        let back = false;
-	        let currPoly = polygons[i];
-	        
+//	        let back = false;
+	        let currPoly = clonedpolygons[i];
+
 			while (index < currPoly.length){
 	        	
 				
@@ -106,18 +188,18 @@ class GeomUtils{
 	        	if (index == 0) {
 
 	        		flip = (hnd < 0.) ? -1 : 1;
-					back = false;
+//					back = false;
 
 	        	} else {
 
 	        		let flipThnd = flip * hnd;
-					if (flipThnd < 0) {
+					if (flipThnd > 0) {
 						currPoly.splice(index + 1, 1);
-						back = true;
+//						back = true;
 						index -= 1;
 						continue;
 					} else {
-						back = false;
+//						back = false;
 					}
 
 				}
@@ -125,17 +207,22 @@ class GeomUtils{
 				index += 1;
 	        	
 	        }
+			
 		}
-		return polygons;
+//		return Object.values(clonedpolygons);
+		return clonedpolygons;
 		
 	}
 	
 	
 	/**
+	 * 
 	 * @param polygons:
 	 *            array of polygons of Point.js
 	 * @param point2Check:
 	 *            Point.js
+	 *            
+	 * @deprecated
 	 */
 	static pointInsidePolygons(polygons, point2Check){
 		

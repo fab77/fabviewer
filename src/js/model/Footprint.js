@@ -21,6 +21,7 @@ class Footprint{
 	_details;
 	_center;
 	_totPoints;
+	_totConvexPoints;
 	_npix256;
 	
 	 
@@ -40,12 +41,29 @@ class Footprint{
 		this._details = in_details;
 		this._polygons = [];
 		this._totPoints = 0;
+		this._totConvexPoints = 0;
 		
 		
 		
 		this.computePoints();
+		this.computeConvexPoly();
+		if (global.healpix4footprints){
+			this._npix256 = this.computeNpix256();	
+		}
 		
-		this._npix256 = this.computeNpix256();
+	}
+	
+	
+	computeConvexPoly(){
+		
+		this._convexPolygons = GeomUtils.computeConvexPolygons2(this._polygons);
+		
+		for (let i = 0; i < this._convexPolygons.length; i++){
+			let poly = this._convexPolygons[i];
+//			this._totConvexPoints += Object.values(poly).length;
+			this._totConvexPoints += poly.length;
+		}
+		
 	}
 	
 	/**
@@ -54,7 +72,7 @@ class Footprint{
 	// TODO wrong method name. No more fixed nside=256. nside is now defined into Global.js
 	computeNpix256(){
 
-		this._convexPolygons = GeomUtils.computeConvexPolygons(this._polygons);
+//		this._convexPolygons = GeomUtils.computeConvexPolygons(this._polygons);
 		
 		let healpix256 = new Healpix(global.nsideForSelection);
 
@@ -125,6 +143,10 @@ class Footprint{
 	
 	get totPoints(){
 		return this._totPoints;
+	}
+	
+	get totConvexPoints(){
+		return this._totConvexPoints;
 	}
 
 	get polygons(){

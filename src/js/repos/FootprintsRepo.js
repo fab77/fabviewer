@@ -87,14 +87,19 @@ class FootprintsRepo{
 		console.log(tapTable);
 //		var adqlQuery = "select top 2 * " +
 //			"from "+tapTable+" where " +
-//			"observation_id = '0653290201'";
-//			"observation_id = '0301340501'";
-//			"observation_id = '0203040301'";
-////		"observation_id = '0653290101'"; -> OK
-////		"observation_id = '0851181101'";
-////		"observation_id = '0017740401'";
-		
-		
+//			// XXM OM OPTICAL
+////			"observation_id = '0653290201'";
+////			"observation_id = '0301340501'";
+////			"observation_id = '0203040301'";
+////			"observation_id = '0653290101'"; -> OK
+////			"observation_id = '0851181101'";
+//			"observation_id = '0017740401'";
+//		//Herschel 
+////			"observation_id='1342232059' AND instrument = 'PACS'";
+////			"observation_id='1342232059' AND instrument = 'SPIRE'";
+//		"observation_id='1342246769' AND instrument = 'PACS'";
+		// AKARI
+//		"obs_id='1500713_001'";
 		
 //		var queryString = "/esasky-tap/tap/sync?request=doQuery&lang=ADQL&format=json&query="+encodeURI(adqlQuery);
 
