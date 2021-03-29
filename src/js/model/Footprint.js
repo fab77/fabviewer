@@ -23,7 +23,7 @@ class Footprint{
 	_totPoints;
 	_totConvexPoints;
 	_npix256;
-	
+	_footprintsPointsOrder; // 1-> clockwise, -1 counter clockwise
 	 
 
 	/**
@@ -33,7 +33,7 @@ class Footprint{
 	 * @param in_stcs: String - STC-S representation of the footprint
 	 * @param in_details: Object {"key": <key>, "value": <value>, "valueType": <valueType>, "unit": <unit>}
 	 */
-	constructor(in_point, in_identifier, in_stcs, in_details=[]){
+	constructor(in_point, in_identifier, in_stcs, in_details=[], footprintsPointsOrder){
 		
 		this._center = in_point;
 		this._stcs = in_stcs.toUpperCase();
@@ -43,7 +43,7 @@ class Footprint{
 		this._totPoints = 0;
 		this._totConvexPoints = 0;
 		
-		
+		this._footprintsPointsOrder = footprintsPointsOrder;
 		
 		this.computePoints();
 		this.computeConvexPoly();
@@ -56,7 +56,7 @@ class Footprint{
 	
 	computeConvexPoly(){
 		
-		this._convexPolygons = GeomUtils.computeConvexPolygons2(this._polygons);
+		this._convexPolygons = GeomUtils.computeConvexPolygons3(this._polygons, this._footprintsPointsOrder, this);
 		
 		for (let i = 0; i < this._convexPolygons.length; i++){
 			let poly = this._convexPolygons[i];

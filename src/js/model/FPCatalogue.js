@@ -41,14 +41,18 @@ class FPCatalogue{
 	_footprintsInPix256;
 	_nPrimitiveFlags = 0;
 	
+	_footprintsPointsOrder; // 1 -> clockwise, -1 -> counter clockwise
+	
 	_totConvexPoints;
 	_convexIndexes;
 	_convexIndexBuffer;
 	_vertexConvexPolyPosition;
 	_vertexConvexPolyPositionBuffer;
 	
-	constructor(in_datasetName, in_metadata, in_raIdx, in_decIdx, in_uidIdx, in_stcsIdx, in_descriptor){
+	constructor(in_datasetName, in_metadata, in_raIdx, in_decIdx, in_uidIdx, in_stcsIdx, in_descriptor, footprintsPointsOrder){
 
+		this._footprintsPointsOrder = footprintsPointsOrder;
+		
 		this._datasetName = in_datasetName;
 		this._metadata = in_metadata;
 		this._raIdx = in_raIdx;
@@ -200,7 +204,7 @@ class FPCatalogue{
 				"decDeg": in_data[j][this._decIdx]
 			}, CoordsType.ASTRO);
 			
-			footprint = new Footprint(point,in_data[j][this._uidIdx], in_data[j][this._stcsIdx], in_data[j]);
+			footprint = new Footprint(point,in_data[j][this._uidIdx], in_data[j][this._stcsIdx], in_data[j], this._footprintsPointsOrder);
 			this.addFootprint(footprint);
 			this._totPoints += footprint.totPoints;
 			this._totConvexPoints += footprint.totConvexPoints;
@@ -368,7 +372,7 @@ class FPCatalogue{
 					
 					let footprint = this._footprints[i];
 
-					if (GeomUtils.pointInsidePolygons2(footprint.convexPolygons, mousePoint) ){
+					if (GeomUtils.pointInsidePolygons2(footprint.convexPolygons, mousePoint, this._footprintsPointsOrder) ){
 						console.log("INSIDE "+footprint.identifier+ " pixel "+mousePix);
 					}
 					
@@ -465,7 +469,7 @@ class FPCatalogue{
 		if (this.showConvexPolygons){
 			
 			rgb = colorHex2RGB(this._descriptor.shapeColor);
-			var alpha = 0.5;
+			var alpha = 0.3;
 			rgb[3] = alpha;
 			this._gl.uniform4f(this._attribLocations.color, 1., 0., 0., rgb[3]);
 			

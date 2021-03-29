@@ -144,8 +144,7 @@ class FootprintsRepo{
 					}
 				}
 	
-				// TODO change footprint to a more meaningfull name like footprintCatalogue
-				var fpCatalogue = new FPCatalogue(datasetName, metadata, raIdx, decIdx, uidIdx, stcsIdx, descriptor);
+				var fpCatalogue = new FPCatalogue(datasetName, metadata, raIdx, decIdx, uidIdx, stcsIdx, descriptor, FootprintsRepo.footprintsClockwiseOrder(datasetName));
 				
 				fpCatalogue.addFootprints(data);
 				FootprintsRepo.addFootprint(fpCatalogue);
@@ -159,6 +158,16 @@ class FootprintsRepo{
 		
 		xhr.send();
 		
+	}
+	
+	
+	static footprintsClockwiseOrder(datasetName){
+		let order = 1; // clockwise order
+		if(datasetName == 'AKARI' || datasetName == 'HST-IR'){
+			order = -1;
+		}
+		
+		return order;
 	}
 	
 	static removeFPCatalogue(in_footprintName){
