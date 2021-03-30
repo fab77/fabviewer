@@ -31,7 +31,7 @@ class GeomUtils{
 				
 				let normal = v1.cross(v2);
 				let scalar = normal.dot(point2Check);
-				if ( (clockwise > 0 && scalar < 0) || (clockwise < 0 && scalar > 0) ){ // checking points in clockwise or counter clockwise order
+				if ( (clockwise > 0 && scalar <= 0) || (clockwise < 0 && scalar >= 0) ){ // checking points in clockwise or counter clockwise order
 					continue;
 				}else{
 					inside = false;
@@ -101,7 +101,7 @@ class GeomUtils{
 					let normal = first.cross(medium).norm();
 					let hnd = normal.dot(last);
 		        	
-					if ( (clockwise > 0 && hnd > 0) || (clockwise < 0 && hnd < 0) ){
+					if ( (clockwise > 0 && hnd >= 0) || (clockwise < 0 && hnd <= 0) ){
 //						console.log("removed index "+index + 1);
 						currPoly.splice(index + 1, 1);
 //						if ((index + 1) == currPoly.length){
