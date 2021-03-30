@@ -109,7 +109,7 @@ class Footprint{
 		
 		
 		// TODO STCS parser: it should be a separated class or utility class following the standard
-		let stcsParsed = this._stcs.replaceAll("ICRS", "").replaceAll("J2000", "").replaceAll("UNION", "").replaceAll("TOPOCENTER", "").trim().replace(/  +/g, ' ');
+		let stcsParsed = this._stcs.replaceAll("'ICRS'", "").replaceAll("ICRS", "").replaceAll("J2000", "").replaceAll("UNION", "").replaceAll("TOPOCENTER", "").trim().replace(/  +/g, ' ');
 		
 		if (stcsParsed.includes("POLYGON")){
 			

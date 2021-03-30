@@ -31,7 +31,7 @@ class GeomUtils{
 				
 				let normal = v1.cross(v2);
 				let scalar = normal.dot(point2Check);
-				if ( (clockwise && scalar < 0) || (!clockwise && scalar > 0) ){ // checking points in clockwise or counter clockwise order
+				if ( (clockwise > 0 && scalar < 0) || (clockwise < 0 && scalar > 0) ){ // checking points in clockwise or counter clockwise order
 					continue;
 				}else{
 					inside = false;
@@ -101,7 +101,7 @@ class GeomUtils{
 					let normal = first.cross(medium).norm();
 					let hnd = normal.dot(last);
 		        	
-					if ( (clockwise && hnd > 0) || (!clockwise && hnd < 0) ){
+					if ( (clockwise > 0 && hnd > 0) || (clockwise < 0 && hnd < 0) ){
 //						console.log("removed index "+index + 1);
 						currPoly.splice(index + 1, 1);
 //						if ((index + 1) == currPoly.length){
@@ -301,7 +301,7 @@ class GeomUtils{
 	 *            
 	 * @deprecated use pointInsidePolygons2 instead 
 	 */
-	static pointInsidePolygons(polygons, point2Check){
+static pointInsidePolygons(polygons, point2Check){
 		
 		for (let k =0; k < polygons.length; k++){
 			let polygon = polygons[k];
@@ -352,6 +352,90 @@ class GeomUtils{
 
 	            }
 
+	        }
+	        
+	        
+	        yP = point2Check.y - 2 * Math.abs(maxY);
+	        if (Math.sign(maxY) != Math.sign(point2Check.y)) {
+	            yP = point2Check.y - Math.abs(Math.PI / 2 - point2Check.y) + 2 * Math.abs(maxY);
+	        }
+
+	        for (let i = 0; i < polygon.length - 1; i++) {
+	            obsP1 = polygon[i];
+	            obsP2 = polygon[i + 1];
+	            mObs = (obsP2.y - obsP1.y) / (obsP2.x - obsP1.x);
+	            qObs = (obsP2.x * obsP1.y - obsP1.x * obsP2.y) / (obsP2.x - obsP1.x);
+	            t = (mObs * xS + qObs - yS) / (yP - yS);
+
+	            if (0 <= t && t <= 1) {
+
+	                yIntersection = t * yP + (1 - t) * yS;
+	                if ((obsP1.y <= yIntersection && yIntersection <= obsP2.y)
+	                        || (obsP2.y <= yIntersection && yIntersection <= obsP1.y)) {
+	                    intersections += 1;
+	                }
+
+	            }
+
+	        }
+	        
+	        if (intersections % 2 == 0) {
+	            return true;
+	        }
+	        
+		}
+		return false;
+		
+		
+	}
+
+
+	static pointInsidePolygons3(polygons, point2Check){
+		
+		for (let k =0; k < polygons.length; k++){
+			let polygon = polygons[k];
+			
+			
+			let minY = polygon[0].y;
+	        let maxY = polygon[0].y;
+	
+	        for (let i = 1; i < polygon.length; i++) {
+	            if (polygon[i].y < minY) {
+	                minY = polygon[i].y;
+	            } else if (polygon[i].y > maxY) {
+	                maxY = polygon[i].y;
+	            }
+	        }
+	        
+	        let xS = point2Check.x;
+	        let yS = point2Check.y;
+	        
+	        let xP = xS;
+	        let yP = point2Check.y + 2 * Math.abs(maxY - minY);
+
+	        
+	        let intersections = 0;
+	
+	        let obsP1;
+	        let obsP2;
+	        let mObs;
+	        let qObs;
+	        let t, s;
+	
+	        for (let i = 0; i < polygon.length - 1; i++) {
+	            obsP1 = polygon[i];
+	            obsP2 = polygon[i + 1];
+	            
+	            s = (xP*yS + obsP2.x*yP - obsP2.x*yS - xS*yP - xP*obsP2.y + xS*obsP2.y) / (obsP1.x - obsP2.x - xP*obsP1.y + xP*obsP2.y + xS*obsP1.y - xS*obsP2.y);
+	            t = (obsP2.x + s*(obsP1.x - obsP2.x) - xS) * 1/(xP - xS);
+	            
+	            let x_in_seg = obsP2.x + s * (obsP1.x - obsP2.x);
+	            if ( (x_in_seg >= obsP1.x && x_in_seg <= obsP2.x) || (x_in_seg >= obsP2.x && x_in_seg <= obsP1.x) ){
+	            	let y_in_seg = obsP2.y + s * (obsP1.y - obsP2.y);
+	            	if ( (y_in_seg >= obsP1.y && y_in_seg <= obsP2.y) || (y_in_seg >= obsP2.y && y_in_seg <= obsP1.y) ){
+	            		intersections += 1;
+	            	}
+	            }
 	        }
 	        if (intersections % 2 != 0) {
 	            return true;

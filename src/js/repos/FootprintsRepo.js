@@ -163,7 +163,8 @@ class FootprintsRepo{
 	
 	static footprintsClockwiseOrder(datasetName){
 		let order = 1; // clockwise order
-		if(datasetName == 'AKARI' || datasetName == 'HST-IR'){
+//		|| datasetName == 'ISO-IR'
+		if(datasetName == 'AKARI' ){
 			order = -1;
 		}
 		

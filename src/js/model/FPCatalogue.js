@@ -376,6 +376,10 @@ class FPCatalogue{
 						console.log("INSIDE "+footprint.identifier+ " pixel "+mousePix);
 					}
 					
+//					if (GeomUtils.pointInsidePolygons(footprint.polygons, mousePoint, this._footprintsPointsOrder) ){
+//						console.log("INSIDE "+footprint.identifier+ " pixel "+mousePix);
+//					}
+					
 				}
 	
 			}

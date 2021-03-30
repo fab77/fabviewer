@@ -19,7 +19,7 @@ class Global{
 	// #baseUrl = "http://localhost:8080/esasky-sl/";
 	_refnside;
 	_healpix4footprints = false;
-	_showConvexPolygons = true; // used in FPCatalogue to drawing convex polygons together with the original footprints (for debug)
+	_showConvexPolygons = false; // used in FPCatalogue to drawing convex polygons together with the original footprints (for debug)
 	
 	constructor(){
 		this._pMatrix = null;
