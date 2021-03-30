@@ -467,7 +467,7 @@ class FPCatalogue{
 		 * https://www.khronos.org/registry/webgl/specs/latest/2.0/#4.1.4
 		 * https://github.com/KhronosGroup/glTF/issues/1142
 		 */
-//		this._gl.drawElements (this._gl.LINE_LOOP, this._vertexCataloguePosition.length / 3 + 1,this._gl.UNSIGNED_SHORT, 0);
+		this._gl.drawElements (this._gl.LINE_LOOP, this._vertexCataloguePosition.length / 3 + 1,this._gl.UNSIGNED_SHORT, 0);
 		this._gl.drawElements (this._gl.POINT, this._vertexCataloguePosition.length / 3 + 1,this._gl.UNSIGNED_SHORT, 0);
 		
 		if (this.showConvexPolygons){
