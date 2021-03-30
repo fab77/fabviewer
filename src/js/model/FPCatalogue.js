@@ -469,6 +469,7 @@ class FPCatalogue{
 		 */
 		this._gl.drawElements (this._gl.LINE_LOOP, this._vertexCataloguePosition.length / 3 + 1,this._gl.UNSIGNED_SHORT, 0);
 		this._gl.drawElements (this._gl.POINT, this._vertexCataloguePosition.length / 3 + 1,this._gl.UNSIGNED_SHORT, 0);
+//		this._gl.drawElements (this._gl.POINT, 1,this._gl.UNSIGNED_SHORT, 0);
 		
 		if (this.showConvexPolygons){
 			

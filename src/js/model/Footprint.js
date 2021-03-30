@@ -129,9 +129,18 @@ class Footprint{
 			
 			let polys = stcsParsed.split("POLYGON ");
 			
+			
 			for (let i = 1; i < polys.length; i++){
 				let currPoly = [];
 				let points = polys[i].trim().split(" ");
+				
+				
+				// case when in the stc_s the first point is repeated at the end. Removes the repeated point at the end 
+				if (points[0] == points[points.length - 2] && points[1] == points[points.length - 1]){
+					points.splice(points.length - 2 ,2);
+				}
+				
+				
 				if (points.length >= 2){
 					for (let p = 0; p < points.length - 1; p = p+2){
 						let point = new Point({

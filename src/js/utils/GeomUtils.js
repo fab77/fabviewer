@@ -103,7 +103,12 @@ class GeomUtils{
 		        	
 					if ( (clockwise > 0 && hnd >= 0) || (clockwise < 0 && hnd <= 0) ){
 //						console.log("removed index "+index + 1);
-						currPoly.splice(index + 1, 1);
+						if (index == currPoly.length - 1) {
+							currPoly.splice( (index + 1) % currPoly.length, 1);
+						}else{
+							currPoly.splice(index + 1, 1);	
+						}
+						
 //						if ((index + 1) == currPoly.length){
 //							break;
 //						}
