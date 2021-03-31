@@ -276,7 +276,7 @@ class Catalogue{
 					let mouseCoords = in_mouseHelper.xyz;
 
 					let dist = Math.sqrt( (source.point.x - in_mouseHelper.x )*(source.point.x - in_mouseHelper.x ) + (source.point.y - in_mouseHelper.y )*(source.point.y - in_mouseHelper.y ) + (source.point.z - in_mouseHelper.z )*(source.point.z - in_mouseHelper.z ) );
-					if (dist <= 0.004){
+					if (dist <= 0.002){
 
 						selectionIndexes.push(sourceIdx);
 
