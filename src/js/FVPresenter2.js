@@ -585,7 +585,7 @@ class FVPresenter2{
 		catalogue;
 		for (k = 0; k < CatalogueRepo.catalogues.length; k++){
 			catalogue = CatalogueRepo.catalogues[k];
-			catalogue.draw(j2000ModelMatrix, this.mouseHelper.xyz);
+			catalogue.draw(j2000ModelMatrix, this.mouseHelper);
 		}
 		
 		var j,

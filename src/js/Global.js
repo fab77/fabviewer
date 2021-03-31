@@ -21,6 +21,7 @@ class Global{
 	_healpix4footprints = false;
 	_showConvexPolygons = false; // used in FPCatalogue to drawing convex polygons together with the original footprints (for debug)
 	
+	
 	constructor(){
 		this._pMatrix = null;
 		this._mvMatrix = null;

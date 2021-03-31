@@ -30,6 +30,7 @@ class Catalogue{
 	#attribLocations = {};
 	#selectionIndexes;
 	#descriptor;
+	_healpixDensityMap;
 	
 	
 	constructor(in_name, in_metadata, in_raIdx, in_decIdx, in_nameIdx, in_descriptor){
@@ -58,6 +59,8 @@ class Catalogue{
 				pointSize: 2,
 				color: [0.0, 1.0, 0.0, 1.0]
 		};
+		
+		this._healpixDensityMap = new Map();
 		
 		this.initShaders();
 		
@@ -193,8 +196,23 @@ class Catalogue{
 		var positionIndex = 0;
 		
 		// max num of decimal places is 17
-		var R = 1.00000000000000001;
+		let R = 1.00000000000000001;
+		
 		for(var j = 0; j < nSources; j++){
+			
+			
+			let currSource = sources[j];
+			let currPix = currSource.healpixPixel;
+			
+			if (this._healpixDensityMap.has(currPix)){
+				let sourceList =  this._healpixDensityMap.get(currPix);
+				
+				if (!sourceList.includes(j)){
+					sourceList.push(j);
+				}
+			}else{
+				this._healpixDensityMap.set(currPix, [j]);
+			}
 			
 			// the commented part has been moved into Point.js
 //			let xyz = [sources[j].point.x, sources[j].point.y, sources[j].point.z];
@@ -205,9 +223,9 @@ class Catalogue{
 //			this.#vertexCataloguePosition[positionIndex+2] = finalXYZ[2];
 			
 			// source position on index 0, 1, 2
-			this.#vertexCataloguePosition[positionIndex] = sources[j].point.x;
-			this.#vertexCataloguePosition[positionIndex+1] = sources[j].point.y;
-			this.#vertexCataloguePosition[positionIndex+2] = sources[j].point.z;
+			this.#vertexCataloguePosition[positionIndex] = currSource.point.x;
+			this.#vertexCataloguePosition[positionIndex+1] = currSource.point.y;
+			this.#vertexCataloguePosition[positionIndex+2] = currSource.point.z;
 			
 			// source selected on index 3
 			this.#vertexCataloguePosition[positionIndex+3] = 0.0;
@@ -236,21 +254,52 @@ class Catalogue{
 	
 	
 	
-	checkSelection (in_mouseCoords) {
-		var sources = this.#sources;
-		var nSources = sources.length;
-		var selectionIndexes = [];
+	checkSelection (in_mouseHelper) {
 		
-		for(var j = 0; j < nSources; j++){
-			let sourcexyz = [sources[j].point.x , sources[j].point.y , sources[j].point.z];
+		
+		let selectionIndexes = [];
+		
+		let mousePix = in_mouseHelper.computeNpix256();
+
+		let mousePoint = new Point({x: in_mouseHelper.x, y: in_mouseHelper.y, z: in_mouseHelper.z}, CoordsType.CARTESIAN);
+
+		if (mousePix != null){
 			
-			let dist = Math.sqrt( (sourcexyz[0] - in_mouseCoords[0] )*(sourcexyz[0] - in_mouseCoords[0] ) + (sourcexyz[1] - in_mouseCoords[1] )*(sourcexyz[1] - in_mouseCoords[1] ) + (sourcexyz[2] - in_mouseCoords[2] )*(sourcexyz[2] - in_mouseCoords[2] ) );
-			if (dist <= 0.004){
-				
-				selectionIndexes.push(j);
-					
+			
+			if (this._healpixDensityMap.has(mousePix)){
+
+				for (let i = 0; i < this._healpixDensityMap.get(mousePix).length; i++){
+						
+					let sourceIdx = this._healpixDensityMap.get(mousePix)[i];
+					let source = this.sources[sourceIdx];
+
+					let mouseCoords = in_mouseHelper.xyz;
+
+					let dist = Math.sqrt( (source.point.x - in_mouseHelper.x )*(source.point.x - in_mouseHelper.x ) + (source.point.y - in_mouseHelper.y )*(source.point.y - in_mouseHelper.y ) + (source.point.z - in_mouseHelper.z )*(source.point.z - in_mouseHelper.z ) );
+					if (dist <= 0.004){
+
+						selectionIndexes.push(sourceIdx);
+
+					}
+
+				}
+
 			}
 		}
+//		var sources = this.#sources;
+//		var nSources = sources.length;
+//		var selectionIndexes = [];
+//		let mouseCoords = in_mouseHelper.xyz;
+//		for(var j = 0; j < nSources; j++){
+//			let sourcexyz = [sources[j].point.x , sources[j].point.y , sources[j].point.z];
+//			
+//			let dist = Math.sqrt( (sourcexyz[0] - mouseCoords[0] )*(sourcexyz[0] - mouseCoords[0] ) + (sourcexyz[1] - mouseCoords[1] )*(sourcexyz[1] - mouseCoords[1] ) + (sourcexyz[2] - mouseCoords[2] )*(sourcexyz[2] - mouseCoords[2] ) );
+//			if (dist <= 0.004){
+//				
+//				selectionIndexes.push(j);
+//					
+//			}
+//		}
 		return selectionIndexes;
 		
 	}
@@ -281,7 +330,7 @@ class Catalogue{
 	/**
 	 * @param in_Matrix: model matrix the current catalogue is associated to (e.g. HiPS matrix)
 	 */
-	draw(in_mMatrix, in_mouseCoords){
+	draw(in_mMatrix, in_mouseHelper){
 		
 
 		shaderUtility.useProgram(this.#shaderProgram);
@@ -309,14 +358,14 @@ class Catalogue{
 		rgb[3] = alpha;
 		this.#gl.uniform4f(this.#attribLocations.color, rgb[0], rgb[1], rgb[2], rgb[3]);
 		
-		if (in_mouseCoords != null && in_mouseCoords != this.#oldMouseCoords){
+		if (in_mouseHelper != null && in_mouseHelper.xyz != this.#oldMouseCoords){
 			
 			for (var k = 0; k < this.#selectionIndexes.length; k++){
 				this.#vertexCataloguePosition[ (this.#selectionIndexes[k] * Catalogue.ELEM_SIZE) + 3] = 0.0;
 				this.#vertexCataloguePosition[ (this.#selectionIndexes[k] * Catalogue.ELEM_SIZE) + 4] = 8.0;
 			}	
 			
-			this.#selectionIndexes = this.checkSelection(in_mouseCoords);
+			this.#selectionIndexes = this.checkSelection(in_mouseHelper);
 
 			let selectedSources = [];
 			for (var i = 0; i < this.#selectionIndexes.length; i++){
@@ -344,7 +393,7 @@ class Catalogue{
 
 		this.#gl.drawArrays(this.#gl.POINTS, 0, numItems);
 
-		this.#oldMouseCoords = in_mouseCoords;
+		this.#oldMouseCoords = in_mouseHelper.xyz;
 		
 	}
 
