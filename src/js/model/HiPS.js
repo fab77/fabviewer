@@ -23,12 +23,14 @@ import {shaderUtility} from '../utils/ShaderUtility';
 
 class HiPS extends AbstractSkyEntity{
 
-	static className = "HiPSEntity";
+//	static className = "HiPSEntity";
+	static className;
 	
 	constructor(in_radius, in_position, in_xRad, in_yRad, in_name, url, format, maxOrder, opacity, isGalacticHips){
 
 		super(in_radius, in_position, in_xRad, in_yRad, in_name, isGalacticHips);
 
+		HiPS.className = "HiPSEntity";
 		this.radius = in_radius;
 		this.gl = global.gl;
 		this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);

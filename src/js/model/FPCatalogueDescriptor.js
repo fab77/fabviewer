@@ -2,63 +2,62 @@
 
 class FPCatalogueDescriptor{
 	
-	#datasetName;
-	#tapTable;
-	#raTapColumn;
-	#decTapColumn;
-	#uidTapColumn;
-	#shapeColor;
-	#stcs;
+	_datasetName;
+	_tapTable;
+	_raTapColumn;
+	_decTapColumn;
+	_uidTapColumn;
+	_shapeColor;
+	_stcs;
 	
 	
 	constructor(in_fpCatalogueDescriptorJSON){
 		
-		this.#datasetName = in_fpCatalogueDescriptorJSON.mission;
-		this.#tapTable = in_fpCatalogueDescriptorJSON.tapTable;
-		this.#raTapColumn = in_fpCatalogueDescriptorJSON.tapRaColumn;
-		this.#decTapColumn = in_fpCatalogueDescriptorJSON.tapDecColumn;
-		this.#uidTapColumn = in_fpCatalogueDescriptorJSON.uniqueIdentifierField;
-		this.#shapeColor = in_fpCatalogueDescriptorJSON.primaryColor;
-		this.#stcs = in_fpCatalogueDescriptorJSON.tapSTCSColumn;
+		this._datasetName = in_fpCatalogueDescriptorJSON.mission;
+		this._tapTable = in_fpCatalogueDescriptorJSON.tapTable;
+		this._raTapColumn = in_fpCatalogueDescriptorJSON.tapRaColumn;
+		this._decTapColumn = in_fpCatalogueDescriptorJSON.tapDecColumn;
+		this._uidTapColumn = in_fpCatalogueDescriptorJSON.uniqueIdentifierField;
+		this._shapeColor = in_fpCatalogueDescriptorJSON.primaryColor;
+		this._stcs = in_fpCatalogueDescriptorJSON.tapSTCSColumn;
         
 	}
 	
 	get datasetName(){
-		return this.#datasetName;
+		return this._datasetName;
 	}
 	
 	get tapTable(){
-		return this.#tapTable;
+		return this._tapTable;
 	}
 	
 	get raTapColumn(){
-    	return this.#raTapColumn;
+    	return this._raTapColumn;
     }
 	
     get decTapColumn(){
-    	return this.#decTapColumn;
+    	return this._decTapColumn;
     }
     
     get uidTapColumn(){
-    	return this.#uidTapColumn;
+    	return this._uidTapColumn;
     }
     
     get shapeColor(){
-    	return this.#shapeColor;
+    	return this._shapeColor;
     }
     
     get shapeColorHex(){
-    	return this.#shapeColor;
+    	return this._shapeColor;
     }
     
     get shapeColorRgb(){
-//    	Utils.
     	
-    	return this.#shapeColor;
+    	return this._shapeColor;
     }
     
     get stcs() {
-    	return this.#stcs;
+    	return this._stcs;
     }
 	
 }

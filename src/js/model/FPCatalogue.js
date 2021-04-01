@@ -13,9 +13,8 @@ import GeomUtils from '../utils/GeomUtils';
 
 class FPCatalogue{
 	
-	// static ELEM_SIZE = 5;
-	static ELEM_SIZE = 3;
-	static BYTES_X_ELEM = new Float32Array().BYTES_PER_ELEMENT;
+	static ELEM_SIZE;
+	static BYTES_X_ELEM;
 	
 	_datasetName;
 	_metadata;
@@ -30,16 +29,16 @@ class FPCatalogue{
 	_indexes;
 	_indexBuffer;
 	_vertexSelectionCataloguePositionBuffer;
-	_footprints = [];
+	_footprints;
 	_oldMouseCoords;
 	_vertexCataloguePosition;
-	_attribLocations = {};
+	_attribLocations;
 	_selectionIndexes;
 	_descriptor;
 	_totPoints;	// Used to compute item size in the GL buffer
 	_indexes;
 	_footprintsInPix256;
-	_nPrimitiveFlags = 0;
+	_nPrimitiveFlags;
 	
 	_footprintsPointsOrder; // 1 -> clockwise, -1 -> counter clockwise
 	
@@ -51,6 +50,10 @@ class FPCatalogue{
 	
 	constructor(in_datasetName, in_metadata, in_raIdx, in_decIdx, in_uidIdx, in_stcsIdx, in_descriptor, footprintsPointsOrder){
 
+		
+		FPCatalogue.ELEM_SIZE = 3;
+		FPCatalogue.BYTES_X_ELEM = new Float32Array().BYTES_PER_ELEMENT;
+		
 		this._footprintsPointsOrder = footprintsPointsOrder;
 		
 		this._datasetName = in_datasetName;
@@ -62,6 +65,9 @@ class FPCatalogue{
 		
 		this._descriptor = in_descriptor;
 		
+		this._footprints = [];
+		this._attribLocations = {};
+		this._nPrimitiveFlags = 0;
 		this._totPoints = 0;
 		
 		this._gl = global.gl;

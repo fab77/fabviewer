@@ -6,20 +6,20 @@ import eventBus from './events/EventBus';
 
 class Global{
 	
-	#pMatrix = null;	// projection matrix (perspective)
-	#mvMatrix = null;	// TODO model view matrix ? needed?
-	#model = null;		// selected object
-	#camera = null;		// the camera object
-	#gl = null;			// GL context
-	#rayPicker = null;	// TODO probably useless here ince all methods are static
-	#hipsStack = [];
-	// #baseUrl = "https://sky.esa.int/esasky-tap/";
-	#baseUrl = "http://skyint.esac.esa.int/esasky-tap/";
-	// #baseUrl = "http://ammiappdev.esac.esa.int/esasky-tap/";
-	// #baseUrl = "http://localhost:8080/esasky-sl/";
+	_pMatrix;	// projection matrix (perspective)
+	_mvMatrix;	// TODO model view matrix ? needed?
+	_model;		// selected object
+	_camera;		// the camera object
+	_gl;			// GL context
+	_rayPicker;	// TODO probably useless here ince all methods are static
+	_hipsStack;
+	// _baseUrl = "https://sky.esa.int/esasky-tap/";
+	_baseUrl;
+	// _baseUrl = "http://ammiappdev.esac.esa.int/esasky-tap/";
+	// _baseUrl = "http://localhost:8080/esasky-sl/";
 	_refnside;
-	_healpix4footprints = false;
-	_showConvexPolygons = false; // used in FPCatalogue to drawing convex polygons together with the original footprints (for debug)
+	_healpix4footprints;
+	_showConvexPolygons; // used in FPCatalogue to drawing convex polygons together with the original footprints (for debug)
 	
 	
 	constructor(){
@@ -32,7 +32,11 @@ class Global{
 		this._healpix = [];
 		this._order = 3;
 		this._insideSphere = false;
-		this._refnside = 32;
+		this._refnside = 128;
+		this._baseUrl = "http://skyint.esac.esa.int/esasky-tap/";
+		this._healpix4footprints = false;
+		this._showConvexPolygons = false; // used in FPCatalogue to drawing convex polygons together with the original footprints (for debug)
+		
 	}
 
 	getHealpix (order){
@@ -43,51 +47,51 @@ class Global{
 	}
 	
 	get pMatrix(){
-		return this.#pMatrix;
+		return this._pMatrix;
 	}
 	// IS IT USED?!?
 	get mvMatrix(){
-		return this.#mvMatrix;
+		return this._mvMatrix;
 	}
 	
 	get model(){
-		return this.#model;
+		return this._model;
 	}
 	
 	get camera(){
-		return this.#camera;
+		return this._camera;
 	}
 	
 	get gl(){
-		return this.#gl;
+		return this._gl;
 	}
 	
 	get rayPicker(){
-		return this.#rayPicker;
+		return this._rayPicker;
 	}
 	
 	set pMatrix(in_pMatrix){
-		this.#pMatrix = in_pMatrix;
+		this._pMatrix = in_pMatrix;
 	}
 	// TODO
 	set mvMatrix(in_mvMatrix){
-		this.#mvMatrix = in_mvMatrix;
+		this._mvMatrix = in_mvMatrix;
 	}
 	
 	set model(in_model){
-		this.#model = in_model;
+		this._model = in_model;
 	}
 	
 	set camera(in_camera){
-		this.#camera = in_camera;
+		this._camera = in_camera;
 	}
 	
 	set gl(in_gl){
-		this.#gl = in_gl;
+		this._gl = in_gl;
 	}
 	// TODO
 	set rayPicker(in_rayPicker){
-		this.#rayPicker = in_rayPicker;
+		this._rayPicker = in_rayPicker;
 	}
 
 
@@ -109,7 +113,7 @@ class Global{
 	}
 
 	get baseUrl(){
-		return this.#baseUrl;
+		return this._baseUrl;
 	}
 	
 	get nsideForSelection(){

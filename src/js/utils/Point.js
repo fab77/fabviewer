@@ -12,10 +12,10 @@ class Point{
 	_x;
 	_y;
 	_z;
-	_xyz = [];
+	_xyz;
 	_raDeg;
 	_decDeg;
-	_raDecDeg = [];
+	_raDecDeg;
 	
 	/**
 	 * @param in_options: 
@@ -25,6 +25,10 @@ class Point{
 	 * @param in_type: CoordsType
 	 */
 	constructor(in_options, in_type){
+		
+		
+		this._xyz = [];
+		this._raDecDeg = [];
 		
 		if (in_type == CoordsType.CARTESIAN){
 			

@@ -8,12 +8,15 @@ import {vec3, mat4} from 'gl-matrix';
 import global from '../Global';
 
 class FoV{
-	#minFoV = 180;
+	
+	_minFoV;
+	
 	constructor(in_model){
 		this.fovXDeg = 180;
 		this.fovYDeg = 180;
 		this.prevMinFoV = 180;
 		this.model = in_model;
+		this._minFoV = 180;
 	}
 	
 	getFoV(insideSphere){
@@ -26,7 +29,7 @@ class FoV{
 		// vertical FoV 
 		this.fovYDeg = this.computeAngle(gl.canvas.width / 2, 0, insideSphere);
 
-		this.#minFoV = this.minFoV;
+		this._minFoV = this.minFoV;
 		
 		return this;
 	}
@@ -95,8 +98,8 @@ class FoV{
 	}
 	
 	get minFoV(){
-		this.#minFoV = (this.fovYDeg <= this.fovXDeg) ? this.fovYDeg : this.fovXDeg;
-		return this.#minFoV;
+		this._minFoV = (this.fovYDeg <= this.fovXDeg) ? this.fovYDeg : this.fovXDeg;
+		return this._minFoV;
 	}
 
 	mat4multiplyVec3 = function(a, b, c) {
