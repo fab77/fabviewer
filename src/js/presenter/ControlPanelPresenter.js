@@ -3,6 +3,8 @@
  */
 "use strict";
 
+import $ from "jquery";
+
 import global from '../Global';
 
 
@@ -15,12 +17,11 @@ import ControlPanelView from '../view/ControlPanelView';
 import FootprintPanelView from '../view/FootprintPanelView';
 import FootprintListView from '../view/FootprintListView';
 import FootprintsSetListPresenter from './FootprintsSetListPresenter';
+import FootprintsRepo from '../repos/FootprintsRepo';
 
 import CataloguePanelView from '../view/CataloguePanelView';
 import CatalogueListView from '../view/CatalogueListView';
 import CatalogueListPresenter from './CatalogueListPresenter';
-
-import FootprintsRepo from '../repos/FootprintsRepo';
 import CatalogueRepo from '../repos/CatalogueRepo';
 
 
@@ -29,6 +30,8 @@ class ControlPanelPresenter{
 	_view;
 	_parentView;
 	_catalogueListPresenter;
+	_catalogueRepo;
+	_footprintRepo;
 	
 	constructor(in_parentView){
 		
@@ -48,64 +51,30 @@ class ControlPanelPresenter{
 		
 
 	initPresenters(){
-		
+
 		let cataloguePanelView = new CataloguePanelView();
 		this._catalogueListPresenter = new CatalogueListPresenter(cataloguePanelView);
 		this.view.appendChild(cataloguePanelView.getHtml());
 		this.catalogueRepo = new CatalogueRepo(global.baseUrl + "catalogs", this._catalogueListPresenter.addCatalogues);
-		
-		
+
+
 		let footprintPanelView = new FootprintPanelView();
 		this._footprintsListPresenter = new FootprintsSetListPresenter(footprintPanelView);
 		this.view.appendChild(footprintPanelView.getHtml());
 		this.footprintRepo = new FootprintsRepo(global.baseUrl + "observations", this._footprintsListPresenter.addFootprintsSet);
-		
+
 	}
 	
 	get view(){
         return this._view;
     }
-	
-//	addCatalogueButtonClickHandler(){
-//		
-//		let self = this;
-//		
-//		this._view.addCatalogueButtonClickHandler(function(){
-//
-//			console.log('into handler');
-//			eventBus.fireEvent(new OpenPanelEvent("Catalogues"));
-//
-//        });
-//
-//		
-//		this._view.addFootprintButtonClickHandler(function(){
-//
-//			console.log('into handler');
-//			eventBus.fireEvent(new OpenPanelEvent("Imaging"));
-//
-//        });
-//
-//    }
-
 
 	addButtonsClickHandlers(){
 		
 		let self = this;
 		
-		this._view.addCatalogueButtonClickHandler(function(){
-	
-			console.log('into handler');
-			eventBus.fireEvent(new OpenPanelEvent("Catalogues"));
-	
-	    });
-	
-		
-		this._view.addFootprintButtonClickHandler(function(){
-	
-			console.log('into handler');
-			eventBus.fireEvent(new OpenPanelEvent("Imaging"));
-	
-	    });
+		$("#cataloguesButton").on("click", function(){eventBus.fireEvent(new OpenPanelEvent("Catalogues")) } );
+		$("#footprintsButton").on("click", function(){eventBus.fireEvent(new OpenPanelEvent("Imaging")) } );
 	
 	}
 
@@ -116,7 +85,7 @@ class ControlPanelPresenter{
 	}
 	
 	notify(in_event){
-		console.log('into notify');
+
 		if (in_event instanceof OpenPanelEvent){
 			
 			if (in_event.panelName == "Catalogues"){

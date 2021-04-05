@@ -2,10 +2,14 @@
 import $ from "jquery";
 class CatalogueListView{
  
+	
     constructor(){
-        this.html;
-        this.init();
-        var _public = {
+        
+    	this.html;
+        
+    	this.init();
+        
+    	var _public = {
             getHtml: ()=>{
                 return this.html;
             },

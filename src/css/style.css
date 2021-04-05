@@ -1,7 +1,14 @@
+:root {
+  --commonBg: rgba(255, 255, 255, .15);
+  --commonHover: blue;
+  --commonfontfamily: monospace;
+}
+
 body {
 	margin: 0px;
 	border: 0px;
 	padding: 0px;
+	font-family: var(--commonfontfamily);
 }
 #fabviewer {
 /* 	position: absolute; */

@@ -57,10 +57,8 @@ class FVView{
 //		this.fpsvalue_dom = document.getElementById('fpsvalue');
 //		this.avgfpsvalue_dom = document.getElementById('avgfpsvalue');
 		
-		this.fovX_deg = 180.0;
-		this.fovY_deg = 180.0;
-//		this.previousFoV = 180;
-//		this.updateFoV([this.fovX_deg, this.fovY_deg]);
+//		this.fovX_deg = 180.0;
+//		this.fovY_deg = 180.0;
 				
 		this.widthToHeight = 4 / 3;
 		
@@ -148,21 +146,14 @@ class FVView{
 		  }
 		};
 	
-//	this.updateFps = function(in_fps, in_avg){
-//		
-//		this.fpsvalue_dom.innerHTML = in_fps.toFixed(1);
-//		this.avgfpsvalue_dom.innerHTML = in_avg.toFixed(1);
+	
+//	updateFoV(in_fovObj){
+//		if (DEBUG){
+//			console.log("[FVView::updateFoV]");
+//		}
+//		this.fovvalue_dom.innerHTML = in_fovObj.fovXDeg.toFixed(4) + '&deg;x'+ in_fovObj.fovYDeg.toFixed(4) + '&deg;';
 //		
 //	};
-	
-	updateFoV(in_fovObj){
-		if (DEBUG){
-			console.log("[FVView::updateFoV]");
-		}
-		this.fovvalue_dom.innerHTML = in_fovObj.fovXDeg.toFixed(4) + '&deg;x'+ in_fovObj.fovYDeg.toFixed(4) + '&deg;';
-//		this.previousFoV = (in_fovXY[0] <= in_fovXY[1]) ? in_fovXY[0] : in_fovXY[1];
-		
-	};
 	
 	setPickedSphericalCoordinates(phiThetaDeg){
 		this.coords_phi_dom.innerHTML = phiThetaDeg.phi.toFixed(4);

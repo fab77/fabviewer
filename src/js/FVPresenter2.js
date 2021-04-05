@@ -10,8 +10,10 @@ import RayPickingUtils from './utils/RayPickingUtils';
 import eventBus from './events/EventBus';
 import OpenPanelEvent from './events/OpenPanelEvent';
 
-import ControlPanelView from './view/ControlPanelView';
+//import ControlPanelView from './view/ControlPanelView';
 import ControlPanelPresenter from './presenter/ControlPanelPresenter';
+
+import FoVPresenter from './presenter/FoVPresenter';
 
 import SystemView from './view/SystemView';
 import SystemPresenter from './presenter/SystemPresenter';
@@ -178,6 +180,7 @@ class FVPresenter2{
 		
 		this.controlPanelPresenter = new ControlPanelPresenter(this.view);
 		
+		this.fovPresenter = new FoVPresenter(this.view);
 		// var fitsView = new FITSView();
 		// this.view.appendChild(fitsView.html);
 		// this.fitsPresenter = new FITSPresenter(fitsView, this.enableFitsCallback);
@@ -481,7 +484,8 @@ class FVPresenter2{
 	};
 
 	updateFov(){
-		this.view.updateFoV(this.fovObj);
+		this.fovPresenter.updateFoV(this.fovObj);
+//		this.view.updateFoV(this.fovObj);
 		this.updateFovTimer = null;
 	}
 

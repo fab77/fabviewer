@@ -37,18 +37,6 @@ class ControlPanelView {
 	appendChild(html){
 		$("#controlpanel2container").append(html);
 	};
-	
-	addCatalogueButtonClickHandler(handler){
-		$("#cataloguesButton").on("click", handler);
-    }
-	
-	addFootprintButtonClickHandler(handler){
-		$("#footprintsButton").on("click", handler);
-    }
-	
-	addButtonsClickHandlers(){
-		$("#cataloguesButton").on("click", handler);
-		$("#footprintsButton").on("click", handler);
-	}
+
 }
 export default ControlPanelView;

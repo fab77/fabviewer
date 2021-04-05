@@ -1,0 +1,12 @@
+@charset "UTF-8";
+
+#fovContainer {
+	width: 195px;
+    height: 16px;
+    position: absolute;
+    bottom: 92px;
+    left: 40%;
+    color: var(--commonBg);
+    padding: 6px;
+    text-align: center;
+}
