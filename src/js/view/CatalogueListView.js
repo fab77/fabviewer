@@ -18,9 +18,9 @@ class CatalogueListView{
     }
  
     init(){
-        this.html = $("<div ><ul id='catalogueList'></ul></div>");
-        this.html.css("height","150px");
-        this.html.css("overflow", "scroll");
+//        this.html = $("<div ><ul id='catalogueList' class='catalogueListPanel'></ul></div>");
+//        this.html.css("height","150px");
+//        this.html.css("overflow", "scroll");
         
     }
  

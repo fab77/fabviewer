@@ -9,7 +9,7 @@ class FootprintListView{
             getHtml: ()=>{
                 return this.html;
             },
-            addFPSet: (footprintView)=>{
+            addDataset: (footprintView)=>{
                 this.html.find("#footprintList").append(footprintView.getHtml());
             }
         }

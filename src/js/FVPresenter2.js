@@ -7,15 +7,22 @@ import Camera3 from './model/Camera3';
 
 import RayPickingUtils from './utils/RayPickingUtils';
 
+import eventBus from './events/EventBus';
+import OpenPanelEvent from './events/OpenPanelEvent';
+
+import ControlPanelView from './view/ControlPanelView';
+import ControlPanelPresenter from './presenter/ControlPanelPresenter';
 
 import SystemView from './view/SystemView';
 import SystemPresenter from './presenter/SystemPresenter';
 
-import CatalogueListView from './view/CatalogueListView';
-import CatalogueListPresenter from './presenter/CatalogueListPresenter';
 
-import FootprintListView from './view/FootprintListView';
-import FootprintsSetListPresenter from './presenter/FootprintsSetListPresenter';
+//import CataloguePanelView from './view/CataloguePanelView';
+//import CatalogueListView from './view/CatalogueListView';
+//import CatalogueListPresenter from './presenter/CatalogueListPresenter';
+
+//import FootprintListView from './view/FootprintListView';
+//import FootprintsSetListPresenter from './presenter/FootprintsSetListPresenter';
 
 import HiPSListView from './view/HiPSListView';
 import HiPSListPresenter from './presenter/HiPSListPresenter';
@@ -53,6 +60,8 @@ class FVPresenter2{
 		this.nearestModel;
 		this.enableCatalogues = true;
 		this.init(in_view);
+		this.registerForEvents();
+		
 	}
 	
 	init(in_view){
@@ -72,12 +81,6 @@ class FVPresenter2{
 		global.rayPicker = this.raypicker; 
 		
 		this.initPresenter();
-		
-		this.catalogueRepo = new CatalogueRepo(global.baseUrl + "catalogs", this.catalogueListPresenter.addCatalogues);
-		
-		this.footprintsRepo = new FootprintsRepo(global.baseUrl + "observations", this.footprintsSetListPresenter.addFootprintsSet);
-		
-		// this.modelRepo = new ModelRepo(this.in_gl, this.view.canvas, this.catalogueListPresenter.addCatalogues); 
 		
 		this.hipsRepo = new HiPSRepo(global.baseUrl + "hips-sources", this.hipsListPresenter.addHiPS);
 		
@@ -150,34 +153,35 @@ class FVPresenter2{
 		});
 	};
 	
+	registerForEvents(){
+
+	}
+	
+	notify(in_event){
+
+	}
+	
 	initPresenter(){
 		
 		let hipsListView = new HiPSListView();
 		this.hipsListPresenter = new HiPSListPresenter(hipsListView);
 		this.view.appendChild(hipsListView.getHtml());
 		
-		var systemView = new SystemView();
+		let systemView = new SystemView();
 		this.systemPresenter = new SystemPresenter(systemView);
 		this.view.appendChild(systemView.getHtml());
 		this.systemPresenter.addFovPolyHandler(()=>{this.getFovPoly()});
 		
-		var catalogueListView = new CatalogueListView();
-		this.catalogueListPresenter = new CatalogueListPresenter(catalogueListView);
-		this.view.appendChild(catalogueListView.getHtml());
-		
-		
-		var footprintListView = new FootprintListView();
-		this.footprintsSetListPresenter = new FootprintsSetListPresenter(footprintListView);
-		this.view.appendChild(footprintListView.getHtml());
-		
-		
-		var sourceSelView = new SourceSelectionView();
+		let sourceSelView = new SourceSelectionView();
 		this.sourceSelectionPresenter = new SourceSelectionPresenter(sourceSelView);
 		this.view.appendChild(sourceSelView.html);
 		
+		this.controlPanelPresenter = new ControlPanelPresenter(this.view);
+		
 		// var fitsView = new FITSView();
 		// this.view.appendChild(fitsView.html);
-		// this.fitsPresenter = new FITSPresenter(fitsView, this.enableFitsCallback);		
+		// this.fitsPresenter = new FITSPresenter(fitsView, this.enableFitsCallback);
+		
 		
 	};
 	

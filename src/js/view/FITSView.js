@@ -7,16 +7,16 @@ import $ from 'jquery';
 
 class FITSView {
 
-	#html;
+	_html;
 
 	constructor () {
-		this.#html = "<label for='fitsEnabled'>FITS</label><input id='fitsEnabled' type='checkbox'/><label></label><br>";
+		this._html = "<label for='fitsEnabled'>FITS</label><input id='fitsEnabled' type='checkbox'/><label></label><br>";
 		
 		
 	}
 
 	get html(){
-		return this.#html;
+		return this._html;
 	}
 	
 	addCheckedHandler(handler){

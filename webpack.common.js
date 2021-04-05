@@ -5,9 +5,13 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const TerserJSPlugin = require('terser-webpack-plugin');
 
+const CopyPlugin = require("copy-webpack-plugin");
+
+
 module.exports = {
   entry: {
     app: './src/index.js',
+
   },
   optimization: {
     minimizer: [new TerserJSPlugin({}), new OptimizeCSSAssetsPlugin({})],
@@ -19,6 +23,11 @@ module.exports = {
       template: 'src/index.html'
     }),
     new MiniCssExtractPlugin(),
+    new CopyPlugin({
+        patterns: [
+          { from: "src/media", to: "dest" }
+        ],
+      }),
   ],
   externals: {
     jquery: "jQuery"
@@ -38,7 +47,7 @@ module.exports = {
       },
       {
         test: /\.(png|svg|jpg|jpeg|gif)$/i,
-        type: 'asset/resource'
+        type: 'asset/resource',
       },
       {
         test: /\.m?js$/,
@@ -52,5 +61,6 @@ module.exports = {
         }
       }
     ]
-  }
+  },
+  
 };

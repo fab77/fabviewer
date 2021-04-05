@@ -24,7 +24,7 @@ class CatalogueView{
     }
  
     init(){
-    	this.html = $("<li><input type='checkbox'/><label></label><br></li>");
+    	this.html = $("<li><label></label><input type='checkbox'/></li>");
     }
 }
 

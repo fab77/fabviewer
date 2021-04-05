@@ -78,6 +78,16 @@ class FVView{
 		$("#controlpanel").append(html);
 		
 	};
+	
+	appendChild2(html){
+		$("#controlpanel2container").append(html);
+		
+	};
+	
+	append2Body(html){
+		$("body").append(html);
+		
+	};
 
 	addHealpixGridCheckboxHandler(handler){
 		this.healpixGridCheckbox.onclick = handler;
