@@ -24,6 +24,8 @@ import CatalogueListView from '../view/CatalogueListView';
 import CatalogueListPresenter from './CatalogueListPresenter';
 import CatalogueRepo from '../repos/CatalogueRepo';
 
+import SpectraPanelView from '../view/SpectraPanelView';
+
 
 class ControlPanelPresenter{
 	
@@ -62,6 +64,11 @@ class ControlPanelPresenter{
 		this._footprintsListPresenter = new FootprintsSetListPresenter(footprintPanelView);
 		this.view.appendChild(footprintPanelView.getHtml());
 		this.footprintRepo = new FootprintsRepo(global.baseUrl + "observations", this._footprintsListPresenter.addFootprintsSet);
+		
+		let spectraPanelView = new SpectraPanelView();
+		this._spectraListPresenter = new FootprintsSetListPresenter(spectraPanelView);
+		this.view.appendChild(spectraPanelView.getHtml());
+		this.spectraRepo = new FootprintsRepo(global.baseUrl + "spectra", this._spectraListPresenter.addFootprintsSet);
 
 	}
 	
@@ -75,6 +82,7 @@ class ControlPanelPresenter{
 		
 		$("#cataloguesButton").on("click", function(){eventBus.fireEvent(new OpenPanelEvent("Catalogues")) } );
 		$("#footprintsButton").on("click", function(){eventBus.fireEvent(new OpenPanelEvent("Imaging")) } );
+		$("#spectraButton").on("click", function(){eventBus.fireEvent(new OpenPanelEvent("Spectra")) } );
 	
 	}
 
@@ -96,7 +104,12 @@ class ControlPanelPresenter{
 
 				this._footprintsListPresenter.view.toggle()
 
+			}else if (in_event.panelName == "Spectra"){
+
+				this._spectraListPresenter.view.toggle()
+
 			}
+
 		}
 
 	}

@@ -93,3 +93,32 @@
 	cursor: pointer;
 	color: white;
 }
+
+#spectraPanel{
+	
+	position: absolute;
+    width: 200px;
+    height: 200px;
+    max-height: 500px;
+    background-color: var(--commonBg);
+    left: 55px;
+    top: 7px;
+    border-radius: 3px;
+    overflow: scroll;
+	
+}
+
+#spectraPanel ul {
+	list-style-type: none;
+	margin-block-start: 0em;
+    margin-block-end: 0em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    padding-inline-start: 10px;
+}
+
+#spectraPanel li:hover{
+	background-color: var(--commonHover);
+	cursor: pointer;
+	color: white;
+}
