@@ -12,6 +12,7 @@ import OpenPanelEvent from './events/OpenPanelEvent';
 
 //import ControlPanelView from './view/ControlPanelView';
 import ControlPanelPresenter from './presenter/ControlPanelPresenter';
+import CoordinatesPanelPresenter from './presenter/CoordinatesPanelPresenter';
 
 import FoVPresenter from './presenter/FoVPresenter';
 
@@ -181,6 +182,8 @@ class FVPresenter2{
 		this.controlPanelPresenter = new ControlPanelPresenter(this.view);
 		
 		this.fovPresenter = new FoVPresenter(this.view);
+		
+		this.coordinatesPanelPresenter = new CoordinatesPanelPresenter(this.view);
 		// var fitsView = new FITSView();
 		// this.view.appendChild(fitsView.html);
 		// this.fitsPresenter = new FITSPresenter(fitsView, this.enableFitsCallback);
@@ -247,8 +250,9 @@ class FVPresenter2{
 				var raHMS = raDegToHMS(raDecDeg.ra);
 				var decDMS = decDegToDMS(raDecDeg.dec);
 				this.view.setPickedSphericalCoordinates(phiThetaDeg);
-				this.view.setPickedAstroCoordinates(raDecDeg, raHMS, decDMS);
+//				this.view.setPickedAstroCoordinates(raDecDeg, raHMS, decDMS);
 				this.view.setPickedObjectName(intersectionWithModel.pickedObject.name);
+				this.coordinatesPanelPresenter.update(raDecDeg, raHMS, decDMS);
 				
 			}else{
 				// console.log("no intersection");
@@ -308,8 +312,9 @@ class FVPresenter2{
 						var raHMS = raDegToHMS(raDecDeg.ra);
 						var decDMS = decDegToDMS(raDecDeg.dec);
 						this.view.setPickedSphericalCoordinates(phiThetaDeg);
-						this.view.setPickedAstroCoordinates(raDecDeg, raHMS, decDMS);
+//						this.view.setPickedAstroCoordinates(raDecDeg, raHMS, decDMS);
 						this.view.setPickedObjectName(mouseObjectPicked.name);
+						this.coordinatesPanelPresenter.update(raDecDeg, raHMS, decDMS);
 						
 						this.mouseHelper.xyz = mousePoint;
 						this.mouseHelper.raDecDeg = raDecDeg;
@@ -325,7 +330,8 @@ class FVPresenter2{
 						let raHMS = raDegToHMS(raDecDeg.ra);
 						let decDMS = decDegToDMS(raDecDeg.dec);
 						this.view.setPickedSphericalCoordinates(phiThetaDeg);
-						this.view.setPickedAstroCoordinates(raDecDeg, raHMS, decDMS);
+//						this.view.setPickedAstroCoordinates(raDecDeg, raHMS, decDMS);
+						this.coordinatesPanelPresenter.update(raDecDeg, raHMS, decDMS);
 						
 					}	
 					

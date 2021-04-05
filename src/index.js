@@ -1,6 +1,7 @@
 import './css/style.css';
 import './css/controlpanelcontainer.css';
 import './css/fovcontainer.css';
+import './css/coordinatespanel.css';
 
 //import catIcon from './catbutton.png';
 

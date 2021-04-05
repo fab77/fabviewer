@@ -27,15 +27,15 @@ class FVView{
 		
 		this.pickedobjvalue_dom = document.getElementById('pickedobjectvalue');
 		
-		this.fovvalue_dom = document.getElementById('fovvalue');
+//		this.fovvalue_dom = document.getElementById('fovvalue');
 		this.coords_phi_dom = document.getElementById('phi');
 		this.coords_theta_dom = document.getElementById('theta');
 		
-		this.coords_radeg_dom = document.getElementById('RA_deg');
-		this.coords_decdeg_dom = document.getElementById('Dec_deg');
-		
-		this.coords_rahms_dom = document.getElementById('RA_hms');
-		this.coords_decdms_dom = document.getElementById('Dec_dms');
+//		this.coords_radeg_dom = document.getElementById('RA_deg');
+//		this.coords_decdeg_dom = document.getElementById('Dec_deg');
+//		
+//		this.coords_rahms_dom = document.getElementById('RA_hms');
+//		this.coords_decdms_dom = document.getElementById('Dec_dms');
 		
 		
 
@@ -160,16 +160,16 @@ class FVView{
 		this.coords_theta_dom.innerHTML = phiThetaDeg.theta.toFixed(4);
 	};
 	
-	setPickedAstroCoordinates(raDecDeg, raHMS, decDMS){
-		this.coords_radeg_dom.innerHTML = raDecDeg.ra.toFixed(4);
-		this.coords_decdeg_dom.innerHTML = raDecDeg.dec.toFixed(4);
-		this.coords_rahms_dom.innerHTML = raHMS.h +" "+raHMS.m +" "+raHMS.s.toFixed(2);
-		var sign = '+';
-		if (decDMS.d < 0){
-			sign = '';
-		}
-		this.coords_decdms_dom.innerHTML = sign+decDMS.d+" "+decDMS.m+" "+decDMS.s.toFixed(2);
-	};
+//	setPickedAstroCoordinates(raDecDeg, raHMS, decDMS){
+//		this.coords_radeg_dom.innerHTML = raDecDeg.ra.toFixed(4);
+//		this.coords_decdeg_dom.innerHTML = raDecDeg.dec.toFixed(4);
+//		this.coords_rahms_dom.innerHTML = raHMS.h +" "+raHMS.m +" "+raHMS.s.toFixed(2);
+//		var sign = '+';
+//		if (decDMS.d < 0){
+//			sign = '';
+//		}
+//		this.coords_decdms_dom.innerHTML = sign+decDMS.d+" "+decDMS.m+" "+decDMS.s.toFixed(2);
+//	};
 	
 	setPickedObjectName(name){
 		this.pickedobjvalue_dom.innerHTML = name;

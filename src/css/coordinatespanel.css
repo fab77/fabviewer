@@ -1,11 +1,11 @@
 @charset "UTF-8";
 
-#fovContainer {
-	width: 195px;
-    height: 16px;
+#coordsContainer {
+	width: 330px;
+    height: 31px;
     position: absolute;
-    bottom: 92px;
-    left: 40%;
+    top: 4px;
+    left: 37%;
     background-color: var(--commonBg);
     color: var(--commonTextColor);
     padding: 3px;
