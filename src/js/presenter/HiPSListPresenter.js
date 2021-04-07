@@ -10,12 +10,12 @@ import { healpixGridTileBufferSingleton } from '../model/HealpixGridTileBuffer';
 
 class HiPSListPresenter{
 	
-	#view = null;
-	#model = null;
+	_view;
+	_model;
 	
 	constructor(in_view){
-		this.#view = in_view;
-		this.#model = null;
+		this._view = in_view;
+		this._model = null;
 		this.hipsPresenters = [];
 		this.timeCounter = 0;
 		eventBus.registerForEvent(this, InsideSphereSelectionChangedEvent.name);
@@ -30,7 +30,7 @@ class HiPSListPresenter{
 	}
 	
 	get view(){
-        return this.#view;
+        return this._view;
     }
 	
 	addHiPS = (hipsDescriptorJSON) => {
@@ -45,7 +45,7 @@ class HiPSListPresenter{
 						
 						let model = new HiPSDescriptor(hips);
 			            let hipsPresenter = new HiPSPresenter(new HiPSView(), model);
-						this.#view.addHiPS(hipsPresenter.view);
+						this._view.addHiPS(hipsPresenter.view);
 						this.hipsPresenters.push(hipsPresenter);
 					}
 
@@ -60,7 +60,7 @@ class HiPSListPresenter{
 //    		let model = new HiPSDescriptor(hips);
 //            let hipsPresenter = new HiPSPresenter(new HiPSView());
 //            hipsPresenter.model = model;
-//            this.#view.addHiPS(hipsPresenter.view);
+//            this._view.addHiPS(hipsPresenter.view);
 //    	}
 	}
 
@@ -75,7 +75,7 @@ class HiPSListPresenter{
 	}
 
 	toggle(){
-		this.#view.toggle();
+		this._view.toggle();
 	}
 	
 	draw(pMatrix, vMatrix){

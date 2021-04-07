@@ -85,7 +85,7 @@ class FVPresenter2{
 		
 		this.initPresenter();
 		
-		this.hipsRepo = new HiPSRepo(global.baseUrl + "hips-sources", this.hipsListPresenter.addHiPS);
+//		this.hipsRepo = new HiPSRepo(global.baseUrl + "hips-sources", this.hipsListPresenter.addHiPS);
 		
 		this.aspectRatio;
 		this.fovDeg = 45;
@@ -112,16 +112,19 @@ class FVPresenter2{
 		this.nearestVisibleObjectIdx = 0;
 		
 
-		let hips = new HiPS(1, [0.0, 0.0, 0.0], 
-			// Math.PI / 2, 
-			0, 
-			// 0, "INTEGRAL-IBIS 65-100 keV", "//skies.esac.esa.int/Integral/65-100/", "fits", 3);
-			// 0, "Herschel SPIRE 500 micron", "//skies.esac.esa.int/Herschel/normalized/hips500_pnorm_allsky/", "fits", 5);
-			// 0, "Herschel SPIRE 500 micron", "//skies.esac.esa.int/Herschel/normalized/hips500_pnorm_allsky/", "png", 5);
-			0, "DSS2 color", "//skies.esac.esa.int/DSSColor/", "jpg", 9);
-		hips.show();
-		this.view.setPickedObjectName(hips);
-		global.defaultHips = hips;
+//		let hips = new HiPS(1, [0.0, 0.0, 0.0], 
+//			// Math.PI / 2, 
+//			0, 
+//			// 0, "INTEGRAL-IBIS 65-100 keV", "//skies.esac.esa.int/Integral/65-100/", "fits", 3);
+//			// 0, "Herschel SPIRE 500 micron", "//skies.esac.esa.int/Herschel/normalized/hips500_pnorm_allsky/", "fits", 5);
+//			// 0, "Herschel SPIRE 500 micron", "//skies.esac.esa.int/Herschel/normalized/hips500_pnorm_allsky/", "png", 5);
+//			0, "DSS2 color", "//skies.esac.esa.int/DSSColor/", "jpg", 9);
+//		hips.show();
+//		this.view.setPickedObjectName(hips);
+//		global.defaultHips = hips;
+		
+		this.view.setPickedObjectName(global.defaultHips);
+		global.defaultHips.show();
 		
 		this.lastDrawTime = (new Date()).getTime() * 0.001;
 
@@ -166,9 +169,9 @@ class FVPresenter2{
 	
 	initPresenter(){
 		
-		let hipsListView = new HiPSListView();
-		this.hipsListPresenter = new HiPSListPresenter(hipsListView);
-		this.view.appendChild(hipsListView.getHtml());
+//		let hipsListView = new HiPSListView();
+//		this.hipsListPresenter = new HiPSListPresenter(hipsListView);
+//		this.view.appendChild(hipsListView.getHtml());
 		
 		let systemView = new SystemView();
 		this.systemPresenter = new SystemPresenter(systemView);
@@ -234,7 +237,7 @@ class FVPresenter2{
 			this.lastMouseY = event.clientY;
 			
 			
-			var intersectionWithModel = RayPickingUtils.getIntersectionPointWithModel(this.lastMouseX, this.lastMouseY, this.hipsListPresenter.getVisibleModels());
+			var intersectionWithModel = RayPickingUtils.getIntersectionPointWithModel(this.lastMouseX, this.lastMouseY, this.controlPanelPresenter.hipsListPresenter.getVisibleModels());
 			if (intersectionWithModel.intersectionPoint.intersectionPoint === undefined){
 				return;
 			}
@@ -252,7 +255,7 @@ class FVPresenter2{
 				this.view.setPickedSphericalCoordinates(phiThetaDeg);
 //				this.view.setPickedAstroCoordinates(raDecDeg, raHMS, decDMS);
 				this.view.setPickedObjectName(intersectionWithModel.pickedObject.name);
-				this.coordinatesPanelPresenter.update(raDecDeg, raHMS, decDMS);
+				this.coordinatesPanelPresenter.update(raDecDeg, raHMS, decDMS, phiThetaDeg.phi, phiThetaDeg.theta);
 				
 			}else{
 				// console.log("no intersection");
@@ -314,7 +317,7 @@ class FVPresenter2{
 						this.view.setPickedSphericalCoordinates(phiThetaDeg);
 //						this.view.setPickedAstroCoordinates(raDecDeg, raHMS, decDMS);
 						this.view.setPickedObjectName(mouseObjectPicked.name);
-						this.coordinatesPanelPresenter.update(raDecDeg, raHMS, decDMS);
+						this.coordinatesPanelPresenter.update(raDecDeg, raHMS, decDMS, phiThetaDeg.phi, phiThetaDeg.theta);
 						
 						this.mouseHelper.xyz = mousePoint;
 						this.mouseHelper.raDecDeg = raDecDeg;
@@ -331,7 +334,7 @@ class FVPresenter2{
 						let decDMS = decDegToDMS(raDecDeg.dec);
 						this.view.setPickedSphericalCoordinates(phiThetaDeg);
 //						this.view.setPickedAstroCoordinates(raDecDeg, raHMS, decDMS);
-						this.coordinatesPanelPresenter.update(raDecDeg, raHMS, decDMS);
+						this.coordinatesPanelPresenter.update(raDecDeg, raHMS, decDMS, phiThetaDeg.phi, phiThetaDeg.theta);
 						
 					}	
 					
@@ -480,7 +483,7 @@ class FVPresenter2{
 	};
 
 	refreshViewAndModel(pan, insideSphere) {
-		this.nearestModel = RayPickingUtils.getNearestObjectOnRay(this.view.canvas.width / 2, this.view.canvas.height / 2, this.hipsListPresenter.getVisibleModels());
+		this.nearestModel = RayPickingUtils.getNearestObjectOnRay(this.view.canvas.width / 2, this.view.canvas.height / 2, this.controlPanelPresenter.hipsListPresenter.getVisibleModels());
 		this.fovObj = this.refreshFov(insideSphere);
 
 		if(this.updateFovTimer == null){
@@ -575,9 +578,11 @@ class FVPresenter2{
 			this.refreshViewAndModel();
 		}
 		
-		this.hipsListPresenter.draw(this.pMatrix, this.camera.getCameraMatrix());
+		this.controlPanelPresenter.hipsListPresenter.draw(this.pMatrix, this.camera.getCameraMatrix());
+		
+//		this.hipsListPresenter.draw(this.pMatrix, this.camera.getCameraMatrix());
 		let j2000ModelMatrix = global.defaultHips.getModelMatrix();
-		let activeHips = this.hipsListPresenter.getVisibleModels();
+		let activeHips = this.controlPanelPresenter.hipsListPresenter.getVisibleModels();
 		let galacticModel = undefined;
 		activeHips.forEach(hips => {
 			if(hips.isGalacticHips){
@@ -595,15 +600,13 @@ class FVPresenter2{
 			}
 		}
 
-		var k,
-		catalogue;
+		let k, catalogue;
 		for (k = 0; k < CatalogueRepo.catalogues.length; k++){
 			catalogue = CatalogueRepo.catalogues[k];
 			catalogue.draw(j2000ModelMatrix, this.mouseHelper);
 		}
 		
-		var j,
-		footprintSet;
+		let j, footprintSet;
 		for (j = 0; j < FootprintsRepo.footprints.length; j++){
 			footprintSet = FootprintsRepo.footprints[j];
 			footprintSet.draw(j2000ModelMatrix, this.mouseHelper);

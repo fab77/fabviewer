@@ -4,8 +4,9 @@
 import FVView from './FVView';
 
 //import FVPresenter from './FVPresenter';
-import FVPresenter2 from './FVPresenter2';
 import global from './Global';
+import FVPresenter2 from './FVPresenter2';
+
 import { textHelper } from './utils/TextHelper';
 
 

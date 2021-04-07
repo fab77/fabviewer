@@ -25,8 +25,8 @@ class CoordinatesPanelPresenter {
         return this._view;
     }
 	
-	update(in_raDecDeg, in_raHMS, in_decDMS){
-		this.view.setModel(in_raDecDeg, in_raHMS, in_decDMS, this._showSphericalCoords);
+	update(in_raDecDeg, in_raHMS, in_decDMS, in_phi, in_theta){
+		this.view.setModel(in_raDecDeg, in_raHMS, in_decDMS, in_phi, in_theta);
 	}
 	
 	showSphericalCoords(show){

@@ -21,7 +21,7 @@ class ControlPanelView {
 		"	<img id='spectraButton' class='myButton' src='dest/spebutton2.png' />" +
 		"</div>" +
 		"<div id='astromaps' class='myButton'>" +
-		"	<img class='myButton' src='dest/mapbutton2.png' />" +
+		"	<img id='mapsButton' class='myButton' src='dest/mapbutton2.png' />" +
 		"</div>" +
 		"<div id='settings' class='myButton'>" +
 		"	<img class='myButton' src='dest/settings.png' />" +

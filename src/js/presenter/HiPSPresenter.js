@@ -10,6 +10,13 @@ import global from '../Global';
 class HiPSPresenter{
 	
 	
+	_view;
+	_model;
+	_format;
+	_hips;
+	_isShowing;
+	
+	
 	/**
 	 * @param in_view: HiPSView
 	 * @param in_model: HiPSDescriptor
@@ -18,31 +25,35 @@ class HiPSPresenter{
 		this._view = in_view;
 		this._formats = [];
 		this._model = in_model;
+		this._hips = undefined;
+		this._isShowing = false;
+		
 		this.retrieveHiPSProperties();
+		
 		if(global.defaultHips.name === this._model.surveyName){
-			this.hips = global.defaultHips;
+			this._hips = global.defaultHips;
 			this._view.setChecked(true);
-			this.isShowing = true;
+			this._isShowing = true;
 		}
 		
 		this._view.addCheckedHandler((event)=>{
 
 			var checkbox = event.currentTarget;
-			this.isShowing = checkbox.checked;
-			if(!this.isShowing){
-				this.hips.hide();
+			this._isShowing = checkbox.checked;
+			if(!this._isShowing){
+				this._hips.hide();
 			} else {
-				if(this.hips == undefined){
+				if(this._hips == undefined){
 					let format = this.view.getSelectedFormat();
 					let opacity = this.view.getSelectedOpacity() / 100;
-					this.hips = new HiPS(1, [0.0, 0.0, 0.0], 
+					this._hips = new HiPS(1, [0.0, 0.0, 0.0], 
 						0, 
 						0, this._model.surveyName, 
 						this._model.url, format,
 						this._maxOrder, opacity, this._isGalacticFrame);
 					}
-					this.hips.show();
-				this.hips.refreshModel(this.hips.refreshFoV().minFoV);
+					this._hips.show();
+				this._hips.refreshModel(this._hips.refreshFoV().minFoV);
 			}
         });
 		
@@ -54,10 +65,10 @@ class HiPSPresenter{
 		// });
 
 		in_view.addFormatChangedHandler((event) => {
-			if(this.hips && this.isShowing){
+			if(this._hips && this._isShowing){
 				let format = event.target.value;
 				let opacity = this.view.getSelectedOpacity() / 100;
-				this.hips = new HiPS(1, [0.0, 0.0, 0.0], 
+				this._hips = new HiPS(1, [0.0, 0.0, 0.0], 
 					0, 
 					0, this._model.surveyName, 
 					this._model.url, format,
@@ -68,8 +79,8 @@ class HiPSPresenter{
 		});
 
 		in_view.addOpacityChangedHandler((event) => {
-			if(this.hips){
-				this.hips.setOpacity(event.target.value/100);
+			if(this._hips){
+				this._hips.setOpacity(event.target.value/100);
 			}
 		});
 		
@@ -97,8 +108,8 @@ class HiPSPresenter{
 						this._maxOrder = parseInt(lines[i].split("=")[1].trim());
 					} else if(lines[i].includes("hips_frame")){
 						this._isGalacticFrame = "galactic" == lines[i].toLowerCase().split("=")[1].trim();
-						if(this.hips){
-							this.hips.setIsGalacticFrame(this._isGalacticFrame);
+						if(this._hips){
+							this._hips.setIsGalacticFrame(this._isGalacticFrame);
 						}
 					}
 				}
@@ -112,15 +123,15 @@ class HiPSPresenter{
     }
 
 	setInsideSphere(insideSphere){
-		if(this.hips){
-			this.hips.refreshModelMatrix(insideSphere);
+		if(this._hips){
+			this._hips.refreshModelMatrix(insideSphere);
 		}
 	}
 	
 	
 	draw(pMatrix, vMatrix){
-		if(this.hips && this.isShowing){
-			this.hips.draw(pMatrix, vMatrix);
+		if(this._hips && this._isShowing){
+			this._hips.draw(pMatrix, vMatrix);
 		}
 	}
 }

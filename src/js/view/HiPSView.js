@@ -42,13 +42,14 @@ class HiPSView{
     }
  
     init(){
-        this.html = $("<div style='display: flex;align-items: center; justify-content: space-between;'>"
+        this.html = $("<li>"
         + "<input type='checkbox' name='hips'/><label style='white-space: nowrap; flex: auto'></label>"
         + "<select name='format' id='format' onmousedown='event.stopPropagation()'></select>"
-        + "<div onmousedown='event.stopPropagation()'>"
+//        + "<div onmousedown='event.stopPropagation()'>"
+//        + "<div'>"
         + "<input type='range' min='0' max='100' value='100'>"
-        + "</div>"
-        + "</div>");
+//        + "</div>"
+        + "</li>");
     }
 
     formatOptions(formats){

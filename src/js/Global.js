@@ -3,6 +3,7 @@
 import Healpix from "healpixjs";
 import InsideSphereSelectionChangedEvent from './events/InsideSphereSelectionChangedEvent';
 import eventBus from './events/EventBus';
+import HiPS from './model/HiPS';
 
 class Global{
 	
@@ -20,7 +21,7 @@ class Global{
 	_refnside;
 	_healpix4footprints;
 	_showConvexPolygons; // used in FPCatalogue to drawing convex polygons together with the original footprints (for debug)
-	
+	_defaultHips;
 	
 	constructor(){
 		this._pMatrix = null;
@@ -36,7 +37,7 @@ class Global{
 		this._baseUrl = "http://skyint.esac.esa.int/esasky-tap/";
 		this._healpix4footprints = false;
 		this._showConvexPolygons = false; // used in FPCatalogue to drawing convex polygons together with the original footprints (for debug)
-		
+		this._defaultHips = null;
 	}
 
 	getHealpix (order){
@@ -128,6 +129,18 @@ class Global{
 		return this._showConvexPolygons;
 	}
 	
+	get defaultHips(){
+		if (this._defaultHips == null){
+			this._defaultHips = new HiPS(1, [0.0, 0.0, 0.0], 
+					// Math.PI / 2, 
+					0, 
+					// 0, "INTEGRAL-IBIS 65-100 keV", "//skies.esac.esa.int/Integral/65-100/", "fits", 3);
+					// 0, "Herschel SPIRE 500 micron", "//skies.esac.esa.int/Herschel/normalized/hips500_pnorm_allsky/", "fits", 5);
+					// 0, "Herschel SPIRE 500 micron", "//skies.esac.esa.int/Herschel/normalized/hips500_pnorm_allsky/", "png", 5);
+					0, "DSS2 color", "//skies.esac.esa.int/DSSColor/", "jpg", 9);
+		}
+		return this._defaultHips;
+	}
 	
 	
 }

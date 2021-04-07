@@ -26,6 +26,10 @@ import CatalogueRepo from '../repos/CatalogueRepo';
 
 import SpectraPanelView from '../view/SpectraPanelView';
 
+import HiPSPanelView from '../view/HiPSPanelView';
+import HiPSListView from '../view/HiPSListView';
+import HiPSListPresenter from './HiPSListPresenter';
+import HiPSRepo from '../repos/HiPSRepo';
 
 class ControlPanelPresenter{
 	
@@ -70,6 +74,11 @@ class ControlPanelPresenter{
 		this.view.appendChild(spectraPanelView.getHtml());
 		this.spectraRepo = new FootprintsRepo(global.baseUrl + "spectra", this._spectraListPresenter.addFootprintsSet);
 
+		let hipsPanelView = new HiPSPanelView();
+		this._hipsListPresenter = new HiPSListPresenter(hipsPanelView);
+		this.view.appendChild(hipsPanelView.getHtml());
+		this.hipsRepo = new HiPSRepo(global.baseUrl + "hips-sources", this._hipsListPresenter.addHiPS);
+		
 	}
 	
 	get view(){
@@ -83,6 +92,7 @@ class ControlPanelPresenter{
 		$("#cataloguesButton").on("click", function(){eventBus.fireEvent(new OpenPanelEvent("Catalogues")) } );
 		$("#footprintsButton").on("click", function(){eventBus.fireEvent(new OpenPanelEvent("Imaging")) } );
 		$("#spectraButton").on("click", function(){eventBus.fireEvent(new OpenPanelEvent("Spectra")) } );
+		$("#mapsButton").on("click", function(){eventBus.fireEvent(new OpenPanelEvent("Maps")) } );
 	
 	}
 
@@ -108,12 +118,19 @@ class ControlPanelPresenter{
 
 				this._spectraListPresenter.view.toggle()
 
+			}else if (in_event.panelName == "Maps"){
+
+				this._hipsListPresenter.view.toggle()
+
 			}
 
 		}
 
 	}
 	
+	get hipsListPresenter(){
+		return this._hipsListPresenter;
+	}
 	
 	
 }
