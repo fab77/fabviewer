@@ -58,7 +58,7 @@ class VisibleTilesManager {
 			return cache;
 		}
 
-		let orderOfVisibleTiles = visibleTiles.size > 0 ? is.visibleTiles.values().next().value.order : this.order; 
+		let orderOfVisibleTiles = visibleTiles.size > 0 ? visibleTiles.values().next().value.order : this.order; 
 		
 		let tiles = visibleTiles;
 		for(let order = orderOfVisibleTiles; order > 3; order--){
