@@ -89,6 +89,14 @@ class HiPSPresenter{
 	get view(){
 		return this._view;
 	}
+
+	get isShowing(){
+		return this._isShowing;
+	}
+
+	get hips(){
+		return this._hips;
+	}
 	
     retrieveHiPSProperties(){
 

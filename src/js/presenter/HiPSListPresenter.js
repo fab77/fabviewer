@@ -67,7 +67,7 @@ class HiPSListPresenter{
 	getVisibleModels(){
 		let models = [];
 		this.hipsPresenters.forEach(hipsPresenter => {
-			if (hipsPresenter.isShowing) {
+			if (hipsPresenter.isShowing && hipsPresenter.hips) {
 				models.push(hipsPresenter.hips);
 			}
 		});
