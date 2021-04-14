@@ -46,6 +46,10 @@ class SettingsPanelView{
 
     init(insideSphere){
         this._visible = false;
+        let checked = "";
+        if(insideSphere){
+            checked = "checked";
+        }
         this._html = $("<div id='settingsPanel'>"
         + "<div id='fps'>"
         + "<table style='width: 100%; text-align: center;'>" 
@@ -57,7 +61,7 @@ class SettingsPanelView{
         + "	<td><div id='avgfpsvalue'></div></td>" 
         + "</tr>"
         + "</table></div>" 
-        + "<br> <input type='checkbox' checked='" + insideSphere + "' id='inside-sphere-checkbox' style='vertical-align: middle;'></input><label for='inside-sphere-checkbox'>Inside Sphere</label>"
+        + "<br> <input type='checkbox' " + checked + "' id='inside-sphere-checkbox' style='vertical-align: middle;'></input><label for='inside-sphere-checkbox'>Inside Sphere</label>"
         + "<br> <input type='checkbox' id='healpix-grid-checkbox' style='vertical-align: middle;'></input><label for='healpix-grid-checkbox'>Healpix Grid</label>"
 
         + "<div id='getFovPoly' class='button' >getFovPoly</div>"
