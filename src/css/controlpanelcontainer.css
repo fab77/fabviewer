@@ -105,7 +105,6 @@
     top: 7px;
     border-radius: 3px;
     overflow: scroll;
-	
 }
 
 #spectraPanel ul {
@@ -151,4 +150,16 @@
 	background-color: var(--commonHover);
 	cursor: pointer;
 	color: white;
+}
+
+#settingsPanel{
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    max-height: 500px;
+    background-color: var(--commonBg);
+    left: 55px;
+    top: 7px;
+    border-radius: 3px;
+    overflow: auto;
 }

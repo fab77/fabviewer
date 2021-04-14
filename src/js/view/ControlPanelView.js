@@ -24,7 +24,7 @@ class ControlPanelView {
 		"	<img id='mapsButton' class='myButton' src='dest/mapbutton2.png' />" +
 		"</div>" +
 		"<div id='settings' class='myButton'>" +
-		"	<img class='myButton' src='dest/settings.png' />" +
+		"	<img id='settingsButton' class='myButton' src='dest/settings.png' />" +
 		"</div>";
 		
 		

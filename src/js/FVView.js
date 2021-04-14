@@ -5,16 +5,16 @@
 import $ from "jquery";
 class FVView{
 	
-	constructor(in_canvas, insideSphere){
+	constructor(in_canvas){
 		if (DEBUG){
 			console.log("[FVView::FVView]");
 		}
 		this.webglFactor = 1;
 		this.controlFactor = 0.30;
-		this.init(in_canvas, insideSphere);
+		this.init(in_canvas);
 	}
 	
-	init(in_canvas, insideSphere){
+	init(in_canvas){
 		if (DEBUG){
 			console.log("[FVView::init]");
 		}
@@ -25,47 +25,7 @@ class FVView{
 		this.controlpanel = document.getElementById('controlpanel');
 		this.datapanel = document.getElementById('datapanel');
 		
-		this.pickedobjvalue_dom = document.getElementById('pickedobjectvalue');
-		
-//		this.fovvalue_dom = document.getElementById('fovvalue');
-		this.coords_phi_dom = document.getElementById('phi');
-		this.coords_theta_dom = document.getElementById('theta');
-		
-//		this.coords_radeg_dom = document.getElementById('RA_deg');
-//		this.coords_decdeg_dom = document.getElementById('Dec_deg');
-//		
-//		this.coords_rahms_dom = document.getElementById('RA_hms');
-//		this.coords_decdms_dom = document.getElementById('Dec_dms');
-		
-		
-
-		this.order0 = document.getElementById('order0');
-		this.order1 = document.getElementById('order1');
-		this.order2 = document.getElementById('order2');
-		this.order3 = document.getElementById('order3');
-		this.order4 = document.getElementById('order4');
-		this.order5 = document.getElementById('order5');
-		this.order6 = document.getElementById('order6');
-		this.order7 = document.getElementById('order7');
-		this.order8 = document.getElementById('order8');
-		this.order9 = document.getElementById('order9');
-
-
-		this.healpixGridCheckbox = document.getElementById('healpix-grid-checkbox');
-		this.insideSphereCheckbox = document.getElementById('inside-sphere-checkbox');
-		this.insideSphereCheckbox.checked = insideSphere;
-//		this.fpsvalue_dom = document.getElementById('fpsvalue');
-//		this.avgfpsvalue_dom = document.getElementById('avgfpsvalue');
-		
-//		this.fovX_deg = 180.0;
-//		this.fovY_deg = 180.0;
-				
 		this.widthToHeight = 4 / 3;
-		
-		// Make the DIV element draggable:
-		this.dragControl(document.getElementById("controlpanel"));
-
-//		this.cataloguesDiv = document.getElementById('catalogues');
 	};
 	
 	addHipsButtonHandler(handler){
@@ -87,14 +47,6 @@ class FVView{
 		
 	};
 
-	addHealpixGridCheckboxHandler(handler){
-		this.healpixGridCheckbox.onclick = handler;
-	}
-
-	addInsideSphereCheckboxHandler(handler){
-		this.insideSphereCheckbox.onclick = handler;
-	}
-	
 	fillCataloguesDiv(cataloguesDescriptor){
 		console.log("[FVView::fillCataloguesDiv ]");
 
@@ -147,60 +99,6 @@ class FVView{
 		};
 	
 	
-//	updateFoV(in_fovObj){
-//		if (DEBUG){
-//			console.log("[FVView::updateFoV]");
-//		}
-//		this.fovvalue_dom.innerHTML = in_fovObj.fovXDeg.toFixed(4) + '&deg;x'+ in_fovObj.fovYDeg.toFixed(4) + '&deg;';
-//		
-//	};
-	
-	setPickedSphericalCoordinates(phiThetaDeg){
-		this.coords_phi_dom.innerHTML = phiThetaDeg.phi.toFixed(4);
-		this.coords_theta_dom.innerHTML = phiThetaDeg.theta.toFixed(4);
-	};
-	
-//	setPickedAstroCoordinates(raDecDeg, raHMS, decDMS){
-//		this.coords_radeg_dom.innerHTML = raDecDeg.ra.toFixed(4);
-//		this.coords_decdeg_dom.innerHTML = raDecDeg.dec.toFixed(4);
-//		this.coords_rahms_dom.innerHTML = raHMS.h +" "+raHMS.m +" "+raHMS.s.toFixed(2);
-//		var sign = '+';
-//		if (decDMS.d < 0){
-//			sign = '';
-//		}
-//		this.coords_decdms_dom.innerHTML = sign+decDMS.d+" "+decDMS.m+" "+decDMS.s.toFixed(2);
-//	};
-	
-	setPickedObjectName(name){
-		this.pickedobjvalue_dom.innerHTML = name;
-	};
-
-	setHoverIpix(order, ipix){
-		if(order == 0){
-			this.order0.innerHTML = "0/" + ipix; 
-		} else if (order == 1){
-			this.order1.innerHTML = "1/" + ipix;
-		} else if (order == 2){
-			this.order2.innerHTML = "2/" + ipix;
-		} else if (order == 3){
-			this.order3.innerHTML = "3/" + ipix;
-		} else if (order == 4){
-			this.order4.innerHTML = "4/" + ipix;
-		} else if (order == 5){
-			this.order5.innerHTML = "5/" + ipix;
-		} else if (order == 6){
-			this.order6.innerHTML = "6/" + ipix;
-		} else if (order == 7){
-			this.order7.innerHTML = "7/" + ipix;
-		} else if (order == 8){
-			this.order8.innerHTML = "8/" + ipix;
-		} else if (order == 9){
-			this.order9.innerHTML = "9/" + ipix;
-		}
-
-	};
-	
-
 	
 	resize(in_gl){
 		if (DEBUG){

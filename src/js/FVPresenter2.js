@@ -7,48 +7,28 @@ import Camera3 from './model/Camera3';
 
 import RayPickingUtils from './utils/RayPickingUtils';
 
-import eventBus from './events/EventBus';
-import OpenPanelEvent from './events/OpenPanelEvent';
-
-//import ControlPanelView from './view/ControlPanelView';
 import ControlPanelPresenter from './presenter/ControlPanelPresenter';
 import CoordinatesPanelPresenter from './presenter/CoordinatesPanelPresenter';
 
 import FoVPresenter from './presenter/FoVPresenter';
-
-import SystemView from './view/SystemView';
-import SystemPresenter from './presenter/SystemPresenter';
-
-
-//import CataloguePanelView from './view/CataloguePanelView';
-//import CatalogueListView from './view/CatalogueListView';
-//import CatalogueListPresenter from './presenter/CatalogueListPresenter';
-
-//import FootprintListView from './view/FootprintListView';
-//import FootprintsSetListPresenter from './presenter/FootprintsSetListPresenter';
-
-import HiPSListView from './view/HiPSListView';
-import HiPSListPresenter from './presenter/HiPSListPresenter';
-
 
 import SourceSelectionView from './view/SourceSelectionView';
 import SourceSelectionPresenter from './presenter/SourceSelectionPresenter';
 
 import CatalogueRepo from './repos/CatalogueRepo';
 import FootprintsRepo from './repos/FootprintsRepo';
-import HiPSRepo from './repos/HiPSRepo';
 import global from './Global';
 
+import eventBus from './events/EventBus';
+import ShowHealpixGridSelectionChangedEvent from './events/ShowHealpixGridSelectionChangedEvent';
 
 import {mat4, vec3} from 'gl-matrix';
 import {cartesianToSpherical, sphericalToAstroDeg, astroDegToSpherical, sphericalToCartesian, raDegToHMS, decDegToDMS, degToRad} from './utils/Utils';
-import FoVUtils from './utils/FoVUtils';
 import MouseHelper from './utils/MouseHelper';
 
-import HiPS from './model/HiPS';
 import {visibleTilesManager} from './model/VisibleTilesManager';
 import HealpixGrid from './model/HealpixGrid';
-import { tileBufferSingleton } from './model/TileBuffer';
+import InsideSphereSelectionChangedEvent from './events/InsideSphereSelectionChangedEvent';
 
 class FVPresenter2{
 	
@@ -120,10 +100,9 @@ class FVPresenter2{
 //			// 0, "Herschel SPIRE 500 micron", "//skies.esac.esa.int/Herschel/normalized/hips500_pnorm_allsky/", "png", 5);
 //			0, "DSS2 color", "//skies.esac.esa.int/DSSColor/", "jpg", 9);
 //		hips.show();
-//		this.view.setPickedObjectName(hips);
 //		global.defaultHips = hips;
+// this.view.setPickedObjectName(global.defaultHips);
 		
-		this.view.setPickedObjectName(global.defaultHips);
 		global.defaultHips.show();
 		
 		this.lastDrawTime = (new Date()).getTime() * 0.001;
@@ -146,25 +125,21 @@ class FVPresenter2{
 
 		this.healpixGrid = new HealpixGrid();
 		this.healpixGridGalactic = new HealpixGrid(true);
-
-		this.view.addHealpixGridCheckboxHandler((event)=>{
-			this.showHealpixGrid = event.target.checked;
-		});
-
-		this.view.addInsideSphereCheckboxHandler((event)=>{
-			this.camera.setInsideSphere(event.target.checked);
-			this.refreshViewAndModel(false, event.target.checked);
-			global.insideSphere = event.target.checked;
-			visibleTilesManager.refreshModel(this.refreshFov(global.insideSphere).minFoV);
-		});
 	};
 	
 	registerForEvents(){
+		eventBus.registerForEvent(this, ShowHealpixGridSelectionChangedEvent.name);
+		eventBus.registerForEvent(this, InsideSphereSelectionChangedEvent.name);
 
 	}
 	
 	notify(in_event){
-
+		if (in_event instanceof ShowHealpixGridSelectionChangedEvent){
+			this.showHealpixGrid = in_event.shouldShowGrid;
+		} else if (in_event instanceof InsideSphereSelectionChangedEvent){
+			this.refreshViewAndModel(false, in_event.insideSphere);
+			visibleTilesManager.refreshModel(this.refreshFov(global.insideSphere).minFoV);
+		}
 	}
 	
 	initPresenter(){
@@ -173,10 +148,6 @@ class FVPresenter2{
 //		this.hipsListPresenter = new HiPSListPresenter(hipsListView);
 //		this.view.appendChild(hipsListView.getHtml());
 		
-		let systemView = new SystemView();
-		this.systemPresenter = new SystemPresenter(systemView);
-		this.view.appendChild(systemView.getHtml());
-		this.systemPresenter.addFovPolyHandler(()=>{this.getFovPoly()});
 		
 		let sourceSelView = new SourceSelectionView();
 		this.sourceSelectionPresenter = new SourceSelectionPresenter(sourceSelView);
@@ -193,23 +164,6 @@ class FVPresenter2{
 		
 		
 	};
-	
-	getFovPoly(){
-
-		console.log("this.getFovPoly");
-		
-		var raDecDeg = FoVUtils.getFoVPolygon(
-				this.pMatrix,
-				this.camera,
-				this.in_gl.canvas,
-				global.defaultHips
-				);
-
-		console.log(raDecDeg);
-			
-		
-	};
-	
 	
 
 
@@ -252,9 +206,8 @@ class FVPresenter2{
 //						};
 				var raHMS = raDegToHMS(raDecDeg.ra);
 				var decDMS = decDegToDMS(raDecDeg.dec);
-				this.view.setPickedSphericalCoordinates(phiThetaDeg);
+				this.controlPanelPresenter.setSphericalCoordinates(phiThetaDeg);
 //				this.view.setPickedAstroCoordinates(raDecDeg, raHMS, decDMS);
-				this.view.setPickedObjectName(intersectionWithModel.pickedObject.name);
 				this.coordinatesPanelPresenter.update(raDecDeg, raHMS, decDMS, phiThetaDeg.phi, phiThetaDeg.theta);
 				
 			}else{
@@ -314,9 +267,7 @@ class FVPresenter2{
 //								};
 						var raHMS = raDegToHMS(raDecDeg.ra);
 						var decDMS = decDegToDMS(raDecDeg.dec);
-						this.view.setPickedSphericalCoordinates(phiThetaDeg);
-//						this.view.setPickedAstroCoordinates(raDecDeg, raHMS, decDMS);
-						this.view.setPickedObjectName(mouseObjectPicked.name);
+						this.controlPanelPresenter.setSphericalCoordinates(phiThetaDeg);
 						this.coordinatesPanelPresenter.update(raDecDeg, raHMS, decDMS, phiThetaDeg.phi, phiThetaDeg.theta);
 						
 						this.mouseHelper.xyz = mousePoint;
@@ -332,7 +283,7 @@ class FVPresenter2{
 						let raDecDeg = sphericalToAstroDeg(phiThetaDeg.phi, phiThetaDeg.theta)
 						let raHMS = raDegToHMS(raDecDeg.ra);
 						let decDMS = decDegToDMS(raDecDeg.dec);
-						this.view.setPickedSphericalCoordinates(phiThetaDeg);
+						this.controlPanelPresenter.setSphericalCoordinates(phiThetaDeg);
 //						this.view.setPickedAstroCoordinates(raDecDeg, raHMS, decDMS);
 						this.coordinatesPanelPresenter.update(raDecDeg, raHMS, decDMS, phiThetaDeg.phi, phiThetaDeg.theta);
 						
@@ -508,7 +459,7 @@ class FVPresenter2{
 	}
 
 	draw(){
-		this.systemPresenter.refreshModel();
+		this.controlPanelPresenter.refreshModel();
 		this.aspectRatio = this.view.canvas.width / this.view.canvas.height;
 		
 		var THETA, PHI;
@@ -573,14 +524,11 @@ class FVPresenter2{
 
 		mat4.perspective(this.pMatrix, this.fovDeg * Math.PI / 180.0 , this.aspectRatio, this.nearPlane, farPlane);
 
-		if (global.pMatrix == null){
-			global.pMatrix = this.pMatrix;
-			this.refreshViewAndModel();
-		}
+		global.pMatrix = this.pMatrix;
+		this.refreshViewAndModel();
 		
 		this.controlPanelPresenter.hipsListPresenter.draw(this.pMatrix, this.camera.getCameraMatrix());
 		
-//		this.hipsListPresenter.draw(this.pMatrix, this.camera.getCameraMatrix());
 		let j2000ModelMatrix = global.defaultHips.getModelMatrix();
 		let activeHips = this.controlPanelPresenter.hipsListPresenter.getVisibleModels();
 		let galacticModel = undefined;
