@@ -26,7 +26,14 @@ class CataloguePanelView{
             		this._visible = true;
             	}
             	
+            },
+            close: ()=>{
+            	if (this._visible){
+            		this._html.css("display","none");
+            		this._visible = false;
+            	}
             }
+
             
         }
      
@@ -35,7 +42,7 @@ class CataloguePanelView{
  
     init(){
     	this._visible = false;
-        this._html = $("<div id='cataloguePanel'><ul id='catalogueList'></ul></div>");
+        this._html = $("<div id='cataloguePanel' class='controlPanel'><div id='catalogueList'></ul></div>");
         this._html.css("display","none");
     }
     

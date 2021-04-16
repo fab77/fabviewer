@@ -24,6 +24,9 @@ class SettingsPresenter{
 			},
 			toggle: ()=> {
 				this.view.toggle();
+			},
+			close: ()=> {
+				this.view.close();
 			}
 		}
 

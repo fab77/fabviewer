@@ -3,163 +3,253 @@
 
 
 #controlpanel2container{
-	top: 5px;
+    top: 5px;
     left: 5px;
-    height: 207px;
-    width: 32px;
     position: absolute;
-    border: 1px solid;
-    border-radius: 3px;
     z-index: 100;
-    padding: 6px;
+    padding: 2px;
+    color: var(--commonTextColor);
 
-/* 	background-color: rgba(255, 255, 255, .15);   */
- 	backdrop-filter: blur(5px);
- 	color: #85d6d1;
-    text-shadow: 0px 0px 5px #85d6d1;
+}
+
+.controlPanel{
+    position: absolute;
+    max-height: 350px;
     background-color: var(--commonBg);
-
-}
-
-.myButton{
-/*     margin-left: 2px; */
-/*     margin-top: 5px; */
-    max-width: 31px;
-    
-}
-
-.myButton:hover{
-	cursor: pointer;
-	background: white;
-}
-
-#cataloguePanel{
-	
-	position: absolute;
-    width: 200px;
-    height: 200px;
-    max-height: 500px;
-    background-color: var(--commonBg);
-    left: 55px;
-    top: 7px;
+    left: 45px;
+    top: 15px;
     border-radius: 3px;
-    overflow: scroll;
-	
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
-#cataloguePanel ul {
-	list-style-type: none;
-	margin-block-start: 0em;
-    margin-block-end: 0em;
-    margin-inline-start: 0px;
-    margin-inline-end: 0px;
-    padding-inline-start: 10px;
+.controlPanel label {
+    margin-left: 4px;
+}
+.controlPanel .dataRow {
+    display: flex;
+    padding-right: 20px;
+    padding-left: 3px;
+}
+.controlPanel label {
+    white-space: nowrap;
+}
+.controlPanel .dataRow label:hover, .controlPanel .dataRow input:hover{
+    cursor: pointer;
 }
 
-
-
-#cataloguePanel li:hover{
-	background-color: var(--commonHover);
-	cursor: pointer;
-	color: white;
+.controlPanel .dataRow:hover{
+    background-color: var(--commonHover);
+    cursor: pointer;
+    color: white;
 }
-
-
-#footprintPanel{
-	
-	position: absolute;
-    width: 200px;
-    height: 200px;
-    max-height: 500px;
-    background-color: var(--commonBg);
-    left: 55px;
-    top: 7px;
-    border-radius: 3px;
-    overflow: scroll;
-	
+.controlPanel .dataRow:active{
+    background-color: var(--commonActive);
 }
-
-#footprintPanel ul {
-	list-style-type: none;
-	margin-block-start: 0em;
-    margin-block-end: 0em;
-    margin-inline-start: 0px;
-    margin-inline-end: 0px;
-    padding-inline-start: 10px;
-}
-
-#footprintPanel li:hover{
-	background-color: var(--commonHover);
-	cursor: pointer;
-	color: white;
-}
-
-#spectraPanel{
-	
-	position: absolute;
-    width: 200px;
-    height: 200px;
-    max-height: 500px;
-    background-color: var(--commonBg);
-    left: 55px;
-    top: 7px;
-    border-radius: 3px;
-    overflow: scroll;
-}
-
-#spectraPanel ul {
-	list-style-type: none;
-	margin-block-start: 0em;
-    margin-block-end: 0em;
-    margin-inline-start: 0px;
-    margin-inline-end: 0px;
-    padding-inline-start: 10px;
-}
-
-#spectraPanel li:hover{
-	background-color: var(--commonHover);
-	cursor: pointer;
-	color: white;
-}
-
 
 #hipsPanel{
-	
-	position: absolute;
-    width: 305px;
-    height: 400px;
     max-height: 500px;
     background-color: var(--commonBg);
-    left: 55px;
-    top: 7px;
-    border-radius: 3px;
-    overflow: scroll;
-	
 }
 
-#hipsPanel ul {
-	list-style-type: none;
-	margin-block-start: 0em;
-    margin-block-end: 0em;
-    margin-inline-start: 0px;
-    margin-inline-end: 0px;
-    padding-inline-start: 10px;
+#hipsPanel input[type=range]{
+    width: calc(100% - 5px);
+}
+#hipsPanel input[type=checkbox]{
+    margin-left: 15px;
 }
 
-#hipsPanel li:hover{
-	background-color: var(--commonHover);
-	cursor: pointer;
-	color: white;
+.hipsRowContainer{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
 }
 
-#settingsPanel{
+.hipsNameSelection, .hipsFormatOpacity{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.hipsRowContainer{
+    padding-bottom: 5px;
+    text-align: center;
+}
+
+#controlButtonContainer{
+    display: flex;
+    flex-direction: column;
+}
+
+.controlButton{
+    max-width: 0px;
+    border-radius: 8px;
+    transition: 0.5s ease-in-out;
+    margin-top: -5px;
+    margin-left: 19px;
+}
+
+.controlButton:hover{
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.3);
+    transition: .2s ease-in-out;
+
+}
+
+.controlButton:active{
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.6);
+    transition: .1s ease-in-out;
+}
+
+.controlButtonVisible {
+    display: block;
+}
+
+.controlButton.controlButtonVisible {
+    transition: 0.25s ease-in-out;
+    max-width: 38px;
+    margin-left: 0px;
+    margin-top: 3px;
+}
+
+
+
+#hamburgerButton {
+    width: 30px;
+    height: 22px;
+    position: relative;
+    transform: rotate(0deg);
+    transition: .5s ease-in-out;
+    cursor: pointer;
+    margin-bottom: 6px;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+#hamburgerButton:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transition: .2s ease-in-out;
+}
+
+#hamburgerButton:active {
+    background: rgba(255, 255, 255, 0.3);
+    transition: .1s ease-in-out;
+}
+
+#hamburgerButton span {
+    display: block;
     position: absolute;
-    width: 200px;
-    height: 200px;
-    max-height: 500px;
-    background-color: var(--commonBg);
-    left: 55px;
-    top: 7px;
-    border-radius: 3px;
-    overflow: auto;
+    height: 4px;
+    margin-left: 4px;
+    margin-top: 4px;
+    width: calc(100% - 8px);
+    background: white;
+    border-radius: 5px;
+    left: 0;
+    transform: rotate(0deg);
+    transition: .25s ease-in-out;
+}
+
+#hamburgerButton span:nth-child(1) {
+    top: 0px;
+}
+
+#hamburgerButton span:nth-child(2),#hamburgerButton span:nth-child(3) {
+    top: 9px;
+}
+
+#hamburgerButton span:nth-child(4) {
+    top: 18px;
+}
+
+#hamburgerButton.open span:nth-child(1) {
+    top: 9px;
+    width: 0%;
+    left: 50%;
+}
+
+#hamburgerButton.open span:nth-child(2) {
+    transform: rotate(45deg);
+}
+
+#hamburgerButton.open span:nth-child(3) {
+    transform: rotate(-45deg);
+}
+
+#hamburgerButton.open span:nth-child(4) {
+    top: 9px;
+    width: 0%;
+    left: 50%;
+}
+
+.hipsRowContainer select:hover{
+	background-color: rgba(255, 255, 255, 0.15);
+}
+
+.hipsRowContainer select:active{
+	background-color: rgba(255, 255, 255, 0.30);
+}
+
+#coordinateContainer, .hipsRowContainer label {
+	line-height: 30px;
+}
+
+.hipsRowContainer select {
+	color: var(--commonTextColor);
+	font-weight: bold;
+	background-color: transparent;
+	border: 0px;
+    padding: 2px;
+    margin-right:3px;
+}
+
+.hipsRowContainer select:hover {
+	cursor: pointer;
+}
+
+.hipsRowContainer option{
+	background-color: #000000;
+}
+
+.settingsRow{
+    display: flex;
+    margin-top: 10px;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+#sphericalCoordName {
+    text-align: center;
+    font-weight: bold;
+}
+
+#coords {
+    display: grid;
+    justify-items: center;
+    margin-bottom: 15px;
+}
+
+#phiName {
+    grid-row: 1;
+    grid-column: 1;
+}
+
+#thetaName {
+    grid-row: 1;
+    grid-column: 2;
+}
+
+#phi {
+    grid-row: 2;
+    grid-column: 1;
+}
+
+#theta {
+    grid-row: 2;
+    grid-column: 2;
+}
+
+#getFovPoly {
+    margin-top: 15px;
+    width: 150px;
 }

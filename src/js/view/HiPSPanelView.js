@@ -15,7 +15,7 @@ class HiPSPanelView{
                 return this._html;
             },
             addHiPS: (hipsView)=>{
-                this._html.find("#hipsList").append(hipsView.getHtml());
+                this._html.append(hipsView.getHtml());
             },
             toggle: ()=>{
             	if (this._visible){
@@ -26,6 +26,12 @@ class HiPSPanelView{
             		this._visible = true;
             	}
             	
+            },
+            close: ()=>{
+            	if (this._visible){
+            		this._html.css("display","none");
+            		this._visible = false;
+            	}
             }
             
         }
@@ -35,7 +41,7 @@ class HiPSPanelView{
  
     init(){
     	this._visible = false;
-        this._html = $("<div id='hipsPanel'><ul id='hipsList'></ul></div>");
+        this._html = $("<div id='hipsPanel' class='controlPanel'></div>");
         this._html.css("display","none");
     }
     

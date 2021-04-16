@@ -26,6 +26,12 @@ class SpectraPanelView{
             		this._visible = true;
             	}
             	
+            },
+            close: ()=>{
+            	if (this._visible){
+            		this._html.css("display","none");
+            		this._visible = false;
+            	}
             }
             
         }
@@ -35,7 +41,7 @@ class SpectraPanelView{
  
     init(){
     	this._visible = false;
-        this._html = $("<div id='spectraPanel'><ul id='spectraList'></ul></div>");
+        this._html = $("<div id='spectraPanel' class='controlPanel'><div id='spectraList'></div></div>");
         this._html.css("display","none");
     }
     

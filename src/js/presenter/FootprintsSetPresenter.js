@@ -22,11 +22,8 @@ class FootprintsSetPresenter{
 		var _self = this;
 		
 		
-		this._view.addCheckedHandler(function(){
-
-			var checkbox = this;
-
-			if (checkbox.checked){
+		this._view.addCheckedHandler(function(checked){
+			if (checked){
 				console.log("clicked on FootprintSet "+_self._model.datasetName);
 				FootprintsRepo.retrieveByFoV(global.baseUrl, _self._model, null);	
 			}else{

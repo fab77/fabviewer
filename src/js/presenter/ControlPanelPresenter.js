@@ -40,6 +40,7 @@ class ControlPanelPresenter{
 	_catalogueListPresenter;
 	_catalogueRepo;
 	_footprintRepo;
+	_menuOpen = false;
 	
 	constructor(in_parentView){
 		
@@ -91,6 +92,22 @@ class ControlPanelPresenter{
     }
 
 	addButtonsClickHandlers(){
+		$("#hamburgerButton").on("click", ()=>{
+			this.menuOpen = !this.menuOpen;
+			$("#hamburgerButton").toggleClass("open") 
+			$("#cataloguesButton").toggleClass("controlButtonVisible");	
+			$("#footprintsButton").toggleClass("controlButtonVisible");	
+			$("#spectraButton").toggleClass("controlButtonVisible");	
+			$("#mapsButton").toggleClass("controlButtonVisible");	
+			$("#settingsButton").toggleClass("controlButtonVisible");
+			if(!this.menuOpen){
+				this._catalogueListPresenter.view.close()
+				this._footprintsListPresenter.view.close()
+				this._spectraListPresenter.view.close()
+				this._hipsListPresenter.view.close()
+				this._settingsPresenter.close()
+			}
+		} );
 		$("#cataloguesButton").on("click", function(){eventBus.fireEvent(new OpenPanelEvent("Catalogues")) } );
 		$("#footprintsButton").on("click", function(){eventBus.fireEvent(new OpenPanelEvent("Imaging")) } );
 		$("#spectraButton").on("click", function(){eventBus.fireEvent(new OpenPanelEvent("Spectra")) } );
@@ -126,6 +143,22 @@ class ControlPanelPresenter{
 
 				this._settingsPresenter.toggle()
 
+			}
+
+			if (in_event.panelName != "Catalogues"){
+				this._catalogueListPresenter.view.close()
+			}
+			if (in_event.panelName != "Imaging"){
+				this._footprintsListPresenter.view.close()
+			}
+			if (in_event.panelName != "Spectra"){
+				this._spectraListPresenter.view.close()
+			}
+			if (in_event.panelName != "Maps"){
+				this._hipsListPresenter.view.close()
+			}
+			if (in_event.panelName != "Settings"){
+				this._settingsPresenter.close()
 			}
 
 		}

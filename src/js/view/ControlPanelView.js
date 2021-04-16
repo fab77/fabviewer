@@ -8,26 +8,16 @@ class ControlPanelView {
 	_html;
 
 	constructor () {
-		this._html = "<div id='minimaximise'>" +
-		"	<img class='myButton' src='dest/ham-open.png' />" +
-		"</div>" +
-		"<div id='catalogues'>" +
-		"	<img id='cataloguesButton' class='myButton' src='dest/catbutton2.png' />" +
-		"</div>" +
-		"<div id='imaging' class='myButton'>" +
-		"	<img id='footprintsButton' class='myButton' src='dest/imgbutton2.png' />" +
-		"</div>" +
-		"<div id='spectra' class='myButton'>" +
-		"	<img id='spectraButton' class='myButton' src='dest/spebutton2.png' />" +
-		"</div>" +
-		"<div id='astromaps' class='myButton'>" +
-		"	<img id='mapsButton' class='myButton' src='dest/mapbutton2.png' />" +
-		"</div>" +
-		"<div id='settings' class='myButton'>" +
-		"	<img id='settingsButton' class='myButton' src='dest/settings.png' />" +
+		this._html = "<div id='controlButtonContainer'>" +
+		"	<div id='hamburgerButton'>" + 
+		"		<span></span><span></span><span></span><span></span>" +
+		"	</div>" + 
+		"	<img id='cataloguesButton' class='controlButton' src='dest/catbutton2.png' />" +
+		"	<img id='footprintsButton' class='controlButton' src='dest/imgbutton2.png' />" +
+		"	<img id='spectraButton' class='controlButton' src='dest/spebutton2.png' />" +
+		"	<img id='mapsButton' class='controlButton' src='dest/mapbutton2.png' />" +
+		"	<img id='settingsButton' class='controlButton' src='dest/settings.png' />"+
 		"</div>";
-		
-		
 	}
 
 	get html(){

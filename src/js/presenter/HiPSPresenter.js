@@ -36,34 +36,7 @@ class HiPSPresenter{
 			this._isShowing = true;
 		}
 		
-		this._view.addCheckedHandler((event)=>{
-
-			var checkbox = event.currentTarget;
-			this._isShowing = checkbox.checked;
-			if(!this._isShowing){
-				this._hips.hide();
-			} else {
-				if(this._hips == undefined){
-					let format = this.view.getSelectedFormat();
-					let opacity = this.view.getSelectedOpacity() / 100;
-					this._hips = new HiPS(1, [0.0, 0.0, 0.0], 
-						0, 
-						0, this._model.surveyName, 
-						this._model.url, format,
-						this._maxOrder, opacity, this._isGalacticFrame);
-					}
-					this._hips.show();
-				this._hips.refreshModel(this._hips.refreshFoV().minFoV);
-			}
-        });
-		
-		// this._view.addHiPSSettingsHandler(()=>{
-		// 	console.log("clicked on HiPS settings button");
-		// 	let hipsSettingsView = new HiPSSettingsView(this._model, this._formats);
-		// 	// this._view.appendSettingsPopup(hipsSettingsView.getHtml());
-		// 	this.fireEvents(hipsSettingsView);	
-		// });
-
+	
 		in_view.addFormatChangedHandler((event) => {
 			if(this._hips && this._isShowing){
 				let format = event.target.value;
@@ -83,7 +56,27 @@ class HiPSPresenter{
 				this._hips.setOpacity(event.target.value/100);
 			}
 		});
+
 		
+		this._view.addCheckedHandler((checked)=>{
+
+			this._isShowing = checked;
+			if(!this._isShowing){
+				this._hips.hide();
+			} else {
+				if(this._hips == undefined){
+					let format = this.view.getSelectedFormat();
+					let opacity = this.view.getSelectedOpacity() / 100;
+					this._hips = new HiPS(1, [0.0, 0.0, 0.0], 
+						0, 
+						0, this._model.surveyName, 
+						this._model.url, format,
+						this._maxOrder, opacity, this._isGalacticFrame);
+					}
+					this._hips.show();
+				this._hips.refreshModel(this._hips.refreshFoV().minFoV);
+			}
+        });
 	}
 	
 	get view(){

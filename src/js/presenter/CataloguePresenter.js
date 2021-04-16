@@ -13,11 +13,10 @@ class CataloguePresenter{
 
 		var _self = this;
 		
-		this._view.addCheckedHandler(function(){
+		this._view.addCheckedHandler(function(checked){
 
-			var checkbox = this;
 
-			if (checkbox.checked){
+			if (checked){
 				CatalogueRepo.retrieveByFoV(global.baseUrl, _self._model, null);	
 			}else{
 				CatalogueRepo.removeCatalogue(_self._model.name);

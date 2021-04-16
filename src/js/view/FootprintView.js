@@ -17,14 +17,28 @@ class FootprintView{
     
             },
             addCheckedHandler: (handler)=>{
-                this.html.find("input").click(handler);
+                this.html.on("click", (e)=>{
+                    let checkbox = this.html.find("input");
+                    let newValue = !checkbox.prop('checked'); 
+                    checkbox.prop('checked', newValue);
+                    checkbox.attr('checked', newValue);
+                    handler(newValue);
+                });
+                this.html.find("input").on("click", function(e){
+                    e.stopPropagation();
+                    handler(this.checked);
+                });
+
+                this.html.find("label").on("click", (e)=>{
+                    e.stopPropagation();
+                });
             }
         }
         return _public;
     }
  
     init(){
-    	this.html = $("<li><label></label><input type='checkbox'/></li>");
+    	this.html = $("<div class='dataRow'><input type='checkbox'/><label></label></div>");
     }
 }
 

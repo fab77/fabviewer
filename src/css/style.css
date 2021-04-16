@@ -1,8 +1,9 @@
 :root {
-  --commonBg: rgba(255, 255, 255, .15);
-  --commonHover: blue;
+  --commonBg: rgba(0, 0, 0, .85);
+  --commonHover: rgba(42, 54, 239, 0.17);
+  --commonActive: rgba(42, 54, 239, 0.3);
   --commonfontfamily: monospace;
-  --commonTextColor: #85d6d1;
+  --commonTextColor: #57d1c9;
 }
 
 body {
@@ -52,20 +53,37 @@ body {
 	border: 1px solid gray;
 }
 
-/* #catalogues{ */
-/* 	height: 150px; */
-/* 	overflow: scroll; */
-/* } */
-
 .button {
   border: none;
   color: white;
   padding: 5px 12px;
   text-align: center;
   text-decoration: none;
-  display: inline-block;
+  display: block;
   font-size: 16px;
   margin: 4px 2px;
+  border-radius: 5px;
   cursor: pointer;
   background-color: #008CBA;
+}
+
+
+::-webkit-scrollbar {
+    width: 12px;
+}
+::-webkit-scrollbar-corner {
+    background-color: transparent;
+}
+::-webkit-scrollbar-thumb {
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: inset 0 0 6px rgb(0 0 0 / 50%);
+    -webkit-box-shadow: inset 0 0 6px rgb(0 0 0 / 50%);
+}
+::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px rgb(0 0 0 / 30%);
+    -webkit-box-shadow: inset 0 0 6px rgb(0 0 0 / 30%);
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
 }

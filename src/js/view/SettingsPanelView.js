@@ -39,6 +39,12 @@ class SettingsPanelView{
                     this._html.css("display","block");
                     this._visible = true;
                 }
+            },
+            close: ()=>{
+            	if (this._visible){
+            		this._html.css("display","none");
+            		this._visible = false;
+            	}
             }
         }
         return _public;
@@ -50,27 +56,33 @@ class SettingsPanelView{
         if(insideSphere){
             checked = "checked";
         }
-        this._html = $("<div id='settingsPanel'>"
+        this._html = $("<div id='settingsPanel' class='controlPanel'>"
         + "<div id='fps'>"
-        + "<table style='width: 100%; text-align: center;'>" 
-        + "	<tr>"
-        + "	<th>FPS</th>"
-        + "	<th>Avg FPS</th>" 
-        + "</tr><tr>"
-        + "	<td><div id='fpsvalue'></div></td>"
-        + "	<td><div id='avgfpsvalue'></div></td>" 
-        + "</tr>"
-        + "</table></div>" 
-        + "<br> <input type='checkbox' " + checked + "' id='inside-sphere-checkbox' style='vertical-align: middle;'></input><label for='inside-sphere-checkbox'>Inside Sphere</label>"
-        + "<br> <input type='checkbox' id='healpix-grid-checkbox' style='vertical-align: middle;'></input><label for='healpix-grid-checkbox'>Healpix Grid</label>"
-
-        + "<div id='getFovPoly' class='button' >getFovPoly</div>"
+        + "<div style='display: grid; grid-template-columns: 50%; text-align: center; margin-bottom: 15px'>" 
+        + "	<div>FPS</div>"
+        + "	<div style='grid-column:2'>Avg FPS</div>" 
+        + "	<div style='grid-row:2 grid-column:1' id='fpsvalue'></div>"
+        + "	<div style='grid-row:2; grid-column:2' id='avgfpsvalue'></div>" 
+        + "</div>" 
 
 
+        + "<div id='sphericalCoordName'><i>Spherical coords</i></div>"
         + "<div id='coords'>"
-        + "<span><i>Spherical coords:</i></span> <br> <span>phi</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>theta</span>"
-        + "<br> <span id='phi'></span>&nbsp; &nbsp;<span id='theta'></span>"
+        + "<span id='phiName'>phi</span>"
+        +"<span id='thetaName'>theta</span>"
+        + "<span id='phi'></span><span id='theta'></span>"
         + "</div>"
+
+        + "<div class='settingsRow dataRow'> <input type='checkbox' " + checked + "' id='inside-sphere-checkbox' style='vertical-align: middle;'></input>"
+        + "<label for='inside-sphere-checkbox'>Inside Sphere</label>"
+        + "</div>"
+        + "<div class='settingsRow dataRow'> <input type='checkbox' id='healpix-grid-checkbox' style='vertical-align: middle;'></input>"
+        + "<label for='healpix-grid-checkbox'>Healpix Grid</label>"
+        + "</div>"
+
+        + "<div id='getFovPoly' class='button' >Log FoV Polygon</div>"
+
+
         + "</div>");
         this._html.css("display","none");
     }

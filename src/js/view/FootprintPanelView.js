@@ -26,6 +26,12 @@ class FootprintPanelView{
             		this._visible = true;
             	}
             	
+            },
+            close: ()=>{
+            	if (this._visible){
+            		this._html.css("display","none");
+            		this._visible = false;
+            	}
             }
             
         }
@@ -35,7 +41,7 @@ class FootprintPanelView{
  
     init(){
     	this._visible = false;
-        this._html = $("<div id='footprintPanel'><ul id='footprintList'></ul></div>");
+        this._html = $("<div id='footprintPanel', class='controlPanel'><div id='footprintList'></div></div>");
         this._html.css("display","none");
     }
     

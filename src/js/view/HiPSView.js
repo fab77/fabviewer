@@ -19,13 +19,38 @@ class HiPSView{
                 this.html.find("select").append(this.formatOptions(formats));
             },
             addCheckedHandler: (handler)=>{
-                this.html.find("input[type='checkbox']").on('change', handler);
+                this.html.on("click", (e)=>{
+                    let checkbox = this.html.find("input[type='checkbox']");
+                    let newValue = !checkbox.prop('checked'); 
+                    checkbox.prop('checked', newValue);
+                    checkbox.attr('checked', newValue);
+                    handler(newValue);
+                });
+                this.html.find("input[type='checkbox']").on("click", function(e){
+                    e.stopPropagation();
+                    handler(this.checked);
+                });
+
+                this.html.find("label").on("click", (e)=>{
+                    e.stopPropagation();
+                });
+
+                this.html.find("select").on('mousedown click', (event)=>{
+                    event.stopPropagation();
+                });
+                this.html.find("input[type='range']").on('click', (e)=>{
+                    e.stopPropagation();
+                });
             },
             setChecked: (checked)=>{
                 this.html.find("input[type='checkbox']").prop('checked', true);
             },
             addFormatChangedHandler: (handler)=>{
-                this.html.find("select").on('change', handler);
+                this.html.find("select").on('change', (event)=>{
+                    event.stopPropagation();
+                    handler(event);
+                }
+                );
             },
             addOpacityChangedHandler: (handler)=>{
                 this.html.find("input[type='range']").on('input', handler);
@@ -42,14 +67,18 @@ class HiPSView{
     }
  
     init(){
-        this.html = $("<li>"
-        + "<input type='checkbox' name='hips'/><label style='white-space: nowrap; flex: auto'></label>"
-        + "<select name='format' id='format' onmousedown='event.stopPropagation()'></select>"
-//        + "<div onmousedown='event.stopPropagation()'>"
-//        + "<div'>"
+        this.html = $("<div class='dataRow'>"
+        + "<div class='hipsRowContainer'>"
+        + "<div class='hipsNameSelection'>"
+        + "<input type='checkbox' name='hips'/>"
+        + "<label style='white-space: nowrap; flex: auto'></label>"
+       + "</div>"
+       + "<div class='hipsFormatOpacity'>"
+       + "<select name='format' id='format' onmousedown='event.stopPropagation()'></select>"
         + "<input type='range' min='0' max='100' value='100'>"
-//        + "</div>"
-        + "</li>");
+        + "</div>"
+        + "</div>"
+        + "</div>");
     }
 
     formatOptions(formats){
