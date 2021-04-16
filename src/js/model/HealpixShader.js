@@ -5,14 +5,20 @@ import {shaderUtility} from '../utils/ShaderUtility';
 
 class HealpixShader {
 
-	constructor() {
+	constructor(shaderPrefix) {
 		this.isInitialized = false;
+		this.shaderPrefix = shaderPrefix;
 	}
 
 	initShaders () {
 		this.shaderProgram = this.gl.createProgram();
-		let fragmentShader = this.getShader("hips-shader-fs");
-		let vertexShader = this.getShader("hips-shader-vs");
+		let fragmentShader;
+		if(this.shaderPrefix == "hips" && global.blendMode){
+			fragmentShader = this.getShader(this.shaderPrefix + "-shader-fs-blend");
+		} else {
+			fragmentShader = this.getShader(this.shaderPrefix + "-shader-fs");
+		}
+		let vertexShader = this.getShader(this.shaderPrefix + "-shader-vs");
 
 		this.gl.attachShader(this.shaderProgram, vertexShader);
 		this.gl.attachShader(this.shaderProgram, fragmentShader);
@@ -77,6 +83,9 @@ class HealpixShader {
 	}
 
 	useShader(pMatrix, vMatrix, modelMatrix, opacity){
+		if(!this.isInitialized){
+			this.init();
+		}
 		if(shaderUtility.lastUsedProgram != this.shaderProgram){
 			shaderUtility.useProgram(this.shaderProgram);
 			this.gl.enableVertexAttribArray(this.shaderProgram.textureCoordAttribute);
@@ -114,4 +123,5 @@ class HealpixShader {
 		this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, vertexIndexBuffer);
 	}
 }
-export const healpixShader = new HealpixShader();
+export const healpixShader = new HealpixShader("hips");
+export const textShader = new HealpixShader("text");

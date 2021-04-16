@@ -114,7 +114,7 @@ class AbstractSkyEntity{
 		
 	}
 
-	initShaders (){
+	initShaderOld (){
 		// Abstract
 	}
 	

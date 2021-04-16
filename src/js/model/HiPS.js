@@ -33,7 +33,6 @@ class HiPS extends AbstractSkyEntity{
 		HiPS.className = "HiPSEntity";
 		this.radius = in_radius;
 		this.gl = global.gl;
-		this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
 		
 		this.format = format == undefined ? "png" : format;
 		
@@ -52,7 +51,7 @@ class HiPS extends AbstractSkyEntity{
 		this.xyzRefSystem = new XYZSystem(this.gl);
 
 		healpixShader.init();
-		this.initShaders();
+		this.initShaderOld();
 		
 		visibleTilesManager.registerModel(this);
 		this.registerForEvents();
@@ -165,7 +164,7 @@ class HiPS extends AbstractSkyEntity{
 		}
 	}
 
-	initShaders () {
+	initShaderOld () {
 		var _self = this;
 		var fragmentShader = getShader("hips-shader-fs");
 		var vertexShader = getShader("hips-shader-vs");
@@ -248,7 +247,6 @@ class HiPS extends AbstractSkyEntity{
 
 
 	draw(pMatrix, vMatrix){
-		this.gl.enable(this.gl.BLEND);
 		this.gl.disable(this.gl.DEPTH_TEST);
 		let failedOrder0Tiles = 0;
 		for(let i = 0; i < 12; i++){

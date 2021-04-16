@@ -22,6 +22,7 @@ class Global{
 	_healpix4footprints;
 	_showConvexPolygons; // used in FPCatalogue to drawing convex polygons together with the original footprints (for debug)
 	_defaultHips;
+	_blendMode
 	
 	constructor(){
 		this._pMatrix = null;
@@ -38,6 +39,7 @@ class Global{
 		this._healpix4footprints = false;
 		this._showConvexPolygons = false; // used in FPCatalogue to drawing convex polygons together with the original footprints (for debug)
 		this._defaultHips = null;
+		this._blendMode = false;
 	}
 
 	getHealpix (order){
@@ -140,6 +142,10 @@ class Global{
 					0, "DSS2 color", "//skies.esac.esa.int/DSSColor/", "jpg", 9);
 		}
 		return this._defaultHips;
+	}
+
+	get blendMode(){
+		return this._blendMode;
 	}
 	
 	

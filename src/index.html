@@ -221,6 +221,33 @@
   	} 
 </script>
 
+<script id="hips-shader-fs-blend" type="x-shader/x-fragment">
+	precision mediump float;
+
+  varying vec2 vTextureCoord;
+  uniform sampler2D uSampler0;
+  uniform float uFactor0;
+  uniform float uSphericalGrid;
+
+	void main() {
+	  vec3 finalColor;
+	  if (uSphericalGrid == 1.0){ 
+		  gl_FragColor = vec4(0.5, 0.2, 0.7, 1.0);
+	  }else if(uSphericalGrid == 2.0){
+		  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+	  }else if(uSphericalGrid == 3.0){
+		  gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+	  }else if(uSphericalGrid == 4.0){
+		  gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
+	  }else{
+		  vec4 color0 = texture2D(uSampler0, vTextureCoord);
+		  gl_FragColor = vec4(color0.rgb * uFactor0, 1.0);
+	  }
+	  
+	  
+	} 
+</script>
+
 
 <script id="healpix-grid-shader-vs" type="x-shader/x-vertex">
 	attribute vec3 aVertexPosition;
@@ -240,6 +267,31 @@
   	void main() {
 		gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
   	} 
+</script>
+
+<script id="text-shader-vs" type="x-shader/x-vertex">
+	attribute vec3 aVertexPosition;
+
+	attribute vec2 aTextureCoord;
+	varying vec2 vTextureCoord;
+	
+	uniform mat4 uMMatrix;
+	uniform mat4 uVMatrix;
+	uniform mat4 uPMatrix;
+	
+	void main() {
+		gl_Position = uPMatrix * uVMatrix * uMMatrix * vec4(aVertexPosition, 1.0);
+		vTextureCoord = aTextureCoord;
+	}
+</script>
+
+<script id="text-shader-fs" type="x-shader/x-fragment">
+	precision mediump float;
+	varying vec2 vTextureCoord;
+	uniform sampler2D uSampler0;
+	void main() {
+		gl_FragColor = texture2D(uSampler0, vTextureCoord);
+	}
 </script>
 
 

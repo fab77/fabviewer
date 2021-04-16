@@ -1,7 +1,7 @@
 "use strict";
 
 import global from '../Global';
-import {healpixShader} from './HealpixShader';
+import {textShader} from './HealpixShader';
 import {textHelper} from '../utils/TextHelper';
 
 class TileNumber {
@@ -118,10 +118,10 @@ class TileNumber {
 
 	draw(pMatrix, vMatrix, modelMatrix){
 		if(this.anythingToRender){
-			healpixShader.useShader(pMatrix, vMatrix, modelMatrix, 1.0);
+			textShader.useShader(pMatrix, vMatrix, modelMatrix, 1.0);
 			this.gl.bindTexture(this.gl.TEXTURE_2D, textHelper.getTexture());
-			healpixShader.setPositionTextureBuffer(this.vertexPositionBuffer);
-			healpixShader.setIndexBuffer(this.vertexIndexBuffer);
+			textShader.setPositionTextureBuffer(this.vertexPositionBuffer);
+			textShader.setIndexBuffer(this.vertexIndexBuffer);
 			this.gl.drawElements(this.gl.TRIANGLES, this.drawsPerTexture, this.gl.UNSIGNED_SHORT, 0);
 		}
 	}

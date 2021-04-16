@@ -527,7 +527,14 @@ class FVPresenter2{
 		global.pMatrix = this.pMatrix;
 		this.refreshViewAndModel();
 		
+		this.in_gl.enable(this.in_gl.BLEND);
+		if(global.blendMode){
+			this.in_gl.blendFunc(this.in_gl.SRC_ALPHA, this.in_gl.ONE);
+		} else {
+			this.in_gl.blendFunc(this.in_gl.SRC_ALPHA, this.in_gl.ONE_MINUS_SRC_ALPHA);
+		}
 		this.controlPanelPresenter.hipsListPresenter.draw(this.pMatrix, this.camera.getCameraMatrix());
+		this.in_gl.blendFunc(this.in_gl.SRC_ALPHA, this.in_gl.ONE_MINUS_SRC_ALPHA);
 		
 		let j2000ModelMatrix = global.defaultHips.getModelMatrix();
 		let activeHips = this.controlPanelPresenter.hipsListPresenter.getVisibleModels();

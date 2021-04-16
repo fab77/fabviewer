@@ -8,6 +8,7 @@ import global from './Global';
 import FVPresenter2 from './FVPresenter2';
 
 import { textHelper } from './utils/TextHelper';
+import { textShader } from './model/HealpixShader';
 
 
 class FVApp{
@@ -44,7 +45,7 @@ class FVApp{
 			
 			this.gl.viewportWidth = canvas.width;
 			this.gl.viewportHeight = canvas.height;
-			this.gl.clearColor(0.412, 0.412, 0.412, 1.0);
+			this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
 			
 			this.gl.enable(this.gl.DEPTH_TEST);
 			
@@ -59,6 +60,7 @@ class FVApp{
 		
 		global.gl = this.gl;
 		textHelper.init(this.gl);
+		textShader.init();
 		this.presenter = new FVPresenter2(this.view, this.gl);
 		
 		this.fabVReqID = '';
